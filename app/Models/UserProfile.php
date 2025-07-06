@@ -10,10 +10,11 @@ use App\Traits\TracksAudit;
 
 class UserProfile extends Model
 {
-    use HasFactory, SoftDeletes, TracksAuditz;
+    use HasFactory, SoftDeletes, TracksAudit;
 
     protected $fillable = [
         'user_id',
+        'display_name',
         'avatar',
         'phone',
         'address',

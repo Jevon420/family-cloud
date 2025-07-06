@@ -18,15 +18,31 @@ class AddAuditColumnsToSettingsAndMetadataTables extends Migration
             'media_visibility',
         ];
 
-        foreach ($tables as $table) {
-            Schema::table($table, function (Blueprint $table) {
-                $table->softDeletes();
+        foreach ($tables as $tableName) {
+            Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+                if (!Schema::hasColumn($tableName, 'deleted_at')) {
+                    $table->softDeletes();
+                }
 
-                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->timestamp('restored_at')->nullable();
-                $table->foreignId('restored_by')->nullable()->constrained('users')->nullOnDelete();
+                if (!Schema::hasColumn($tableName, 'created_by')) {
+                    $table->unsignedBigInteger('created_by')->nullable();
+                }
+
+                if (!Schema::hasColumn($tableName, 'updated_by')) {
+                    $table->unsignedBigInteger('updated_by')->nullable();
+                }
+
+                if (!Schema::hasColumn($tableName, 'deleted_by')) {
+                    $table->unsignedBigInteger('deleted_by')->nullable();
+                }
+
+                if (!Schema::hasColumn($tableName, 'restored_at')) {
+                    $table->timestamp('restored_at')->nullable();
+                }
+
+                if (!Schema::hasColumn($tableName, 'restored_by')) {
+                    $table->unsignedBigInteger('restored_by')->nullable();
+                }
             });
         }
     }
@@ -43,12 +59,26 @@ class AddAuditColumnsToSettingsAndMetadataTables extends Migration
             'media_visibility',
         ];
 
-        foreach ($tables as $table) {
-            Schema::table($table, function (Blueprint $table) {
-                $table->dropSoftDeletes();
-                $table->dropColumn([
+        foreach ($tables as $tableName) {
+            Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+                if (Schema::hasColumn($tableName, 'deleted_at')) {
+                    $table->dropSoftDeletes();
+                }
+
+                $columns = [
                     'created_by', 'updated_by', 'deleted_by', 'restored_at', 'restored_by'
-                ]);
+                ];
+
+                $columnsToRemove = [];
+                foreach ($columns as $column) {
+                    if (Schema::hasColumn($tableName, $column)) {
+                        $columnsToRemove[] = $column;
+                    }
+                }
+
+                if (!empty($columnsToRemove)) {
+                    $table->dropColumn($columnsToRemove);
+                }
             });
         }
     }

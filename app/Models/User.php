@@ -83,4 +83,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContactMessage::class);
     }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            // Assign the default "family" role to new users
+            $user->assignRole('family');
+        });
+    }
 }

@@ -17,8 +17,7 @@
 
     <!-- Scripts -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
     @stack('styles')
 </head>

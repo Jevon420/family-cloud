@@ -90,17 +90,22 @@ class FileSeeder extends Seeder
 
                 $name = $fileType['prefix'] . rand(1000, 9999) . '.' . $fileType['ext'];
 
-                File::create([
+                $file = File::create([
                     'user_id' => $user->id,
                     'folder_id' => $folder->id,
                     'name' => $name,
                     'slug' => Str::slug(pathinfo($name, PATHINFO_FILENAME)),
                     'file_path' => 'files/' . Str::slug($folder->name) . '/' . $name,
                     'description' => 'A ' . $fileType['ext'] . ' file in the ' . $folder->name . ' folder',
-                    'visibility' => $folder->visibility,
-                    'is_public' => $folder->is_public,
                     'mime_type' => $fileType['mime'],
                     'file_size' => rand(100000, 5000000), // Random file size between 100KB and 5MB
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]);
+
+                // Create media visibility record with same visibility as parent folder
+                $file->visibility()->create([
+                    'visibility' => $folder->visibility->visibility,
                     'created_by' => $user->id,
                     'updated_by' => $user->id,
                 ]);

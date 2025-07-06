@@ -17,6 +17,10 @@ class SiteSetting extends Model
         'value',
         'type',
         'group',
+        'description',
+        'validation_rules',
+        'access_level',
+        'is_public',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -26,6 +30,8 @@ class SiteSetting extends Model
 
     protected $casts = [
         'value' => 'string',
+        'validation_rules' => 'array',
+        'is_public' => 'boolean',
         'restored_at' => 'datetime',
     ];
 
@@ -48,5 +54,48 @@ class SiteSetting extends Model
     public function restorer()
     {
         return $this->belongsTo(User::class, 'restored_by');
+    }
+
+    // Scopes
+    public function scopeByGroup($query, $group)
+    {
+        return $query->where('group', $group);
+    }
+
+    public function scopeAccessibleBy($query, $user)
+    {
+        if ($user->hasRole('Developer')) {
+            return $query;
+        }
+
+        if ($user->hasRole('Global Admin')) {
+            return $query->whereIn('access_level', ['global_admin', 'admin']);
+        }
+
+        return $query->where('access_level', 'admin');
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where('is_public', true);
+    }
+
+    // Helper methods
+    public static function getValue($key, $default = null)
+    {
+        $setting = static::where('key', $key)->first();
+        return $setting ? $setting->value : $default;
+    }
+
+    public static function setValue($key, $value, $type = 'string')
+    {
+        return static::updateOrCreate(
+            ['key' => $key],
+            [
+                'value' => $value,
+                'type' => $type,
+                'updated_by' => auth()->id()
+            ]
+        );
     }
 }

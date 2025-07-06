@@ -14,7 +14,7 @@ class PhotoController extends Controller
 
     public function index()
     {
-        $photos = Photo::where('is_shared', true)
+        $photos = Photo::shared()
             ->orderBy('created_at', 'desc')
             ->paginate(24);
 
@@ -24,7 +24,7 @@ class PhotoController extends Controller
     public function show($id)
     {
         $photo = Photo::where('id', $id)
-            ->where('is_shared', true)
+            ->shared()
             ->firstOrFail();
 
         return view('shared.photos.show', compact('photo'));

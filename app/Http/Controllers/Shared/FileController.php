@@ -14,7 +14,7 @@ class FileController extends Controller
 
     public function index()
     {
-        $files = File::where('is_shared', true)
+        $files = File::shared()
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -24,7 +24,7 @@ class FileController extends Controller
     public function show($id)
     {
         $file = File::where('id', $id)
-            ->where('is_shared', true)
+            ->shared()
             ->firstOrFail();
 
         return view('shared.files.show', compact('file'));
@@ -33,7 +33,7 @@ class FileController extends Controller
     public function download($id)
     {
         $file = File::where('id', $id)
-            ->where('is_shared', true)
+            ->shared()
             ->firstOrFail();
 
         // Log the download

@@ -14,7 +14,7 @@ class FolderController extends Controller
 
     public function index()
     {
-        $folders = Folder::where('is_shared', true)
+        $folders = Folder::shared()
             ->whereNull('parent_id')
             ->orderBy('name')
             ->paginate(20);
@@ -25,16 +25,16 @@ class FolderController extends Controller
     public function show($id)
     {
         $folder = Folder::where('id', $id)
-            ->where('is_shared', true)
+            ->shared()
             ->firstOrFail();
 
         $subfolders = $folder->children()
-            ->where('is_shared', true)
+            ->shared()
             ->orderBy('name')
             ->get();
 
         $files = $folder->files()
-            ->where('is_shared', true)
+            ->shared()
             ->orderBy('name')
             ->get();
 

@@ -11,10 +11,11 @@ use App\Models\SharedItem;
 use App\Models\Tag;
 use App\Models\MediaVisibility;
 use App\Traits\TracksAudit;
+use App\Traits\HasMediaVisibility;
 
 class Gallery extends Model
 {
-    use HasFactory, SoftDeletes, TracksAudit;
+    use HasFactory, SoftDeletes, TracksAudit, HasMediaVisibility;
 
     protected $fillable = [
         'user_id',

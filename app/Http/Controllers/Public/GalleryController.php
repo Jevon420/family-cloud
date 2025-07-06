@@ -11,7 +11,7 @@ class GalleryController extends Controller
 {
     public function index(Request $request)
     {
-        $galleries = Gallery::where('is_public', true)
+        $galleries = Gallery::public()
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
@@ -28,7 +28,7 @@ class GalleryController extends Controller
     public function show(Request $request, $slug)
     {
         $gallery = Gallery::where('slug', $slug)
-            ->where('is_public', true)
+            ->public()
             ->firstOrFail();
 
         $photos = $gallery->photos()

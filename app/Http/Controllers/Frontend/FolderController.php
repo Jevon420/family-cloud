@@ -10,7 +10,7 @@ class FolderController extends Controller
 {
     public function index(Request $request)
     {
-        $folders = Folder::where('is_public', true)
+        $folders = Folder::public()
             ->whereNull('parent_id')
             ->orderBy('name')
             ->paginate(20);
@@ -28,16 +28,16 @@ class FolderController extends Controller
     public function show(Request $request, $id)
     {
         $folder = Folder::where('id', $id)
-            ->where('is_public', true)
+            ->public()
             ->firstOrFail();
 
         $subfolders = $folder->children()
-            ->where('is_public', true)
+            ->public()
             ->orderBy('name')
             ->get();
 
         $files = $folder->files()
-            ->where('is_public', true)
+            ->public()
             ->orderBy('name')
             ->paginate(20);
 

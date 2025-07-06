@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\TracksAudit;
+use App\Traits\HasMediaVisibility;
 use App\Models\User;
 
 class File extends Model
 {
-    use HasFactory, SoftDeletes, TracksAudit;
+    use HasFactory, SoftDeletes, TracksAudit, HasMediaVisibility;
 
     protected $fillable = [
         'user_id',

@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'Developer Portal') - {{ config('app.name') }}</title>
+    <link rel="icon" type="image/jpg" href="{{ asset('storage/logos/family-cloud-logo.png') }}">
     <meta name="description" content="@yield('meta_description', 'Developer Portal - Family Cloud Admin Dashboard')">
 
     <!-- Fonts -->

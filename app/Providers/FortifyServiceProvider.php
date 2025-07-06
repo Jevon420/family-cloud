@@ -26,6 +26,18 @@ class FortifyServiceProvider extends ServiceProvider
             \Laravel\Fortify\Http\Controllers\AuthenticatedSessionController::class,
             \App\Http\Controllers\Auth\AuthenticatedSessionController::class
         );
+
+        // Register the login view response
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\LoginViewResponse::class,
+            \App\Http\Responses\LoginViewResponse::class
+        );
+
+        // Register the login response
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\LoginResponse::class,
+            \App\Http\Responses\LoginResponse::class
+        );
     }
 
     /**
@@ -38,10 +50,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Authentication views
-        Fortify::loginView(function () {
-            return view('auth.login');
-        });
+        // Authentication views - do not define Fortify::loginView() here as we're using LoginViewResponse
 
         Fortify::registerView(function () {
             return view('auth.register');

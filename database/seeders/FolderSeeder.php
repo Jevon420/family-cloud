@@ -29,25 +29,21 @@ class FolderSeeder extends Seeder
                 'name' => 'Documents',
                 'description' => 'Important family documents',
                 'visibility' => 'private',
-                'is_public' => false,
             ],
             [
                 'name' => 'Videos',
                 'description' => 'Family videos and recordings',
                 'visibility' => 'private',
-                'is_public' => false,
             ],
             [
                 'name' => 'Recipes',
                 'description' => 'Family recipes collection',
                 'visibility' => 'public',
-                'is_public' => true,
             ],
             [
                 'name' => 'Travel',
                 'description' => 'Travel documents and memories',
                 'visibility' => 'public',
-                'is_public' => true,
             ],
         ];
 
@@ -60,8 +56,13 @@ class FolderSeeder extends Seeder
                 'name' => $folderData['name'],
                 'slug' => Str::slug($folderData['name']),
                 'description' => $folderData['description'],
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            // Create media visibility record
+            $folder->visibility()->create([
                 'visibility' => $folderData['visibility'],
-                'is_public' => $folderData['is_public'],
                 'created_by' => $user->id,
                 'updated_by' => $user->id,
             ]);
@@ -80,14 +81,19 @@ class FolderSeeder extends Seeder
         foreach ($createdFolders as $parentFolder) {
             if (isset($subfolders[$parentFolder->name])) {
                 foreach ($subfolders[$parentFolder->name] as $subfolderName) {
-                    Folder::create([
+                    $subfolder = Folder::create([
                         'user_id' => $user->id,
                         'parent_id' => $parentFolder->id,
                         'name' => $subfolderName,
                         'slug' => Str::slug($subfolderName),
                         'description' => $subfolderName . ' folder under ' . $parentFolder->name,
-                        'visibility' => $parentFolder->visibility,
-                        'is_public' => $parentFolder->is_public,
+                        'created_by' => $user->id,
+                        'updated_by' => $user->id,
+                    ]);
+
+                    // Create media visibility record with same visibility as parent
+                    $subfolder->visibility()->create([
+                        'visibility' => $parentFolder->visibility->visibility,
                         'created_by' => $user->id,
                         'updated_by' => $user->id,
                     ]);

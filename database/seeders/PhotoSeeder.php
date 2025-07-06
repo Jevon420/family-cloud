@@ -40,7 +40,7 @@ class PhotoSeeder extends Seeder
             for ($i = 1; $i <= $photoCount; $i++) {
                 $name = $gallery->name . ' - Photo ' . $i;
 
-                Photo::create([
+                $photo = Photo::create([
                     'user_id' => $user->id,
                     'gallery_id' => $gallery->id,
                     'name' => $name,
@@ -48,10 +48,15 @@ class PhotoSeeder extends Seeder
                     'file_path' => 'images/photos/' . Str::slug($gallery->name) . '-photo-' . $i . '.jpg',
                     'thumbnail_path' => 'images/photos/thumbnails/' . Str::slug($gallery->name) . '-photo-' . $i . '-thumb.jpg',
                     'description' => 'Beautiful memory from ' . $gallery->name,
-                    'visibility' => 'public',
-                    'is_public' => true,
                     'mime_type' => 'image/jpeg',
                     'file_size' => rand(500000, 2000000), // Random file size between 500KB and 2MB
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]);
+
+                // Create media visibility record
+                $photo->visibility()->create([
+                    'visibility' => 'public', // Match the gallery's visibility
                     'created_by' => $user->id,
                     'updated_by' => $user->id,
                 ]);

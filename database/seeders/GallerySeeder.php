@@ -54,17 +54,22 @@ class GallerySeeder extends Seeder
                 'description' => 'Everyone together for the first time in years!',
                 'cover_image' => 'images/galleries/reunion-2023.jpg',
                 'visibility' => 'public',
-                'is_public' => true,
             ],
         ];
 
         foreach ($galleries as $galleryData) {
-            Gallery::create([
+            $gallery = Gallery::create([
                 'user_id' => $user->id,
                 'name' => $galleryData['name'],
                 'slug' => Str::slug($galleryData['name']),
                 'description' => $galleryData['description'],
                 'cover_image' => $galleryData['cover_image'],
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            // Create media visibility record
+            $gallery->visibility()->create([
                 'visibility' => $galleryData['visibility'],
                 'created_by' => $user->id,
                 'updated_by' => $user->id,

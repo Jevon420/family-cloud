@@ -12,10 +12,11 @@ use App\Models\MediaVisibility;
 use App\Models\SharedItem;
 use App\Models\DownloadLog;
 use App\Traits\TracksAudit;
+use App\Traits\HasMediaVisibility;
 
 class Photo extends Model
 {
-    use HasFactory, SoftDeletes, TracksAudit;
+    use HasFactory, SoftDeletes, TracksAudit, HasMediaVisibility;
 
     protected $fillable = [
         'user_id',

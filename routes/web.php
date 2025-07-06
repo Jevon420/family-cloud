@@ -26,6 +26,11 @@ Route::get('/about', [FrontendAboutController::class, 'index'])->name('about');
 Route::get('/contact', [FrontendContactController::class, 'index'])->name('contact');
 Route::post('/contact', [FrontendContactController::class, 'store'])->name('contact.store');
 
+// Add GET route for logout that redirects to POST for easier user experience
+Route::get('/logout', function() {
+    return view('auth.logout');
+})->name('logout.get');
+
 // Auth Required Routes
 Route::middleware(['auth'])->group(function () {
     // Public Galleries, Photos, Files, and Folders (Auth Required)
@@ -76,26 +81,51 @@ Route::middleware(['auth'])->prefix('shared')->name('shared.')->group(function (
 });
 
 // Developer Routes
-Route::middleware(['auth', 'role:developer'])->prefix('developer')->name('developer.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('home');
-    Route::get('/about', [\App\Http\Controllers\Developer\AboutController::class, 'index'])->name('about');
-    Route::get('/contact', [\App\Http\Controllers\Developer\ContactController::class, 'index'])->name('contact');
-    Route::post('/contact', [\App\Http\Controllers\Developer\ContactController::class, 'store'])->name('contact.store');
+Route::middleware(['auth'])->prefix('developer')->name('developer.')->group(function () {
+    Route::middleware(['check.role:Developer'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('home');
+        Route::get('/about', [\App\Http\Controllers\Developer\AboutController::class, 'index'])->name('about');
+        Route::get('/contact', [\App\Http\Controllers\Developer\ContactController::class, 'index'])->name('contact');
+        Route::post('/contact', [\App\Http\Controllers\Developer\ContactController::class, 'store'])->name('contact.store');
+
+        // Developer Settings
+        Route::get('/settings', [\App\Http\Controllers\Developer\SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [\App\Http\Controllers\Developer\SettingsController::class, 'update'])->name('settings.update');
+    });
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['check.role:Admin'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
+
+        // Admin Settings
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+            Route::put('/', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('update');
+            Route::get('/users', [\App\Http\Controllers\Admin\SettingsController::class, 'users'])->name('users');
+            Route::put('/users/{user}/role', [\App\Http\Controllers\Admin\SettingsController::class, 'updateUserRole'])->name('users.role');
+            Route::get('/system', [\App\Http\Controllers\Admin\SettingsController::class, 'system'])->name('system');
+        });
+
+        // Admin can access all dashboards
+        Route::get('/developer', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('developer');
+        Route::get('/family', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('family');
+    });
 });
 
 // Family Routes
-Route::middleware(['auth', 'role:family'])->prefix('family')->name('family.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('home');
-    Route::get('/about', [\App\Http\Controllers\Family\AboutController::class, 'index'])->name('about');
-    Route::get('/contact', [\App\Http\Controllers\Family\ContactController::class, 'index'])->name('contact');
-    Route::post('/contact', [\App\Http\Controllers\Family\ContactController::class, 'store'])->name('contact.store');
+Route::middleware(['auth'])->prefix('family')->name('family.')->group(function () {
+    Route::middleware(['check.role:Family|Admin|Global Admin'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('home');
+        Route::get('/about', [\App\Http\Controllers\Family\AboutController::class, 'index'])->name('about');
+        Route::get('/contact', [\App\Http\Controllers\Family\ContactController::class, 'index'])->name('contact');
+        Route::post('/contact', [\App\Http\Controllers\Family\ContactController::class, 'store'])->name('contact.store');
+    });
 });
 
 Route::get('/test-styles', function () {
     return view('test-styles');
 });
+
+Route::get('/test-roles', [App\Http\Controllers\TestController::class, 'index']);

@@ -10,7 +10,7 @@ class PhotoController extends Controller
 {
     public function index(Request $request)
     {
-        $photos = Photo::where('is_public', true)
+        $photos = Photo::public()
             ->orderBy('created_at', 'desc')
             ->paginate(24);
 
@@ -27,16 +27,16 @@ class PhotoController extends Controller
     public function show(Request $request, $id)
     {
         $photo = Photo::where('id', $id)
-            ->where('is_public', true)
+            ->public()
             ->firstOrFail();
 
         // Get next and previous photos
-        $nextPhoto = Photo::where('is_public', true)
+        $nextPhoto = Photo::public()
             ->where('created_at', '<', $photo->created_at)
             ->orderBy('created_at', 'desc')
             ->first();
 
-        $prevPhoto = Photo::where('is_public', true)
+        $prevPhoto = Photo::public()
             ->where('created_at', '>', $photo->created_at)
             ->orderBy('created_at', 'asc')
             ->first();

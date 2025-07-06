@@ -1,12 +1,12 @@
 @extends('developer.layouts.app')
 
-@section('title', $page->getContent('title', 'Developer Dashboard'))
+@section('title', $page ? $page->getContent('title', 'Developer Dashboard') : 'Developer Dashboard')
 
 @section('content')
 <div class="mb-8">
     <h1 class="text-2xl font-bold text-gray-900">Developer Dashboard</h1>
     <p class="mt-1 text-sm text-gray-600">
-        {{ $page->getContent('description', 'Welcome to the Family Cloud developer portal. Monitor system health, manage configurations, and access development tools.') }}
+        {{ $page ? $page->getContent('description', 'Welcome to the Family Cloud developer portal. Monitor system health, manage configurations, and access development tools.') : 'Welcome to the Family Cloud developer portal. Monitor system health, manage configurations, and access development tools.' }}
     </p>
 </div>
 

@@ -15,7 +15,7 @@ class GalleryController extends Controller
 
     public function index()
     {
-        $galleries = Gallery::where('is_shared', true)
+        $galleries = Gallery::shared()
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
@@ -25,7 +25,7 @@ class GalleryController extends Controller
     public function show($slug)
     {
         $gallery = Gallery::where('slug', $slug)
-            ->where('is_shared', true)
+            ->shared()
             ->firstOrFail();
 
         $photos = $gallery->photos()

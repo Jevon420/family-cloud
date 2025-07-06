@@ -10,7 +10,7 @@ class FileController extends Controller
 {
     public function index(Request $request)
     {
-        $files = File::where('is_public', true)
+        $files = File::public()
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -27,7 +27,7 @@ class FileController extends Controller
     public function show($id)
     {
         $file = File::where('id', $id)
-            ->where('is_public', true)
+            ->public()
             ->firstOrFail();
 
         return view('public.files.show', compact('file'));
@@ -36,7 +36,7 @@ class FileController extends Controller
     public function download($id)
     {
         $file = File::where('id', $id)
-            ->where('is_public', true)
+            ->public()
             ->firstOrFail();
 
         // Log the download

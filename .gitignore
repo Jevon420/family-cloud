@@ -1,0 +1,33 @@
+# Laravel
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.idea/
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Composer
+composer.lock
+
+# Laravel Telescope (if used)
+storage/telescope
+
+# Laravel Horizon (if used)
+horizon.log
+
+# Other IDEs
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific
+Thumbs.db

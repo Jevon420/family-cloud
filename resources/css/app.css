@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Bootstrap CSS (optional - you can choose to use either Tailwind or Bootstrap) */
+@import '~bootstrap/dist/css/bootstrap.min.css';

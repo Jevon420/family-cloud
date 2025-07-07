@@ -49,7 +49,7 @@
             </div>
 
             <!-- Main content -->
-            <div class="mt-12 max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="mt-12  mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <div class="p-8 md:p-12 prose prose-lg prose-blue text-gray-600 mx-auto">
                     {!! $page->getContent('content', '
                     <h2 class="text-3xl font-bold text-gray-800">Our Story</h2>

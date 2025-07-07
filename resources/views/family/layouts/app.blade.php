@@ -65,5 +65,89 @@
     </div>
 
     @stack('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const referrer = document.referrer;
+            const familyUrlPattern = /\/family\//;
+            const currentUrl = window.location.href;
+
+            // Prevent preloader from loading within views/family/*
+            if (!familyUrlPattern.test(referrer) && !familyUrlPattern.test(currentUrl)) {
+                const preloader = document.createElement('div');
+                preloader.id = 'preloader';
+                preloader.style.position = 'fixed';
+                preloader.style.top = '0';
+                preloader.style.left = '0';
+                preloader.style.width = '100%';
+                preloader.style.height = '100%';
+                preloader.style.backgroundColor = '{{ $darkMode ? '#1a202c' : '#f3f4f6' }}';
+                preloader.style.zIndex = '9999';
+                preloader.style.display = 'flex';
+                preloader.style.justifyContent = 'center';
+                preloader.style.alignItems = 'center';
+
+                const contentWrapper = document.createElement('div');
+                contentWrapper.style.textAlign = 'center';
+
+                const gif = document.createElement('img');
+                gif.src = '{{ asset('storage/logos/preloader/loader.gif') }}';
+                gif.alt = 'Loading...';
+                gif.style.marginBottom = '20px';
+
+                const userName = '{{ auth()->user()->name }}';
+                const welcomeText = document.createElement('h1');
+                welcomeText.textContent = `Welcome ${userName} to your Cloud`;
+                welcomeText.style.fontSize = '24px';
+                welcomeText.style.color = '{{ $darkMode ? '#ffffff' : '#4f46e5' }}';
+                welcomeText.style.marginBottom = '10px';
+
+                const loadingText = document.createElement('p');
+                loadingText.textContent = 'Loading, please wait...';
+                loadingText.style.fontSize = '16px';
+                loadingText.style.color = '{{ $darkMode ? '#d1d5db' : '#6b7280' }}';
+                loadingText.style.animation = 'pulse 1.5s infinite';
+
+                contentWrapper.appendChild(gif);
+                contentWrapper.appendChild(welcomeText);
+                contentWrapper.appendChild(loadingText);
+
+                preloader.appendChild(contentWrapper);
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes pulse {
+                        0%, 100% {
+                            opacity: 1;
+                        }
+                        50% {
+                            opacity: 0.5;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                document.body.appendChild(preloader);
+
+                // Ensure preloader shows for at least 3 seconds
+                const minimumLoadTime = 3000;
+                const startTime = Date.now();
+
+                window.addEventListener('load', function () {
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = minimumLoadTime - elapsedTime;
+
+                    setTimeout(function () {
+                        preloader.style.display = 'none';
+                    }, remainingTime > 0 ? remainingTime : 0);
+                });
+
+                // Failsafe to remove preloader after 5 seconds
+                setTimeout(function () {
+                    preloader.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 </html>

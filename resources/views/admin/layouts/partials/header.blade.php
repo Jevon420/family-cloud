@@ -3,6 +3,12 @@
         <div class="flex justify-between h-16">
             <div class="flex items-center">
                 <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                        <a href="{{ route('home') }}" class="flex items-center">
+                            <img src="{{ asset('storage/logos/family-cloud-logo.png') }}" alt="Family Cloud Logo" class="h-12 w-auto">
+                        </a>
+                    </div>
+
                 <div class="flex-shrink-0">
                     <a href="{{ route('home') }}" class="text-xl font-bold text-gray-900">
                         Family Cloud <span class="text-sm bg-red-100  text-red-800 px-2 py-1 rounded-full">Global Admin</span>

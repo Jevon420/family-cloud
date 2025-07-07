@@ -227,6 +227,10 @@ Route::middleware(['auth'])->prefix('family')->name('family.')->group(function (
             Route::get('/password', [\App\Http\Controllers\Family\ProfileController::class, 'editPassword'])->name('password');
             Route::put('/password', [\App\Http\Controllers\Family\ProfileController::class, 'updatePassword'])->name('password.update');
         });
+
+        // Help Page
+        Route::get('/help', [\App\Http\Controllers\Family\HelpController::class, 'index'])->name('help.index');
+        Route::get('/help/{section}', [\App\Http\Controllers\Family\HelpController::class, 'show'])->name('help.show');
     });
 });
 

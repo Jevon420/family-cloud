@@ -71,6 +71,13 @@
                 Folder Management
             </a>
 
+            <a href="{{ route('admin.storage.index') }}" class="@if(request()->routeIs('admin.storage.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.storage.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 1.79 4 4 4h8c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4H8c-2.21 0-4 1.79-4 4z" />
+                </svg>
+                Storage Management
+            </a>
+
             <a href="{{ route('admin.settings.system') }}" class="@if(request()->routeIs('admin.settings.system*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
                 <svg class="@if(request()->routeIs('admin.settings.system*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />

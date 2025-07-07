@@ -202,7 +202,7 @@ class SettingsSeeder extends Seeder
             ],
             [
                 'key' => 'mail_host',
-                'value' => 'smtp.mailtrap.io',
+                'value' => 'smtp.hostinger.com',
                 'type' => 'string',
                 'group' => 'mail',
                 'description' => 'SMTP host address',

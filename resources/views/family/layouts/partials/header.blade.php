@@ -16,6 +16,9 @@
         </div>
 
         <div class="flex items-center space-x-4">
+            <!-- Storage Widget -->
+            @include('components.storage-widget')
+
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open"
                     class="flex items-center space-x-1 {{ $darkMode ? 'text-white hover:text-gray-300' : 'text-gray-700 hover:text-gray-900' }} focus:outline-none">
@@ -32,6 +35,8 @@
                     <a href="{{ route('home') }}"
                         class="block px-4 py-2 text-sm {{ $darkMode ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100' }}">Public
                         Home</a>
+                    <a href="{{ route('family.storage') }}"
+                        class="block px-4 py-2 text-sm {{ $darkMode ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100' }}">My Storage</a>
                     <a href="{{ route('family.settings.index') }}"
                         class="block px-4 py-2 text-sm {{ $darkMode ? 'text-gray-200 hover:bg-gray-600' : 'text-gray-700 hover:bg-gray-100' }}">Settings</a>
                     <form method="POST" action="{{ route('logout') }}">

@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'validate.file.upload' => \App\Http\Middleware\ValidateFileUpload::class,
         'check.registration' => \App\Http\Middleware\CheckRegistrationEnabled::class,
         'password.change.required' => \App\Http\Middleware\EnsurePasswordChanged::class,
+        'redirect.user.management' => \App\Http\Middleware\RedirectToUserManagement::class,
     ];
 }

@@ -85,13 +85,20 @@ class SettingsController extends Controller
             ->with('success', 'Settings updated successfully.');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::with('roles')->paginate(20);
-        $roles = Role::all();
-        $totalUsers = User::count();
+        // Check if user came from email notification
+        if ($request->has('from_email')) {
+            session()->flash('info', 'You have pending user registration requests that require your attention.');
+        }
 
-        return view('admin.settings.users', compact('users', 'roles', 'totalUsers'));
+        $users = User::with('roles')->where('status', '!=', 'pending')->paginate(20);
+        $pendingUsers = User::where('status', 'pending')->orderBy('created_at', 'desc')->get();
+        $roles = Role::all();
+        $totalUsers = User::where('status', '!=', 'pending')->count();
+        $totalPendingUsers = User::where('status', 'pending')->count();
+
+        return view('admin.settings.users', compact('users', 'pendingUsers', 'roles', 'totalUsers', 'totalPendingUsers'));
     }
 
     public function updateUserRole(Request $request, User $user)

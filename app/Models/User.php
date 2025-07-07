@@ -11,6 +11,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\TracksAudit;
+use App\Services\StorageManagementService;
 
 class User extends Authenticatable
 {
@@ -97,5 +98,61 @@ class User extends Authenticatable
             // Assign the default "family" role to new users
             $user->assignRole('family');
         });
+    }
+
+    /**
+     * Get user's storage usage percentage
+     */
+    public function getStorageUsagePercentage()
+    {
+        if ($this->storage_quota_gb <= 0) {
+            return 0;
+        }
+
+        return round(($this->storage_used_gb / $this->storage_quota_gb) * 100, 2);
+    }
+
+    /**
+     * Get user's available storage in GB
+     */
+    public function getAvailableStorageGB()
+    {
+        return max(0, $this->storage_quota_gb - $this->storage_used_gb);
+    }
+
+    /**
+     * Format storage size for display
+     */
+    public function formatStorageSize($sizeGB)
+    {
+        if ($sizeGB >= 1) {
+            return number_format($sizeGB, 2) . ' GB';
+        } else {
+            return number_format($sizeGB * 1024, 2) . ' MB';
+        }
+    }
+
+    /**
+     * Get formatted storage quota
+     */
+    public function getFormattedQuota()
+    {
+        return $this->formatStorageSize($this->storage_quota_gb);
+    }
+
+    /**
+     * Get formatted storage used
+     */
+    public function getFormattedUsed()
+    {
+        return $this->formatStorageSize($this->storage_used_gb);
+    }
+
+    /**
+     * Get formatted available storage
+     */
+    public function getFormattedAvailable()
+    {
+        return $this->formatStorageSize($this->getAvailableStorageGB());
     }
 }

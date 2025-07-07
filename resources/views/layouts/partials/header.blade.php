@@ -95,6 +95,8 @@
                                     <a href="{{ route('family.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Family Dashboard</a>
                                 @endif
 
+                                <a href="{{ route('user.storage') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">My Storage</a>
+
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
@@ -173,6 +175,8 @@
                         @if(auth()->user()->hasRole('family'))
                             <a href="{{ route('family.home') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Family Dashboard</a>
                         @endif
+
+                        <a href="{{ route('user.storage') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">My Storage</a>
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

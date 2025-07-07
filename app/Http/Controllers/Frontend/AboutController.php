@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Page;
+use Illuminate\Support\Facades\DB;
 
 class AboutController extends Controller
 {
@@ -16,6 +17,8 @@ class AboutController extends Controller
             $page = new Page();
         }
 
-        return view('about.index', compact('page'));
+        $teamMembers = DB::table('our_team')->get();
+
+        return view('about.index', compact('page', 'teamMembers'));
     }
 }

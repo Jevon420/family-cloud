@@ -22,6 +22,7 @@ class AboutController extends Controller
             ]);
         }
 
+
         return view('about.index', compact('page'));
     }
 }

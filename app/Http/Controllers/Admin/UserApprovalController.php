@@ -26,6 +26,12 @@ class UserApprovalController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // Check if user is already approved
+        if ($user->status === 'active') {
+            return redirect()->route('admin.settings.users')
+                             ->with('error', 'User is already approved.');
+        }
+
         // Generate a random password
         $password = Str::random(10);
 
@@ -41,16 +47,25 @@ class UserApprovalController extends Controller
             $user->assignRole('Family');
         }
 
-        // Send notification with credentials
-        $user->notify(new AccountApprovedNotification($user, $password));
+        try {
+            // Send notification with credentials
+            $user->notify(new AccountApprovedNotification($user, $password));
 
-        // Notify the site email about the approval
-        $siteEmail = config('mail.from.address');
-        Notification::route('mail', $siteEmail)
-            ->notify(new UserApprovedSiteNotification($user, Auth::user()));
+            // Notify the site email about the approval
+            $siteEmail = config('mail.from.address');
+            Notification::route('mail', $siteEmail)
+                ->notify(new UserApprovedSiteNotification($user, Auth::user()));
 
-        return redirect()->route('admin.settings.users')
-                         ->with('success', 'User has been approved and notified.');
+            return redirect()->route('admin.settings.users')
+                             ->with('success', 'User has been approved and notified via email.');
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Mail sending failed during user approval: ' . $e->getMessage());
+
+            return redirect()->route('admin.settings.users')
+                             ->with('success', 'User has been approved successfully, but email notification failed. Please contact the user manually with their credentials.')
+                             ->with('info', 'User: ' . $user->email . ' | Password: ' . $password);
+        }
     }
 
     /**

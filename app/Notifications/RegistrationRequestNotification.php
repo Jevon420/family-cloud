@@ -43,6 +43,7 @@ class RegistrationRequestNotification extends Notification implements ShouldQueu
      */
     public function toMail($notifiable)
     {
+        $userManagementUrl = url(route('admin.settings.users')) . '?from_email=1';
         $approveUrl = url(route('admin.users.approve', $this->user->id));
         $rejectUrl = url(route('admin.users.reject', $this->user->id));
 
@@ -53,10 +54,12 @@ class RegistrationRequestNotification extends Notification implements ShouldQueu
             ->line('User details:')
             ->line('Name: ' . $this->user->name)
             ->line('Email: ' . $this->user->email)
+            ->line('Registration Date: ' . $this->user->created_at->format('M d, Y H:i'))
             ->line('Please review this registration request and take appropriate action.')
+            ->action('View User Management', $userManagementUrl)
+            ->line('You can also use the direct action links below:')
             ->action('Approve User', $approveUrl)
-            ->line('Or')
-            ->action('Reject Request', $rejectUrl)
+            ->line('Or click here to reject: ' . $rejectUrl)
             ->line('Thank you for managing Family Cloud!');
     }
 

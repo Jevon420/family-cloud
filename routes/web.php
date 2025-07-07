@@ -10,6 +10,7 @@ use App\Http\Controllers\Frontend\FileController as FrontendFileController;
 use App\Http\Controllers\Frontend\FolderController as FrontendFolderController;
 use App\Http\Controllers\Auth\CustomRegisterController;
 use App\Http\Controllers\Auth\PasswordChangeController;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -103,7 +104,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('developer')->na
 
 // Admin Routes
 Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('admin.')->group(function () {
-    Route::middleware(['check.role:Admin|Developer|Global Admin'])->group(function () {
+    Route::middleware(['check.role:Admin|Developer|Global Admin', 'redirect.user.management'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
 
         // Admin Settings
@@ -124,6 +125,20 @@ Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('
                 Route::get('/comprehensive/logs/view', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'viewLogs'])->name('comprehensive.logs.view');
                 Route::get('/comprehensive/logs/download', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'downloadLogs'])->name('comprehensive.logs.download');
             });
+
+            // Temporary test route for timezone debugging
+            Route::get('/test-timezone', function () {
+                $timezone = \Illuminate\Support\Facades\DB::table('site_settings')->where('key', 'timezone')->value('value');
+                $siteSettings = \App\Models\SiteSetting::all();
+                $timezoneSetting = \App\Models\SiteSetting::where('key', 'timezone')->first();
+
+                return response()->json([
+                    'raw_db_timezone' => $timezone,
+                    'all_site_settings' => $siteSettings->pluck('value', 'key'),
+                    'timezone_setting_object' => $timezoneSetting,
+                    'grouped_site_settings' => $siteSettings->groupBy('group'),
+                ]);
+            })->name('test.timezone');
         });
 
         // Admin Galleries Management
@@ -171,6 +186,13 @@ Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('
             Route::get('/{folder}', [\App\Http\Controllers\Admin\FolderController::class, 'show'])->name('show');
         });
 
+        // Storage management routes (Admin)
+        Route::prefix('storage')->name('storage.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\StorageManagementController::class, 'index'])->name('index');
+            Route::put('/update', [App\Http\Controllers\Admin\StorageManagementController::class, 'update'])->name('update');
+            Route::post('/recalculate', [App\Http\Controllers\Admin\StorageManagementController::class, 'recalculateQuotas'])->name('recalculate');
+        });
+
         // Admin can access all dashboards
         Route::get('/developer', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('developer');
         Route::get('/family', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('family');
@@ -189,9 +211,12 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
         Route::get('/contact', [\App\Http\Controllers\Family\ContactController::class, 'index'])->name('contact');
         Route::post('/contact', [\App\Http\Controllers\Family\ContactController::class, 'store'])->name('contact.store');
 
-        // User Settings
+        // User Settings including Storage
         Route::get('/settings', [\App\Http\Controllers\Family\UserSettingsController::class, 'index'])->name('settings.index');
         Route::put('/settings', [\App\Http\Controllers\Family\UserSettingsController::class, 'update'])->name('settings.update');
+
+        // User Storage Management
+        Route::get('/storage', [App\Http\Controllers\User\StorageController::class, 'index'])->name('storage');
 
         // Files and Folders
         Route::prefix('files')->name('files.')->group(function () {
@@ -261,3 +286,6 @@ Route::get('/test-styles', function () {
 });
 
 Route::get('/test-roles', [App\Http\Controllers\TestController::class, 'index']);
+
+// User storage route (for authenticated users outside family portal)
+Route::middleware(['auth', 'password.change.required'])->get('/storage', [App\Http\Controllers\User\StorageController::class, 'index'])->name('user.storage');

@@ -12,7 +12,14 @@
                         <i class="fas fa-cogs me-2"></i>
                         Comprehensive Settings Management
                     </h4>
-                    <small class="d-block mt-1">Role: {{ auth()->user()->getRoleNames()->first() }}</small>
+                    <div class="mt-3">
+                        <p class="mb-1"><strong>Role:</strong> {{ auth()->user()->getRoleNames()->first() }}</p>
+                        @php
+                            $dbTimezone = $siteSettings->flatten()->where('key', 'timezone')->first()->value ?? 'UTC';
+                        @endphp
+                        <p class="mb-1"><strong>DB Timezone:</strong> {{ $dbTimezone }} ({{ now()->setTimezone($dbTimezone)->format('Y-m-d H:i:s') }})</p>
+                        <p class="mb-1"><strong>App Timezone:</strong> {{ config('app.timezone') }} ({{ now()->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s') }})</p>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Navigation Tabs -->
@@ -490,7 +497,7 @@ document.getElementById('siteSettingsForm')?.addEventListener('submit', function
         body: JSON.stringify({
             settings: Object.values(settings)
         })
-    })
+    )
     .then(response => response.json())
     .then(data => {
         if (data.success) {

@@ -69,6 +69,15 @@
                         </div>
                     </a>
 
+                    <a href="{{ route('family.storage') }}" class="block px-3 py-2 rounded-md text-white font-medium {{ request()->routeIs('family.storage*') ? ($darkMode ? 'bg-gray-700' : 'bg-indigo-900') : ($darkMode ? 'hover:bg-gray-700' : 'hover:bg-indigo-700') }}">
+                        <div class="flex items-center">
+                            <svg class="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 1.79 4 4 4h8c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4H8c-2.21 0-4 1.79-4 4z" />
+                            </svg>
+                            Storage
+                        </div>
+                    </a>
+
                     <a href="{{ route('family.settings.index') }}" class="block px-3 py-2 rounded-md text-white font-medium {{ request()->routeIs('family.settings.*') ? ($darkMode ? 'bg-gray-700' : 'bg-indigo-900') : ($darkMode ? 'hover:bg-gray-700' : 'hover:bg-indigo-700') }}">
                         <div class="flex items-center">
                             <svg class="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

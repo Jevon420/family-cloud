@@ -34,6 +34,85 @@
     </div>
 @endif
 
+@if (session('info'))
+    <div class="mb-6 bg-blue-50 border border-blue-200 text-blue-600 px-4 py-3 rounded-md">
+        {{ session('info') }}
+    </div>
+@endif
+
+<!-- Pending Registration Requests Section -->
+@if($pendingUsers->count() > 0)
+<div class="mb-8">
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-yellow-800">
+                    <i class="fas fa-clock mr-2"></i>Pending Registration Requests ({{ $pendingUsers->count() }})
+                </h3>
+                <div class="text-sm text-yellow-700">
+                    Action required for new user registrations
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-yellow-200">
+                    <thead class="bg-yellow-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
+                                User Details
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
+                                Registration Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-yellow-50 divide-y divide-yellow-200">
+                        @foreach($pendingUsers as $pendingUser)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($pendingUser->name) }}&color=F59E0B&background=FEF3C7" alt="">
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ $pendingUser->name }}</div>
+                                        <div class="text-sm text-gray-500">{{ $pendingUser->email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $pendingUser->created_at->format('M d, Y H:i') }}
+                                <div class="text-xs text-gray-400">
+                                    {{ $pendingUser->created_at->diffForHumans() }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-3">
+                                    <a href="{{ route('admin.users.approve', $pendingUser->id) }}"
+                                       onclick="return confirm('Are you sure you want to approve this user? They will receive login credentials via email.')"
+                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700">
+                                        <i class="fas fa-check mr-1"></i>Approve
+                                    </a>
+                                    <a href="{{ route('admin.users.reject', $pendingUser->id) }}"
+                                       onclick="return confirm('Are you sure you want to reject this registration? This action cannot be undone.')"
+                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700">
+                                        <i class="fas fa-times mr-1"></i>Reject
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- User Statistics -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
     <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -45,7 +124,7 @@
                 <div class="ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-sm font-medium text-gray-500 truncate">Total Admins</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $totalUsers }}</dd>
+                        <dd class="text-lg font-medium text-gray-900">{{ $users->where('roles.*.name', 'Global Admin')->count() + $users->where('roles.*.name', 'Admin')->count() }}</dd>
                     </dl>
                 </div>
             </div>
@@ -61,7 +140,7 @@
                 <div class="ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-sm font-medium text-gray-500 truncate">Developers</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $totalUsers }}</dd>
+                        <dd class="text-lg font-medium text-gray-900">{{ $users->where('roles.*.name', 'Developer')->count() }}</dd>
                     </dl>
                 </div>
             </div>
@@ -77,7 +156,7 @@
                 <div class="ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-sm font-medium text-gray-500 truncate">Family Members</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $totalUsers }}</dd>
+                        <dd class="text-lg font-medium text-gray-900">{{ $users->where('roles.*.name', 'Family')->count() }}</dd>
                     </dl>
                 </div>
             </div>
@@ -88,12 +167,12 @@
         <div class="p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ $totalUsers }}</dd>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Requests</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ $totalPendingUsers }}</dd>
                     </dl>
                 </div>
             </div>
@@ -166,155 +245,79 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="users_table_body">
-                    <!-- Sample Users - This would be populated from the controller -->
+                    @forelse($users as $user)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=John+Doe&color=7F9CF5&background=EBF4FF" alt="">
+                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=7F9CF5&background=EBF4FF" alt="">
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">John Doe</div>
-                                    <div class="text-sm text-gray-500">john@example.com</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                    <div class="text-sm text-gray-500">{{ $user->email }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Admin
-                            </span>
+                            @if($user->roles->isNotEmpty())
+                                @foreach($user->roles as $role)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        @if($role->name === 'Global Admin' || $role->name === 'Admin') bg-red-100 text-red-800
+                                        @elseif($role->name === 'Developer') bg-blue-100 text-blue-800
+                                        @else bg-green-100 text-green-800 @endif">
+                                        {{ $role->name }}
+                                    </span>
+                                @endforeach
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    No Role
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($user->status === 'active') bg-green-100 text-green-800
+                                @else bg-red-100 text-red-800 @endif">
+                                {{ ucfirst($user->status) }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            2 hours ago
+                            @if($user->updated_at)
+                                {{ $user->updated_at->diffForHumans() }}
+                            @else
+                                Never
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            1.2 GB / 5 GB
+                            <!-- Storage calculation would go here -->
+                            0 MB / 5 GB
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex space-x-2">
-                                <button type="button" onclick="editUser(1)" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                <button type="button" onclick="changeUserRole(1)" class="text-blue-600 hover:text-blue-900">Change Role</button>
-                                <button type="button" onclick="deactivateUser(1)" class="text-red-600 hover:text-red-900">Deactivate</button>
+                                <button type="button" onclick="editUser({{ $user->id }})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                <button type="button" onclick="changeUserRole({{ $user->id }})" class="text-blue-600 hover:text-blue-900">Change Role</button>
+                                @if($user->status === 'active')
+                                    <button type="button" onclick="deactivateUser({{ $user->id }})" class="text-red-600 hover:text-red-900">Deactivate</button>
+                                @else
+                                    <button type="button" onclick="activateUser({{ $user->id }})" class="text-green-600 hover:text-green-900">Activate</button>
+                                @endif
                             </div>
                         </td>
                     </tr>
-
+                    @empty
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Jane+Smith&color=7F9CF5&background=EBF4FF" alt="">
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Jane Smith</div>
-                                    <div class="text-sm text-gray-500">jane@example.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Developer
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            1 day ago
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            0.8 GB / 5 GB
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button type="button" onclick="editUser(2)" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                <button type="button" onclick="changeUserRole(2)" class="text-blue-600 hover:text-blue-900">Change Role</button>
-                                <button type="button" onclick="deactivateUser(2)" class="text-red-600 hover:text-red-900">Deactivate</button>
-                            </div>
+                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                            No users found.
                         </td>
                     </tr>
-
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Bob+Johnson&color=7F9CF5&background=EBF4FF" alt="">
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Bob Johnson</div>
-                                    <div class="text-sm text-gray-500">bob@example.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Family
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            3 days ago
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            2.1 GB / 5 GB
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button type="button" onclick="editUser(3)" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                <button type="button" onclick="changeUserRole(3)" class="text-blue-600 hover:text-blue-900">Change Role</button>
-                                <button type="button" onclick="deactivateUser(3)" class="text-red-600 hover:text-red-900">Deactivate</button>
-                            </div>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
         <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div class="flex-1 flex justify-between sm:hidden">
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Previous
-                </a>
-                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Next
-                </a>
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">1</span> to <span class="font-medium">3</span> of <span class="font-medium">3</span> results
-                    </p>
-                </div>
-                <div>
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Previous</span>
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                        <a href="#" class="bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Next</span>
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </nav>
-                </div>
-            </div>
+            {{ $users->links() }}
         </div>
     </div>
 </div>

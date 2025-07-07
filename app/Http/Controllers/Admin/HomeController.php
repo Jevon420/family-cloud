@@ -40,7 +40,10 @@ class HomeController extends Controller
             }
         }
 
-        return view('admin.home', compact('stats', 'roleStats'));
+        // Get pending users count for the alert
+        $pendingUsersCount = User::where('status', 'pending')->count();
+
+        return view('admin.home', compact('stats', 'roleStats', 'pendingUsersCount'));
     }
 
     private function getDirectorySize($path)

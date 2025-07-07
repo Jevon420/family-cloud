@@ -1,6 +1,12 @@
 <aside class="bg-white shadow-sm border-r w-64 flex-shrink-0">
     <div class="p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Global Admin</h2>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            @if(auth()->user()->hasRole('Global Admin'))
+                Global Admin
+            @else
+                Admin Panel
+            @endif
+        </h2>
         <nav class="space-y-2">
             <a href="{{ route('admin.home') }}" class="@if(request()->routeIs('admin.home')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
                 <svg class="@if(request()->routeIs('admin.home')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -10,23 +16,63 @@
                 Admin Dashboard
             </a>
 
-            <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                <svg class="@if(request()->routeIs('admin.settings.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.index')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.settings.index')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Settings
+                Basic Settings
             </a>
 
-            <a href="{{ route('admin.settings.users') }}" class="@if(request()->routeIs('admin.settings.users')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                <svg class="@if(request()->routeIs('admin.settings.users')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            @if(auth()->user()->hasRole('Global Admin'))
+            <a href="{{ route('admin.settings.comprehensive.index') }}" class="@if(request()->routeIs('admin.settings.comprehensive.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.settings.comprehensive.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                </svg>
+                <span class="flex items-center">
+                    Advanced Settings
+                    <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">Global Admin</span>
+                </span>
+            </a>
+            @endif
+
+            <a href="{{ route('admin.settings.users') }}" class="@if(request()->routeIs('admin.settings.users*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.settings.users*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
                 User Management
             </a>
 
-            <a href="{{ route('admin.settings.system') }}" class="@if(request()->routeIs('admin.settings.system')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                <svg class="@if(request()->routeIs('admin.settings.system')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a href="{{ route('admin.galleries.index') }}" class="@if(request()->routeIs('admin.galleries.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.galleries.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Gallery Management
+            </a>
+
+            <a href="{{ route('admin.photos.index') }}" class="@if(request()->routeIs('admin.photos.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.photos.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Photo Management
+            </a>
+
+            <a href="{{ route('admin.files.index') }}" class="@if(request()->routeIs('admin.files.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.files.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                File Management
+            </a>
+
+            <a href="{{ route('admin.folders.index') }}" class="@if(request()->routeIs('admin.folders.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.folders.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                </svg>
+                Folder Management
+            </a>
+
+            <a href="{{ route('admin.settings.system') }}" class="@if(request()->routeIs('admin.settings.system*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.settings.system*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                 </svg>
                 System Info

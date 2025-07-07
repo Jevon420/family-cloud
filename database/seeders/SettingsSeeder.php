@@ -169,7 +169,7 @@ class SettingsSeeder extends Seeder
                 'access_level' => 'global_admin',
                 'requires_restart' => false,
             ],
-            
+
             // Queue Settings
             [
                 'key' => 'queue_driver',
@@ -189,7 +189,7 @@ class SettingsSeeder extends Seeder
                 'access_level' => 'global_admin',
                 'requires_restart' => false,
             ],
-            
+
             // Mail Settings
             [
                 'key' => 'mail_driver',
@@ -238,7 +238,7 @@ class SettingsSeeder extends Seeder
                 'requires_restart' => true,
                 'is_sensitive' => true,
             ],
-            
+
             // Storage Settings
             [
                 'key' => 'filesystem_driver',
@@ -269,7 +269,7 @@ class SettingsSeeder extends Seeder
                 'requires_restart' => true,
                 'is_sensitive' => true,
             ],
-            
+
             // Logging Settings
             [
                 'key' => 'log_level',
@@ -384,7 +384,7 @@ class SettingsSeeder extends Seeder
                 'access_level' => 'global_admin',
                 'is_critical' => false,
             ],
-            
+
             // Authorization Settings
             [
                 'key' => 'role_hierarchy_enabled',
@@ -404,7 +404,7 @@ class SettingsSeeder extends Seeder
                 'access_level' => 'developer',
                 'is_critical' => false,
             ],
-            
+
             // Encryption Settings
             [
                 'key' => 'app_key',

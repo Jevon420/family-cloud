@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Global Admin Portal') - {{ config('app.name') }}</title>
-    <link rel="icon" type="image/jpg" href="{{ asset('storage/logos/family-cloud-logo.png') }}">
-    <meta name="description" content="@yield('meta_description', 'Global Admin Portal - Family Cloud System Administration')">
+    <title>@yield('title', 'Global Admin Portal') - {{ $siteName ?? config('app.name') }}</title>
+    <link rel="icon" type="image/jpg" href="{{ asset($siteLogo ?? 'storage/logos/family-cloud-logo.png') }}">
+    <meta name="description" content="@yield('meta_description', 'Global Admin Portal - ' . ($siteDescription ?? 'Family Cloud System Administration'))">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

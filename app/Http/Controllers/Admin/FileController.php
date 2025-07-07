@@ -1,0 +1,255 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\File;
+use App\Models\Folder;
+use App\Models\User;
+use App\Models\Tag;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+
+class FileController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware(['auth', 'check.role:Admin|Developer']);
+    }
+
+    /**
+     * Display a listing of the files.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $files = File::with(['user', 'folder'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.files.index', compact('files'));
+    }
+
+    /**
+     * Show the form for creating a new file.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
+        $users = User::all();
+        $folders = Folder::all();
+        $tags = Tag::all();
+
+        return view('admin.files.create', compact('users', 'folders', 'tags'));
+    }
+
+    /**
+     * Store a newly created file in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
+            'folder_id' => 'nullable|exists:folders,id',
+            'visibility' => 'required|in:public,private,shared',
+            'file' => 'required|file|max:51200', // 50MB max
+            'tags' => 'nullable|array',
+        ]);
+
+        $data = $request->except('file', 'tags');
+        $data['created_by'] = auth()->id();
+        $data['updated_by'] = auth()->id();
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            // Use the uploaded file name if no name is provided
+            if (empty($data['name'])) {
+                $data['name'] = $file->getClientOriginalName();
+            }
+
+            $data['slug'] = Str::slug($data['name']);
+
+            // Store file
+            $path = $file->storeAs('files', $filename, 'public');
+            $data['file_path'] = $path;
+
+            // Set mime type and file size
+            $data['mime_type'] = $file->getMimeType();
+            $data['file_size'] = $file->getSize();
+
+            // Create thumbnail for images
+            if (strpos($file->getMimeType(), 'image/') === 0) {
+                try {
+                    $thumbnail = Image::make($file)->resize(300, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->encode();
+
+                    $thumbnailPath = 'files/thumbnails/' . $filename;
+                    Storage::disk('public')->put($thumbnailPath, $thumbnail);
+                    $data['thumbnail_path'] = $thumbnailPath;
+                } catch (\Exception $e) {
+                    // If thumbnail creation fails, continue without it
+                }
+            }
+        }
+
+        $file = File::create($data);
+
+        if ($request->has('tags')) {
+            $file->tags()->attach($request->tags);
+        }
+
+        return redirect()->route('admin.files.show', $file)
+            ->with('success', 'File uploaded successfully.');
+    }
+
+    /**
+     * Display the specified file.
+     *
+     * @param  \App\Models\File  $file
+     * @return \Illuminate\View\View
+     */
+    public function show(File $file)
+    {
+        $file->load(['user', 'folder', 'tags', 'creator']);
+
+        return view('admin.files.show', compact('file'));
+    }
+
+    /**
+     * Show the form for editing the specified file.
+     *
+     * @param  \App\Models\File  $file
+     * @return \Illuminate\View\View
+     */
+    public function edit(File $file)
+    {
+        $users = User::all();
+        $folders = Folder::all();
+        $tags = Tag::all();
+        $selectedTags = $file->tags->pluck('id')->toArray();
+
+        return view('admin.files.edit', compact('file', 'users', 'folders', 'tags', 'selectedTags'));
+    }
+
+    /**
+     * Update the specified file in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\File  $file
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, File $file)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
+            'folder_id' => 'nullable|exists:folders,id',
+            'visibility' => 'required|in:public,private,shared',
+            'file' => 'nullable|file|max:51200', // 50MB max
+            'tags' => 'nullable|array',
+        ]);
+
+        $data = $request->except('file', 'tags');
+        $data['slug'] = Str::slug($request->name);
+        $data['updated_by'] = auth()->id();
+
+        if ($request->hasFile('file')) {
+            // Delete old files if they exist
+            if ($file->file_path) {
+                Storage::disk('public')->delete($file->file_path);
+            }
+
+            if ($file->thumbnail_path) {
+                Storage::disk('public')->delete($file->thumbnail_path);
+            }
+
+            $uploadedFile = $request->file('file');
+            $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+
+            // Store file
+            $path = $uploadedFile->storeAs('files', $filename, 'public');
+            $data['file_path'] = $path;
+
+            // Set mime type and file size
+            $data['mime_type'] = $uploadedFile->getMimeType();
+            $data['file_size'] = $uploadedFile->getSize();
+
+            // Create thumbnail for images
+            if (strpos($uploadedFile->getMimeType(), 'image/') === 0) {
+                try {
+                    $thumbnail = Image::make($uploadedFile)->resize(300, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->encode();
+
+                    $thumbnailPath = 'files/thumbnails/' . $filename;
+                    Storage::disk('public')->put($thumbnailPath, $thumbnail);
+                    $data['thumbnail_path'] = $thumbnailPath;
+                } catch (\Exception $e) {
+                    // If thumbnail creation fails, continue without it
+                }
+            }
+        }
+
+        $file->update($data);
+
+        // Sync tags
+        if ($request->has('tags')) {
+            $file->tags()->sync($request->tags);
+        } else {
+            $file->tags()->detach();
+        }
+
+        return redirect()->route('admin.files.show', $file)
+            ->with('success', 'File updated successfully.');
+    }
+
+    /**
+     * Download the specified file.
+     *
+     * @param  \App\Models\File  $file
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function download(File $file)
+    {
+        // Record download
+        $file->downloads()->create([
+            'user_id' => auth()->id(),
+            'ip_address' => request()->ip(),
+            'created_by' => auth()->id()
+        ]);
+
+        return Storage::disk('public')->download($file->file_path, $file->name);
+    }
+
+    /**
+     * Remove the specified file from storage.
+     *
+     * @param  \App\Models\File  $file
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(File $file)
+    {
+        // Set deleted_by
+        $file->deleted_by = auth()->id();
+        $file->save();
+
+        // Delete the file (soft delete)
+        $file->delete();
+
+        return redirect()->route('admin.files.index')
+            ->with('success', 'File deleted successfully.');
+    }
+}

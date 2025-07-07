@@ -96,7 +96,7 @@ Route::middleware(['auth'])->prefix('developer')->name('developer.')->group(func
 
 // Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::middleware(['check.role:Admin'])->group(function () {
+    Route::middleware(['check.role:Admin|Developer|Global Admin'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
 
         // Admin Settings
@@ -106,6 +106,62 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::get('/users', [\App\Http\Controllers\Admin\SettingsController::class, 'users'])->name('users');
             Route::put('/users/{user}/role', [\App\Http\Controllers\Admin\SettingsController::class, 'updateUserRole'])->name('users.role');
             Route::get('/system', [\App\Http\Controllers\Admin\SettingsController::class, 'system'])->name('system');
+
+            // Comprehensive Settings
+            Route::middleware(['check.settings.access'])->group(function () {
+                Route::get('/comprehensive', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'index'])->name('comprehensive.index');
+                Route::post('/comprehensive/site', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'updateSiteSettings'])->name('comprehensive.site.update');
+                Route::post('/comprehensive/system', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'updateSystemConfigurations'])->name('comprehensive.system.update');
+                Route::post('/comprehensive/security', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'updateSecuritySettings'])->name('comprehensive.security.update');
+                Route::post('/comprehensive/cache/clear', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'clearCache'])->name('comprehensive.cache.clear');
+                Route::get('/comprehensive/logs/view', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'viewLogs'])->name('comprehensive.logs.view');
+                Route::get('/comprehensive/logs/download', [\App\Http\Controllers\Admin\ComprehensiveSettingsController::class, 'downloadLogs'])->name('comprehensive.logs.download');
+            });
+        });
+
+        // Admin Galleries Management
+        Route::prefix('galleries')->name('galleries.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\GalleryController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\GalleryController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\GalleryController::class, 'store'])->name('store');
+            Route::get('/{gallery}/edit', [\App\Http\Controllers\Admin\GalleryController::class, 'edit'])->name('edit');
+            Route::put('/{gallery}', [\App\Http\Controllers\Admin\GalleryController::class, 'update'])->name('update');
+            Route::delete('/{gallery}', [\App\Http\Controllers\Admin\GalleryController::class, 'destroy'])->name('destroy');
+            Route::get('/{gallery}', [\App\Http\Controllers\Admin\GalleryController::class, 'show'])->name('show');
+        });
+
+        // Admin Photos Management
+        Route::prefix('photos')->name('photos.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\PhotoController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\PhotoController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\PhotoController::class, 'store'])->name('store');
+            Route::get('/{photo}/edit', [\App\Http\Controllers\Admin\PhotoController::class, 'edit'])->name('edit');
+            Route::put('/{photo}', [\App\Http\Controllers\Admin\PhotoController::class, 'update'])->name('update');
+            Route::delete('/{photo}', [\App\Http\Controllers\Admin\PhotoController::class, 'destroy'])->name('destroy');
+            Route::get('/{photo}', [\App\Http\Controllers\Admin\PhotoController::class, 'show'])->name('show');
+        });
+
+        // Admin Files Management
+        Route::prefix('files')->name('files.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\FileController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\FileController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\FileController::class, 'store'])->name('store');
+            Route::get('/{file}/edit', [\App\Http\Controllers\Admin\FileController::class, 'edit'])->name('edit');
+            Route::put('/{file}', [\App\Http\Controllers\Admin\FileController::class, 'update'])->name('update');
+            Route::delete('/{file}', [\App\Http\Controllers\Admin\FileController::class, 'destroy'])->name('destroy');
+            Route::get('/{file}', [\App\Http\Controllers\Admin\FileController::class, 'show'])->name('show');
+            Route::get('/{file}/download', [\App\Http\Controllers\Admin\FileController::class, 'download'])->name('download');
+        });
+
+        // Admin Folders Management
+        Route::prefix('folders')->name('folders.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\FolderController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\FolderController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\FolderController::class, 'store'])->name('store');
+            Route::get('/{folder}/edit', [\App\Http\Controllers\Admin\FolderController::class, 'edit'])->name('edit');
+            Route::put('/{folder}', [\App\Http\Controllers\Admin\FolderController::class, 'update'])->name('update');
+            Route::delete('/{folder}', [\App\Http\Controllers\Admin\FolderController::class, 'destroy'])->name('destroy');
+            Route::get('/{folder}', [\App\Http\Controllers\Admin\FolderController::class, 'show'])->name('show');
         });
 
         // Admin can access all dashboards
@@ -121,6 +177,51 @@ Route::middleware(['auth'])->prefix('family')->name('family.')->group(function (
         Route::get('/about', [\App\Http\Controllers\Family\AboutController::class, 'index'])->name('about');
         Route::get('/contact', [\App\Http\Controllers\Family\ContactController::class, 'index'])->name('contact');
         Route::post('/contact', [\App\Http\Controllers\Family\ContactController::class, 'store'])->name('contact.store');
+
+        // User Settings
+        Route::get('/settings', [\App\Http\Controllers\Family\UserSettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [\App\Http\Controllers\Family\UserSettingsController::class, 'update'])->name('settings.update');
+
+        // Files and Folders
+        Route::prefix('files')->name('files.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Family\FileController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Family\FileController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Family\FileController::class, 'store'])->name('store');
+            Route::get('/{id}', [\App\Http\Controllers\Family\FileController::class, 'show'])->name('show');
+            Route::get('/{id}/download', [\App\Http\Controllers\Family\FileController::class, 'download'])->name('download');
+        });
+
+        Route::prefix('folders')->name('folders.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Family\FolderController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Family\FolderController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Family\FolderController::class, 'store'])->name('store');
+            Route::get('/{id}', [\App\Http\Controllers\Family\FolderController::class, 'show'])->name('show');
+        });
+
+        // Galleries and Photos
+        Route::prefix('galleries')->name('galleries.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Family\GalleryController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Family\GalleryController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Family\GalleryController::class, 'store'])->name('store');
+            Route::get('/{slug}', [\App\Http\Controllers\Family\GalleryController::class, 'show'])->name('show');
+            Route::post('/{slug}/photos', [\App\Http\Controllers\Family\GalleryController::class, 'uploadPhotos'])->name('photos.upload');
+        });
+
+        Route::prefix('photos')->name('photos.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Family\PhotoController::class, 'index'])->name('index');
+            Route::get('/{id}', [\App\Http\Controllers\Family\PhotoController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [\App\Http\Controllers\Family\PhotoController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [\App\Http\Controllers\Family\PhotoController::class, 'update'])->name('update');
+            Route::get('/{id}/download', [\App\Http\Controllers\Family\PhotoController::class, 'download'])->name('download');
+        });
+
+        // Profile Management
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Family\ProfileController::class, 'edit'])->name('edit');
+            Route::put('/', [\App\Http\Controllers\Family\ProfileController::class, 'update'])->name('update');
+            Route::get('/password', [\App\Http\Controllers\Family\ProfileController::class, 'editPassword'])->name('password');
+            Route::put('/password', [\App\Http\Controllers\Family\ProfileController::class, 'updatePassword'])->name('password.update');
+        });
     });
 });
 

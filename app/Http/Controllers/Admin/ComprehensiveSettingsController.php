@@ -25,27 +25,27 @@ class ComprehensiveSettingsController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         // Get settings based on user role
         $siteSettings = SiteSetting::accessibleBy($user)->get()->groupBy('group');
         $systemConfigurations = SystemConfiguration::accessibleBy($user)->get()->groupBy('group');
         $securitySettings = SecuritySetting::accessibleBy($user)->get()->groupBy('group');
-        
+
         // User settings
         $userSettings = $user->settings()->get()->groupBy('group');
-        
+
         // System information
         $systemInfo = $this->getSystemInformation();
-        
+
         // Cache information
         $cacheInfo = $this->getCacheInformation();
-        
+
         // Log information
         $logInfo = $this->getLogInformation();
-        
+
         return view('admin.settings.comprehensive', compact(
             'siteSettings',
-            'systemConfigurations', 
+            'systemConfigurations',
             'securitySettings',
             'userSettings',
             'systemInfo',
@@ -57,7 +57,7 @@ class ComprehensiveSettingsController extends Controller
     public function updateSiteSettings(Request $request)
     {
         $user = auth()->user();
-        
+
         $validated = $request->validate([
             'settings' => 'required|array',
             'settings.*.key' => 'required|string',
@@ -67,13 +67,13 @@ class ComprehensiveSettingsController extends Controller
 
         foreach ($validated['settings'] as $settingData) {
             $setting = SiteSetting::where('key', $settingData['key'])->first();
-            
+
             if (!$setting || !$user->can('update', $setting)) {
                 continue;
             }
 
             $value = $settingData['value'];
-            
+
             // Handle different types
             if ($settingData['type'] === 'boolean') {
                 $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -92,7 +92,7 @@ class ComprehensiveSettingsController extends Controller
     public function updateSystemConfigurations(Request $request)
     {
         $user = auth()->user();
-        
+
         $validated = $request->validate([
             'settings' => 'required|array',
             'settings.*.key' => 'required|string',
@@ -104,13 +104,13 @@ class ComprehensiveSettingsController extends Controller
 
         foreach ($validated['settings'] as $settingData) {
             $setting = SystemConfiguration::where('key', $settingData['key'])->first();
-            
+
             if (!$setting || !$user->can('update', $setting)) {
                 continue;
             }
 
             $value = $settingData['value'];
-            
+
             // Handle different types
             if ($settingData['type'] === 'boolean') {
                 $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -121,7 +121,7 @@ class ComprehensiveSettingsController extends Controller
             }
 
             SystemConfiguration::setValue($settingData['key'], $value, $settingData['type']);
-            
+
             if ($setting->requires_restart) {
                 $requiresRestart = true;
             }
@@ -138,7 +138,7 @@ class ComprehensiveSettingsController extends Controller
     public function updateSecuritySettings(Request $request)
     {
         $user = auth()->user();
-        
+
         $validated = $request->validate([
             'settings' => 'required|array',
             'settings.*.key' => 'required|string',
@@ -148,13 +148,13 @@ class ComprehensiveSettingsController extends Controller
 
         foreach ($validated['settings'] as $settingData) {
             $setting = SecuritySetting::where('key', $settingData['key'])->first();
-            
+
             if (!$setting || !$user->can('update', $setting)) {
                 continue;
             }
 
             $value = $settingData['value'];
-            
+
             // Handle different types
             if ($settingData['type'] === 'boolean') {
                 $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -173,13 +173,13 @@ class ComprehensiveSettingsController extends Controller
     public function clearCache(Request $request)
     {
         $user = auth()->user();
-        
+
         if (!$user->hasAnyRole(['Developer', 'Global Admin'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $cacheType = $request->input('type', 'all');
-        
+
         try {
             switch ($cacheType) {
                 case 'config':
@@ -229,18 +229,18 @@ class ComprehensiveSettingsController extends Controller
     public function viewLogs(Request $request)
     {
         $user = auth()->user();
-        
+
         if (!$user->hasAnyRole(['Developer', 'Global Admin'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $logType = $request->input('type', 'laravel');
         $lines = $request->input('lines', 50);
-        
+
         try {
             $logPath = storage_path('logs');
             $logs = [];
-            
+
             switch ($logType) {
                 case 'laravel':
                     $logFile = $logPath . '/laravel.log';
@@ -272,14 +272,14 @@ class ComprehensiveSettingsController extends Controller
     public function downloadLogs(Request $request)
     {
         $user = auth()->user();
-        
+
         if (!$user->hasRole('Developer')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $logType = $request->input('type', 'laravel');
         $logPath = storage_path('logs');
-        
+
         switch ($logType) {
             case 'laravel':
                 $logFile = $logPath . '/laravel.log';
@@ -328,7 +328,7 @@ class ComprehensiveSettingsController extends Controller
     {
         $logPath = storage_path('logs');
         $logs = [];
-        
+
         if (is_dir($logPath)) {
             $logFiles = glob($logPath . '/*.log');
             foreach ($logFiles as $file) {
@@ -340,7 +340,7 @@ class ComprehensiveSettingsController extends Controller
                 ];
             }
         }
-        
+
         return $logs;
     }
 

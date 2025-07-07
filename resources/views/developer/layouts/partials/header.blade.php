@@ -4,7 +4,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="{{ route('developer.home') }}" class="text-xl font-bold text-gray-900">
+                    <a href="{{ route('home') }}" class="text-xl font-bold text-gray-900">
                         Family Cloud <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Developer</span>
                     </a>
                 </div>

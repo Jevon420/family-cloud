@@ -89,8 +89,9 @@ class SettingsController extends Controller
     {
         $users = User::with('roles')->paginate(20);
         $roles = Role::all();
+        $totalUsers = User::count();
 
-        return view('admin.settings.users', compact('users', 'roles'));
+        return view('admin.settings.users', compact('users', 'roles', 'totalUsers'));
     }
 
     public function updateUserRole(Request $request, User $user)

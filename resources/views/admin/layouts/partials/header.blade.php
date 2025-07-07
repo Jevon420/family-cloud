@@ -4,7 +4,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="{{ route('admin.home') }}" class="text-xl font-bold text-gray-900">
+                    <a href="{{ route('home') }}" class="text-xl font-bold text-gray-900">
                         Family Cloud <span class="text-sm bg-red-100 text-red-800 px-2 py-1 rounded-full">Global Admin</span>
                     </a>
                 </div>

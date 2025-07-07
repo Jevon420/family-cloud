@@ -37,12 +37,10 @@ class SystemConfiguration extends Model
 
     protected $hidden = [
         // Hide sensitive values when serializing
-    ];
-
-    // Accessor to mask sensitive values
+    ];    // Accessor to mask sensitive values
     public function getValueAttribute($value)
     {
-        if ($this->is_sensitive && !auth()->user()?->hasRole('Developer')) {
+        if ($this->is_sensitive && auth()->check() && !auth()->user()->hasRole('Developer')) {
             return '••••••••';
         }
 

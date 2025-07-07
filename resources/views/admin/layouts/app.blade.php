@@ -181,6 +181,7 @@
                 gif.src = '{{ asset('storage/logos/preloader/admin-preloader.gif') }}';
                 gif.alt = 'Loading...';
                 gif.style.marginBottom = '20px';
+                gif.style.margin = 'auto';
 
                 const userName = '{{ auth()->user()->name }}';
                 const userRole = '{{ auth()->user()->getRoleNames()->first() }}';

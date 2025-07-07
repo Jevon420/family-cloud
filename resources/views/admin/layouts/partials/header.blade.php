@@ -64,10 +64,52 @@
                 </div>
                 <!-- End Theme Toggle Dropdown -->
                 <div class="relative">
-                    <button type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button">
+                    <button @click="userMenuOpen = !userMenuOpen" type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button">
                         <span class="sr-only">Open user menu</span>
                         <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&color=7F9CF5&background=EBF4FF" alt="{{ auth()->user()->name }}">
                     </button>
+
+                    <div x-show="userMenuOpen"
+                         @click.away="userMenuOpen = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                         role="menu"
+                         aria-orientation="vertical"
+                         aria-labelledby="user-menu-button"
+                         tabindex="-1">
+                        <div class="px-4 py-2 text-xs text-gray-500">
+                            {{ auth()->user()->name }}
+                        </div>
+
+                        @if(auth()->user()->hasRole('Global Admin'))
+                            <a href="{{ route('admin.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Global Admin Dashboard</a>
+                            <a href="{{ route('admin.settings.comprehensive.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Global Settings</a>
+                        @elseif(auth()->user()->hasRole('Admin'))
+                            <a href="{{ route('admin.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Admin Dashboard</a>
+                        @endif
+
+                        @if(auth()->user()->hasRole('Developer'))
+                            <a href="{{ route('developer.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Developer Dashboard</a>
+                        @endif
+
+                        @if(auth()->user()->hasRole('Family'))
+                            <a href="{{ route('family.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Family Dashboard</a>
+                        @endif
+
+                        <a href="{{ route('family.storage') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">My Storage</a>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,3 +148,26 @@
         </div>
     </nav>
 </header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenuDropdown = document.querySelector('[x-show="userMenuOpen"]');
+
+        // Ensure dropdown is closed on load
+        let userMenuOpen = false;
+        userMenuDropdown.style.display = 'none';
+
+        userMenuButton.addEventListener('click', function () {
+            userMenuOpen = !userMenuOpen;
+            userMenuDropdown.style.display = userMenuOpen ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                userMenuDropdown.style.display = 'none';
+                userMenuOpen = false;
+            }
+        });
+    });
+</script>

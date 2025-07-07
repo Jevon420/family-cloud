@@ -3,10 +3,15 @@
 @section('title', 'Gallery Management')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto px-4 py-6 max-w-full overflow-x-hidden">
     <div class="flex flex-wrap justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Gallery Management</h1>
-        <div class="mt-4 sm:mt-0">
+        <div class="flex items-center gap-2 mt-4 sm:mt-0">
+            <button id="toggleView" type="button" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <svg id="gridIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h4v4H4V6zm6 0h4v4h-4V6zm6 0h4v4h-4V6zM4 14h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z" /></svg>
+                <svg id="listIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <span id="toggleText">Grid View</span>
+            </button>
             <a href="{{ route('admin.galleries.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Create New Gallery
             </a>
@@ -19,100 +24,103 @@
     </div>
     @endif
 
-    <div class="container bg-white shadow-md rounded-lg">
-        <div class="overflow-x-scroll">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photos</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visibility</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($galleries as $gallery)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    @if($gallery->cover_image)
-                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ Storage::url($gallery->cover_image) }}" alt="{{ $gallery->name }}">
-                                    @else
-                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                        <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    @endif
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        <a href="{{ route('admin.galleries.show', $gallery) }}" class="hover:text-indigo-600">
-                                            {{ $gallery->name }}
-                                        </a>
-                                    </div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ Str::limit($gallery->description, 50) }}
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $gallery->user->name }}</div>
-                            <div class="text-sm text-gray-500">{{ $gallery->user->email }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ $gallery->photos_count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($gallery->visibility === 'public')
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    Public
-                                </span>
-                            @elseif($gallery->visibility === 'private')
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    Private
-                                </span>
-                            @else
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    Shared
-                                </span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $gallery->created_at->format('M d, Y') }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex flex-wrap gap-2">
-                                <a href="{{ route('admin.galleries.show', $gallery) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                                <a href="{{ route('admin.galleries.edit', $gallery) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                <form action="{{ route('admin.galleries.destroy', $gallery) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this gallery?')">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            No galleries found. <a href="{{ route('admin.galleries.create') }}" class="text-indigo-600 hover:text-indigo-900">Create one now</a>.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <form method="GET" action="" class="mb-6 flex flex-wrap gap-2 items-center">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search galleries..." class="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <select name="visibility" class="w-full sm:w-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">All Visibilities</option>
+            <option value="public" @if(request('visibility')==='public') selected @endif>Public</option>
+            <option value="private" @if(request('visibility')==='private') selected @endif>Private</option>
+            <option value="shared" @if(request('visibility')==='shared') selected @endif>Shared</option>
+        </select>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Filter</button>
+        @if(request('search') || request('visibility'))
+        <a href="{{ route('admin.galleries.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md font-semibold hover:bg-gray-400">Reset</a>
+        @endif
+    </form>
 
-    <div class="mt-4">
-        {{ $galleries->links() }}
+    @if($galleries->count())
+    <div id="galleryContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all">
+        @foreach($galleries as $gallery)
+        <div class="bg-white rounded-lg shadow-md flex flex-col md:flex-row md:items-center p-4 group transition-all">
+            <div class="flex-shrink-0 w-full md:w-32 h-32 flex items-center justify-center overflow-hidden mb-4 md:mb-0 md:mr-4">
+                @if($gallery->cover_image)
+                <img class="object-cover w-full h-full rounded-md" src="{{ Storage::url($gallery->cover_image) }}" alt="{{ $gallery->name }}">
+                @else
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
+                    <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                @endif
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <a href="{{ route('admin.galleries.show', $gallery) }}" class="text-lg font-semibold text-gray-900 hover:text-indigo-600">{{ $gallery->name }}</a>
+                        <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ $gallery->photos_count }} Photos</span>
+                    </div>
+                    <div class="text-sm text-gray-500 mt-1">{{ Str::limit($gallery->description, 60) }}</div>
+                    <div class="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
+                        <span>By {{ $gallery->user->name }}</span>
+                        <span class="hidden sm:inline">|</span>
+                        <span>{{ $gallery->user->email }}</span>
+                        <span class="hidden sm:inline">|</span>
+                        <span>{{ $gallery->created_at->format('M d, Y') }}</span>
+                        <span class="hidden sm:inline">|</span>
+                        @if($gallery->visibility === 'public')
+                            <span class="px-2 inline-flex rounded-full bg-green-100 text-green-800">Public</span>
+                        @elseif($gallery->visibility === 'private')
+                            <span class="px-2 inline-flex rounded-full bg-red-100 text-red-800">Private</span>
+                        @else
+                            <span class="px-2 inline-flex rounded-full bg-yellow-100 text-yellow-800">Shared</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <a href="{{ route('admin.galleries.show', $gallery) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">View</a>
+                    <a href="{{ route('admin.galleries.edit', $gallery) }}" class="text-yellow-600 hover:text-yellow-900 font-medium">Edit</a>
+                    <form action="{{ route('admin.galleries.destroy', $gallery) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium" onclick="return confirm('Are you sure you want to delete this gallery?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endforeach
     </div>
+    <div class="mt-4">{{ $galleries->links() }}</div>
+    @else
+    <div class="text-center text-gray-500 py-12">
+        No galleries found. <a href="{{ route('admin.galleries.create') }}" class="text-indigo-600 hover:text-indigo-900">Create one now</a>.
+    </div>
+    @endif
 </div>
+
+@push('scripts')
+<script>
+    const toggleBtn = document.getElementById('toggleView');
+    const galleryContainer = document.getElementById('galleryContainer');
+    const gridIcon = document.getElementById('gridIcon');
+    const listIcon = document.getElementById('listIcon');
+    const toggleText = document.getElementById('toggleText');
+    let isGrid = true;
+    toggleBtn.addEventListener('click', function() {
+        isGrid = !isGrid;
+        if (isGrid) {
+            galleryContainer.classList.remove('flex', 'flex-col');
+            galleryContainer.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+            gridIcon.classList.remove('hidden');
+            listIcon.classList.add('hidden');
+            toggleText.textContent = 'Grid View';
+        } else {
+            galleryContainer.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+            galleryContainer.classList.add('flex', 'flex-col');
+            gridIcon.classList.add('hidden');
+            listIcon.classList.remove('hidden');
+            toggleText.textContent = 'List View';
+        }
+    });
+</script>
+@endpush
 @endsection

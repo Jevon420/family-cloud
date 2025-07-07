@@ -22,13 +22,26 @@ class GalleryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $galleries = Gallery::with(['user', 'photos'])
-            ->withCount('photos')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Gallery::with(['user', 'photos'])
+            ->withCount('photos');
 
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%") ;
+                  });
+            });
+        }
+        if ($request->filled('visibility')) {
+            $query->where('visibility', $request->input('visibility'));
+        }
+        $galleries = $query->orderBy('created_at', 'desc')->paginate(15)->appends($request->all());
         return view('admin.galleries.index', compact('galleries'));
     }
 

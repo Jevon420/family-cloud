@@ -23,13 +23,24 @@ class FolderController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $rootFolders = Folder::with(['user', 'children', 'files'])
-            ->whereNull('parent_id')
-            ->orderBy('name')
-            ->paginate(20);
-
+        $query = Folder::with(['user', 'children', 'files'])->whereNull('parent_id');
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%") ;
+                  });
+            });
+        }
+        if ($request->filled('visibility')) {
+            $query->where('visibility', $request->input('visibility'));
+        }
+        $rootFolders = $query->orderBy('name')->paginate(20)->appends($request->all());
         return view('admin.folders.index', compact('rootFolders'));
     }
 

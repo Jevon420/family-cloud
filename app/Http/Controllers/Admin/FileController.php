@@ -24,12 +24,24 @@ class FileController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $files = File::with(['user', 'folder'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
+        $query = File::with(['user', 'folder']);
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%") ;
+                  });
+            });
+        }
+        if ($request->filled('visibility')) {
+            $query->where('visibility', $request->input('visibility'));
+        }
+        $files = $query->orderBy('created_at', 'desc')->paginate(20)->appends($request->all());
         return view('admin.files.index', compact('files'));
     }
 

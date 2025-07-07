@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 use App\Notifications\RegistrationRequestNotification;
 use App\Notifications\RegistrationRequestReceived;
+use App\Notifications\NewRegistrationSiteNotification;
 use Illuminate\Support\Facades\Notification;
 
 class CustomRegisterController extends Controller
@@ -70,10 +71,15 @@ class CustomRegisterController extends Controller
 
         // Notify the user that their registration is pending approval
         $user->notify(new RegistrationRequestReceived($user));
-        
+
         // Notify admins and developers about the new registration
         $admins = User::role(['Global Admin', 'Developer'])->get();
         Notification::send($admins, new RegistrationRequestNotification($user));
+
+        // Notify the site email
+        $siteEmail = config('mail.from.address');
+        Notification::route('mail', $siteEmail)
+            ->notify(new NewRegistrationSiteNotification($user));
 
         return redirect()->route('login')
             ->with('status', 'Your registration request has been received. You will be notified by email once an administrator approves your account.');

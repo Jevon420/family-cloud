@@ -8,6 +8,8 @@ use App\Http\Controllers\Frontend\GalleryController as FrontendGalleryController
 use App\Http\Controllers\Frontend\PhotoController as FrontendPhotoController;
 use App\Http\Controllers\Frontend\FileController as FrontendFileController;
 use App\Http\Controllers\Frontend\FolderController as FrontendFolderController;
+use App\Http\Controllers\Auth\CustomRegisterController;
+use App\Http\Controllers\Auth\PasswordChangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +39,7 @@ Route::get('/privacy-policy', [\App\Http\Controllers\Frontend\PrivacyPolicyContr
 Route::get('/cookie-policy', [\App\Http\Controllers\Frontend\CookiePolicyController::class, 'show'])->name('cookie-policy');
 
 // Auth Required Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'password.change.required'])->group(function () {
     // Public Galleries, Photos, Files, and Folders (Auth Required)
     Route::prefix('galleries')->name('galleries.')->group(function () {
         Route::get('/', [FrontendGalleryController::class, 'index'])->name('index');
@@ -62,7 +64,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Shared Routes (Authenticated Users)
-Route::middleware(['auth'])->prefix('shared')->name('shared.')->group(function () {
+Route::middleware(['auth', 'password.change.required'])->prefix('shared')->name('shared.')->group(function () {
     Route::prefix('galleries')->name('galleries.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Shared\GalleryController::class, 'index'])->name('index');
         Route::get('/{slug}', [\App\Http\Controllers\Shared\GalleryController::class, 'show'])->name('show');
@@ -86,7 +88,7 @@ Route::middleware(['auth'])->prefix('shared')->name('shared.')->group(function (
 });
 
 // Developer Routes
-Route::middleware(['auth'])->prefix('developer')->name('developer.')->group(function () {
+Route::middleware(['auth', 'password.change.required'])->prefix('developer')->name('developer.')->group(function () {
     Route::middleware(['check.role:Developer'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('home');
         Route::get('/about', [\App\Http\Controllers\Developer\AboutController::class, 'index'])->name('about');
@@ -100,7 +102,7 @@ Route::middleware(['auth'])->prefix('developer')->name('developer.')->group(func
 });
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['check.role:Admin|Developer|Global Admin'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
 
@@ -173,10 +175,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/developer', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('developer');
         Route::get('/family', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('family');
     });
+
+    // User approval routes
+    Route::get('/users/{id}/approve', [App\Http\Controllers\Admin\UserApprovalController::class, 'approve'])->name('users.approve');
+    Route::get('/users/{id}/reject', [App\Http\Controllers\Admin\UserApprovalController::class, 'reject'])->name('users.reject');
 });
 
 // Family Routes
-Route::middleware(['auth'])->prefix('family')->name('family.')->group(function () {
+Route::middleware(['auth', 'password.change.required'])->prefix('family')->name('family.')->group(function () {
     Route::middleware(['check.role:Family|Admin|Global Admin'])->group(function () {
         Route::get('/', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('home');
         Route::get('/about', [\App\Http\Controllers\Family\AboutController::class, 'index'])->name('about');
@@ -233,6 +239,22 @@ Route::middleware(['auth'])->prefix('family')->name('family.')->group(function (
         Route::get('/help/{section}', [\App\Http\Controllers\Family\HelpController::class, 'show'])->name('help.show');
     });
 });
+
+// Password change routes for first login
+Route::middleware(['auth'])->group(function () {
+    Route::get('/password/change', [PasswordChangeController::class, 'showChangeForm'])->name('password.change');
+    Route::put('/password/change', [PasswordChangeController::class, 'update'])->name('password.change.update');
+});
+
+// Apply password change required middleware to all protected routes
+Route::middleware(['auth', 'password.change.required'])->group(function () {
+    // Family, Admin, and Developer routes are already inside auth middleware
+    // This ensures all authenticated routes require password change if needed
+});
+
+// Override Laravel's default register routes
+Route::get('register', [CustomRegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [CustomRegisterController::class, 'register']);
 
 Route::get('/test-styles', function () {
     return view('test-styles');

@@ -22,7 +22,7 @@
     @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-gray-100">
+<body class="font-sans antialiased bg-gray-100 overflow-x-hidden">
     <div class="min-h-screen">
         @include('admin.layouts.partials.header')
 

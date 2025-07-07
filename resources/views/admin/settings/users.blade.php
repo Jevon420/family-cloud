@@ -141,7 +141,7 @@
 <!-- Users Table -->
 <div class="bg-white shadow rounded-lg overflow-hidden">
     <div class="px-4 py-5 sm:p-6">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto overflow-scroll">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>

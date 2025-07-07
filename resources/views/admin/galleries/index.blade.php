@@ -4,11 +4,13 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-wrap justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Gallery Management</h1>
-        <a href="{{ route('admin.galleries.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Create New Gallery
-        </a>
+        <div class="mt-4 sm:mt-0">
+            <a href="{{ route('admin.galleries.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Create New Gallery
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
@@ -17,8 +19,8 @@
     </div>
     @endif
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
+    <div class="container bg-white shadow-md rounded-lg">
+        <div class="overflow-x-scroll">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -86,13 +88,15 @@
                             {{ $gallery->created_at->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('admin.galleries.show', $gallery) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
-                            <a href="{{ route('admin.galleries.edit', $gallery) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">Edit</a>
-                            <form action="{{ route('admin.galleries.destroy', $gallery) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this gallery?')">Delete</button>
-                            </form>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{{ route('admin.galleries.show', $gallery) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
+                                <a href="{{ route('admin.galleries.edit', $gallery) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                <form action="{{ route('admin.galleries.destroy', $gallery) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this gallery?')">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty

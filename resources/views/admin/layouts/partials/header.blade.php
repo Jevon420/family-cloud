@@ -1,29 +1,36 @@
 <header class="bg-white shadow-sm border-b">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex items-center">
                 <!-- Logo -->
-                <div class="flex-shrink-0 flex items-center">
+                <div class="flex-shrink-0">
                     <a href="{{ route('home') }}" class="text-xl font-bold text-gray-900">
                         Family Cloud <span class="text-sm bg-red-100 text-red-800 px-2 py-1 rounded-full">Global Admin</span>
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <a href="{{ route('admin.home') }}" class="@if(request()->routeIs('admin.home')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                        Dashboard
-                    </a>
-                    <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.*')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                        Settings
-                    </a>
-                    <a href="{{ route('admin.settings.users') }}" class="@if(request()->routeIs('admin.settings.users')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                        Users
-                    </a>
-                    <a href="{{ route('admin.settings.system') }}" class="@if(request()->routeIs('admin.settings.system')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                        System
-                    </a>
-                </div>
+                <!-- Mobile menu button -->
+                <button type="button" class="sm:hidden ml-4 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="mobile-menu-button">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="hidden sm:flex space-x-8 sm:-my-px sm:ml-10" id="desktop-menu">
+                <a href="{{ route('admin.home') }}" class="@if(request()->routeIs('admin.home')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Dashboard
+                </a>
+                <a href="{{ route('admin.settings.index') }}" class="@if(request()->routeIs('admin.settings.*')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Settings
+                </a>
+                <a href="{{ route('admin.settings.users') }}" class="@if(request()->routeIs('admin.settings.users')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Users
+                </a>
+                <a href="{{ route('admin.settings.system') }}" class="@if(request()->routeIs('admin.settings.system')) border-indigo-500 text-gray-900 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 @endif inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    System
+                </a>
             </div>
 
             <!-- User dropdown -->
@@ -36,5 +43,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Mobile menu -->
+        <div class="hidden sm:hidden" id="mobile-menu">
+            <a href="{{ route('admin.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+            <a href="{{ route('admin.settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+            <a href="{{ route('admin.settings.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Users</a>
+            <a href="{{ route('admin.settings.system') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">System</a>
+        </div>
     </nav>
 </header>
+
+<script>
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+</script>

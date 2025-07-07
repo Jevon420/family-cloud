@@ -366,11 +366,12 @@
                                             <h5 class="mb-0"><i class="fas fa-server me-1"></i>System Information</h5>
                                         </div>
                                         <div class="card-body">
-                                            <table class="table table-sm">
-                                                <tr>
-                                                    <td><strong>PHP Version:</strong></td>
-                                                    <td>{{ $systemInfo['php_version'] }}</td>
-                                                </tr>
+                                            <div class="overflow-x-auto overflow-scroll">
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <td><strong>PHP Version:</strong></td>
+                                                        <td>{{ $systemInfo['php_version'] }}</td>
+                                                    </tr>
                                                 <tr>
                                                     <td><strong>Laravel Version:</strong></td>
                                                     <td>{{ $systemInfo['laravel_version'] }}</td>
@@ -411,13 +412,14 @@
                                             <h5 class="mb-0"><i class="fas fa-hdd me-1"></i>Storage Information</h5>
                                         </div>
                                         <div class="card-body">
-                                            <table class="table table-sm">
-                                                <tr>
-                                                    <td><strong>Storage Used:</strong></td>
-                                                    <td>{{ $systemInfo['storage_usage']['formatted'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Cache Driver:</strong></td>
+                                            <div class="overflow-x-auto overflow-scroll">
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <td><strong>Storage Used:</strong></td>
+                                                        <td>{{ $systemInfo['storage_usage']['formatted'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Cache Driver:</strong></td>
                                                     <td>{{ $cacheInfo['driver'] }}</td>
                                                 </tr>
                                             </table>

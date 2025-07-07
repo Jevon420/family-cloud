@@ -14,6 +14,7 @@ class CreateUserProfilesTable extends Migration
             $table->string('display_name');
             $table->string('avatar')->nullable(); // path to uploaded avatar
             $table->string('phone')->nullable();
+            $table->string('photo_path')->nullable(); // path to uploaded photo
             $table->string('address')->nullable();
             $table->string('bio', 1000)->nullable();
             $table->date('birthdate')->nullable();

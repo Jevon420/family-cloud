@@ -193,6 +193,39 @@ Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('
             Route::post('/recalculate', [App\Http\Controllers\Admin\StorageManagementController::class, 'recalculateQuotas'])->name('recalculate');
         });
 
+        // Email Management
+        Route::prefix('email')->name('email.')->group(function () {
+            // Email Configurations
+            Route::prefix('configurations')->name('configurations.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'index'])->name('index');
+                Route::get('/create', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'create'])->name('create');
+                Route::post('/', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'store'])->name('store');
+                Route::get('/{configuration}', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'show'])->name('show');
+                Route::get('/{configuration}/edit', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'edit'])->name('edit');
+                Route::put('/{configuration}', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'update'])->name('update');
+                Route::delete('/{configuration}', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'destroy'])->name('destroy');
+                Route::post('/{configuration}/test', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'test'])->name('test');
+                Route::put('/{configuration}/set-default', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'setDefault'])->name('set-default');
+                Route::put('/{configuration}/toggle-active', [\App\Http\Controllers\Admin\EmailConfigurationController::class, 'toggleActive'])->name('toggle-active');
+            });
+        });
+
+        // Email Management
+        Route::prefix('emails')->name('emails.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\EmailController::class, 'index'])->name('index');
+            Route::get('/get', [\App\Http\Controllers\Admin\EmailController::class, 'getEmails'])->name('get');
+            Route::get('/compose', [\App\Http\Controllers\Admin\EmailController::class, 'compose'])->name('compose');
+            Route::post('/send', [\App\Http\Controllers\Admin\EmailController::class, 'send'])->name('send');
+            Route::get('/{email}', [\App\Http\Controllers\Admin\EmailController::class, 'show'])->name('show');
+            Route::post('/{email}/read', [\App\Http\Controllers\Admin\EmailController::class, 'markAsRead'])->name('read');
+            Route::post('/{email}/unread', [\App\Http\Controllers\Admin\EmailController::class, 'markAsUnread'])->name('unread');
+            Route::post('/{email}/important', [\App\Http\Controllers\Admin\EmailController::class, 'markAsImportant'])->name('important');
+            Route::post('/{email}/spam', [\App\Http\Controllers\Admin\EmailController::class, 'markAsSpam'])->name('spam');
+            Route::post('/{email}/archive', [\App\Http\Controllers\Admin\EmailController::class, 'archive'])->name('archive');
+            Route::delete('/{email}', [\App\Http\Controllers\Admin\EmailController::class, 'destroy'])->name('destroy');
+            Route::get('/attachments/{attachment}/download', [\App\Http\Controllers\Admin\EmailController::class, 'downloadAttachment'])->name('attachments.download');
+        });
+
         // Admin can access all dashboards
         Route::get('/developer', [\App\Http\Controllers\Developer\HomeController::class, 'index'])->name('developer');
         Route::get('/family', [\App\Http\Controllers\Family\HomeController::class, 'index'])->name('family');

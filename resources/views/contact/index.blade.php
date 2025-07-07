@@ -60,50 +60,47 @@
                     </div>
                 @endif
 
-                <form id="contact-form" action="{{ route('contact.store') }}" method="POST" class="grid grid-cols-1 gap-y-6 bg-blue-100 p-6 rounded-lg shadow-lg">
+                <form id="contact-form" action="{{ route('contact.store') }}" method="POST" class="grid grid-cols-1 gap-y-4 bg-blue-100 p-4 rounded-lg shadow-lg">
                     @csrf
-                    <div class="bg-white p-4 rounded-md shadow-sm">
-                        <label for="name" class="block text-lg font-medium text-blue-900">Name</label>
+                    <div class="bg-white p-3 rounded-md shadow-sm">
+                        <label for="name" class="block text-md font-medium text-blue-900">Name</label>
                         <div class="mt-1 relative">
-                            <input type="text" name="name" id="name" value="{{ old('name') }}" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('name') border-red-300 @enderror" required>
-                            <span class="absolute top-0 right-0 mt-2 mr-2 text-sm text-gray-500">Enter your full name</span>
+                            <input type="text" name="name" id="name" value="{{ old('name') }}" class="py-2 px-3 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('name') border-red-300 @enderror" required>
+                            <span class="absolute top-0 right-0 mt-1 mr-1 text-xs text-gray-500">Enter your full name</span>
                         </div>
                         @error('name')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="bg-white p-4 rounded-md shadow-sm">
-                        <label for="email" class="block text-lg font-medium text-blue-900">Email</label>
+                    <div class="bg-white p-3 rounded-md shadow-sm">
+                        <label for="email" class="block text-sm font-medium text-blue-900">Email</label>
                         <div class="mt-1 relative">
-                            <input type="email" name="email" id="email" value="{{ old('email') }}" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('email') border-red-300 @enderror" required>
-                            <span class="absolute top-0 right-0 mt-2 mr-2 text-sm text-gray-500">Enter a valid email address</span>
+                            <input type="email" name="email" id="email" value="{{ old('email') }}" class="py-2 px-3 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('email') border-red-300 @enderror" required>
                         </div>
                         @error('email')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="bg-white p-4 rounded-md shadow-sm">
-                        <label for="subject" class="block text-lg font-medium text-blue-900">Subject</label>
+                    <div class="bg-white p-3 rounded-md shadow-sm">
+                        <label for="subject" class="block text-sm font-medium text-blue-900">Subject</label>
                         <div class="mt-1 relative">
-                            <input type="text" name="subject" id="subject" value="{{ old('subject') }}" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('subject') border-red-300 @enderror" required>
-                            <span class="absolute top-0 right-0 mt-2 mr-2 text-sm text-gray-500">Briefly describe your message</span>
+                            <input type="text" name="subject" id="subject" value="{{ old('subject') }}" class="py-2 px-3 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('subject') border-red-300 @enderror" required>
                         </div>
                         @error('subject')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="bg-white p-4 rounded-md shadow-sm">
-                        <label for="message" class="block text-lg font-medium text-blue-900">Message</label>
+                    <div class="bg-white p-3 rounded-md shadow-sm">
+                        <label for="message" class="block text-sm font-medium text-blue-900">Message</label>
                         <div class="mt-1 relative">
-                            <textarea id="message" name="message" rows="4" class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('message') border-red-300 @enderror" required>{{ old('message') }}</textarea>
-                            <span class="absolute top-0 right-0 mt-2 mr-2 text-sm text-gray-500">Provide detailed information</span>
+                            <textarea id="message" name="message" rows="3" class="py-2 px-3 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md @error('message') border-red-300 @enderror" required>{{ old('message') }}</textarea>
                         </div>
                         @error('message')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <button type="submit" id="submit-btn" class="w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-lg font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <button type="submit" id="submit-btn" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Send Message
                         </button>
                     </div>
@@ -118,22 +115,15 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const contactForm = document.getElementById('contact-form');
-        const contactSuccess = document.getElementById('contact-form-success');
         const submitBtn = document.getElementById('submit-btn');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const errorMessages = document.querySelectorAll('.error-message');
 
         if (contactForm) {
             contactForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Clear previous error messages
-                errorMessages.forEach(el => el.textContent = '');
-
-                // Show loading state
+                // Disable the button and show loading state
                 submitBtn.disabled = true;
-                submitBtn.querySelector('span').textContent = 'Sending...';
-                loadingSpinner.style.display = 'inline-block';
+                submitBtn.textContent = 'Sending...';
 
                 // Get form data
                 const formData = new FormData(contactForm);
@@ -149,30 +139,20 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Show success message
-                        contactSuccess.style.display = 'block';
+                        alert('Message sent successfully!');
                         contactForm.reset();
-
-                        // Scroll to success message
-                        contactSuccess.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     } else if (data.errors) {
-                        // Show validation errors
-                        Object.keys(data.errors).forEach(field => {
-                            const errorEl = document.getElementById(field + '-error');
-                            if (errorEl) {
-                                errorEl.textContent = data.errors[field][0];
-                            }
-                        });
+                        alert('Please fix the errors and try again.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    alert('An error occurred while sending the message.');
                 })
                 .finally(() => {
-                    // Reset loading state
+                    // Reset button state
                     submitBtn.disabled = false;
-                    submitBtn.querySelector('span').textContent = 'Send Message';
-                    loadingSpinner.style.display = 'none';
+                    submitBtn.textContent = 'Send Message';
                 });
             });
         }

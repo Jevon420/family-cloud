@@ -84,6 +84,20 @@
                 </svg>
                 System Info
             </a>
+
+            <a href="{{ route('admin.emails.index') }}" class="@if(request()->routeIs('admin.emails.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.emails.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7-7m0 0l7 7m-7-7v16" />
+                </svg>
+                Email Management
+            </a>
+
+            <a href="{{ route('admin.email.configurations.index') }}" class="@if(request()->routeIs('admin.email-configurations.*')) bg-indigo-100 text-indigo-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 @endif group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                <svg class="@if(request()->routeIs('admin.email-configurations.*')) text-indigo-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Email Configurations
+            </a>
         </nav>
 
         <div class="mt-8">

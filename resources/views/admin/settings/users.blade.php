@@ -4,15 +4,15 @@
 
 @section('content')
 <div class="mb-8">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
             <p class="mt-1 text-sm text-gray-600">
                 Manage user accounts, roles, and permissions across the entire system.
             </p>
         </div>
-        <div>
-            <button type="button" onclick="exportUsers()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-3">
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button type="button" onclick="exportUsers()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                 Export Users
             </button>
             <button type="button" onclick="showCreateUserModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto hidden md:block">
                 <table class="min-w-full divide-y divide-yellow-200">
                     <thead class="bg-yellow-100">
                         <tr>
@@ -107,6 +107,40 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile view for pending users -->
+            <div class="md:hidden space-y-4">
+                @foreach($pendingUsers as $pendingUser)
+                <div class="bg-yellow-100 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($pendingUser->name) }}&color=F59E0B&background=FEF3C7" alt="">
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $pendingUser->name }}</div>
+                                <div class="text-sm text-gray-500">{{ $pendingUser->email }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-600 mb-3">
+                        Registered: {{ $pendingUser->created_at->format('M d, Y H:i') }} ({{ $pendingUser->created_at->diffForHumans() }})
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="{{ route('admin.users.approve', $pendingUser->id) }}"
+                           onclick="return confirm('Are you sure you want to approve this user? They will receive login credentials via email.')"
+                           class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700">
+                            <i class="fas fa-check mr-1"></i>Approve
+                        </a>
+                        <a href="{{ route('admin.users.reject', $pendingUser->id) }}"
+                           onclick="return confirm('Are you sure you want to reject this registration? This action cannot be undone.')"
+                           class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700">
+                            <i class="fas fa-times mr-1"></i>Reject
+                        </a>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -217,8 +251,8 @@
     </div>
 </div>
 
-<!-- Users Table -->
-<div class="bg-white shadow rounded-lg overflow-hidden">
+<!-- Users Table - Desktop View -->
+<div class="bg-white shadow rounded-lg overflow-hidden hidden lg:block">
     <div class="px-4 py-5 sm:p-6">
         <div class="overflow-x-auto overflow-scroll">
             <table class="min-w-full divide-y divide-gray-200">
@@ -322,6 +356,109 @@
     </div>
 </div>
 
+<!-- Users Cards - Mobile and Tablet View -->
+<div class="lg:hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @forelse($users as $user)
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-12 w-12">
+                            <img class="h-12 w-12 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=7F9CF5&background=EBF4FF" alt="">
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                            <div class="text-sm text-gray-500">{{ $user->email }}</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            @if($user->status === 'active') bg-green-100 text-green-800
+                            @else bg-red-100 text-red-800 @endif">
+                            {{ ucfirst($user->status) }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Role:</span>
+                        <div>
+                            @if($user->roles->isNotEmpty())
+                                @foreach($user->roles as $role)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        @if($role->name === 'Global Admin' || $role->name === 'Admin') bg-red-100 text-red-800
+                                        @elseif($role->name === 'Developer') bg-blue-100 text-blue-800
+                                        @else bg-green-100 text-green-800 @endif">
+                                        {{ $role->name }}
+                                    </span>
+                                @endforeach
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    No Role
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Last Active:</span>
+                        <span class="text-gray-900">
+                            @if($user->updated_at)
+                                {{ $user->updated_at->diffForHumans() }}
+                            @else
+                                Never
+                            @endif
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Storage Used:</span>
+                        <span class="text-gray-900">0 MB / 5 GB</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="editUser({{ $user->id }})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        <i class="fas fa-edit mr-1"></i> Edit
+                    </button>
+                    <button type="button" onclick="changeUserRole({{ $user->id }})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-user-cog mr-1"></i> Role
+                    </button>
+                    @if($user->status === 'active')
+                        <button type="button" onclick="deactivateUser({{ $user->id }})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                            <i class="fas fa-power-off mr-1"></i> Deactivate
+                        </button>
+                    @else
+                        <button type="button" onclick="activateUser({{ $user->id }})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                            <i class="fas fa-power-off mr-1"></i> Activate
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="col-span-full">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6 text-center">
+                    <div class="text-sm text-gray-500">No users found.</div>
+                </div>
+            </div>
+        </div>
+        @endforelse
+    </div>
+
+    <!-- Pagination for mobile -->
+    <div class="mt-6 bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-lg shadow">
+        {{ $users->links() }}
+    </div>
+</div>
+
 @push('scripts')
 <script>
 function showCreateUserModal() {
@@ -346,6 +483,12 @@ function changeUserRole(userId) {
 function deactivateUser(userId) {
     if (confirm('Are you sure you want to deactivate this user?\n\nThey will lose access to the system but their data will be preserved.\n\nYou can reactivate them later.')) {
         alert('User deactivated successfully!');
+    }
+}
+
+function activateUser(userId) {
+    if (confirm('Are you sure you want to activate this user?\n\nThey will gain access to the system.')) {
+        alert('User activated successfully!');
     }
 }
 

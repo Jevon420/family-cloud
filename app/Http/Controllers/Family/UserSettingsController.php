@@ -56,6 +56,10 @@ class UserSettingsController extends Controller
             'gallery_layout' => 'required|string|in:grid,list,masonry',
         ]);
 
+        // Ensure default values for checkboxes
+        $validated['dark_mode'] = $request->has('dark_mode') ? $validated['dark_mode'] : false;
+        $validated['simple_dashboard'] = $request->has('simple_dashboard') ? $validated['simple_dashboard'] : false;
+
         // Update or create each setting
         $this->updateUserSetting('theme', $validated['theme']);
         $this->updateUserSetting('dark_mode', $validated['dark_mode'] ? 'true' : 'false');

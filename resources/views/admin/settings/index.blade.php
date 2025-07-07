@@ -26,7 +26,18 @@
     <!-- Global Site Configuration -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Global Site Configuration</h3>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Global Site Configuration</h3>
+                <button type="button"
+                        onclick="toggleSection('site-config')"
+                        class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg id="site-config-icon" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="site-config" class="collapsible-content">
 
             <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
                 @csrf
@@ -89,169 +100,202 @@
                         Save Site Settings
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <!-- System Controls -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">System Controls</h3>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">System Controls</h3>
+                <button type="button"
+                        onclick="toggleSection('system-controls')"
+                        class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg id="system-controls-icon" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
 
-            <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
-                @csrf
-                @method('PUT')
+            <div id="system-controls" class="collapsible-content">
+                <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-                <div class="flex items-center">
-                    <input type="checkbox"
-                           name="maintenance_mode"
-                           id="maintenance_mode"
-                           value="1"
-                           {{ old('maintenance_mode', $siteSettings['maintenance_mode'] ?? false) ? 'checked' : '' }}
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="maintenance_mode" class="ml-2 block text-sm text-gray-900">
-                        Enable Maintenance Mode
-                    </label>
-                </div>
-                <p class="text-xs text-gray-500">When enabled, only admins can access the site</p>
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               name="maintenance_mode"
+                               id="maintenance_mode"
+                               value="1"
+                               {{ old('maintenance_mode', $siteSettings['maintenance_mode'] ?? false) ? 'checked' : '' }}
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="maintenance_mode" class="ml-2 block text-sm text-gray-900">
+                            Enable Maintenance Mode
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">When enabled, only admins can access the site</p>
 
-                <div class="flex items-center">
-                    <input type="checkbox"
-                           name="registration_enabled"
-                           id="registration_enabled"
-                           value="1"
-                           {{ old('registration_enabled', $siteSettings['registration_enabled'] ?? true) ? 'checked' : '' }}
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="registration_enabled" class="ml-2 block text-sm text-gray-900">
-                        Enable User Registration
-                    </label>
-                </div>
-                <p class="text-xs text-gray-500">Allow new users to register accounts</p>
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               name="registration_enabled"
+                               id="registration_enabled"
+                               value="1"
+                               {{ old('registration_enabled', $siteSettings['registration_enabled'] ?? true) ? 'checked' : '' }}
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="registration_enabled" class="ml-2 block text-sm text-gray-900">
+                            Enable User Registration
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">Allow new users to register accounts</p>
 
-                <div class="flex items-center">
-                    <input type="checkbox"
-                           name="backup_enabled"
-                           id="backup_enabled"
-                           value="1"
-                           {{ old('backup_enabled', $siteSettings['backup_enabled'] ?? true) ? 'checked' : '' }}
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="backup_enabled" class="ml-2 block text-sm text-gray-900">
-                        Enable Automatic Backups
-                    </label>
-                </div>
-                <p class="text-xs text-gray-500">Automatically backup database daily</p>
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               name="backup_enabled"
+                               id="backup_enabled"
+                               value="1"
+                               {{ old('backup_enabled', $siteSettings['backup_enabled'] ?? true) ? 'checked' : '' }}
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="backup_enabled" class="ml-2 block text-sm text-gray-900">
+                            Enable Automatic Backups
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">Automatically backup database daily</p>
 
-                <div class="flex items-center">
-                    <input type="checkbox"
-                           name="email_notifications"
-                           id="email_notifications"
-                           value="1"
-                           {{ old('email_notifications', $siteSettings['email_notifications'] ?? true) ? 'checked' : '' }}
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="email_notifications" class="ml-2 block text-sm text-gray-900">
-                        Enable Email Notifications
-                    </label>
-                </div>
-                <p class="text-xs text-gray-500">Send system notifications via email</p>
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               name="email_notifications"
+                               id="email_notifications"
+                               value="1"
+                               {{ old('email_notifications', $siteSettings['email_notifications'] ?? true) ? 'checked' : '' }}
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="email_notifications" class="ml-2 block text-sm text-gray-900">
+                            Enable Email Notifications
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">Send system notifications via email</p>
 
-                <div class="flex justify-end">
-                    <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Save System Settings
-                    </button>
-                </div>
-            </form>
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save System Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Storage & Upload Limits -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Storage & Upload Limits</h3>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Storage & Upload Limits</h3>
+                <button type="button"
+                        onclick="toggleSection('storage-limits')"
+                        class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg id="storage-limits-icon" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
 
-            <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
-                @csrf
-                @method('PUT')
+            <div id="storage-limits" class="collapsible-content">
+                <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-                <div>
-                    <label for="max_file_upload_size" class="block text-sm font-medium text-gray-700">Max File Upload Size (MB)</label>
-                    <input type="number"
-                           name="max_file_upload_size"
-                           id="max_file_upload_size"
-                           value="{{ old('max_file_upload_size', $siteSettings['max_file_upload_size'] ?? 10) }}"
-                           min="1"
-                           max="1024"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    @error('max_file_upload_size')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <div>
+                        <label for="max_file_upload_size" class="block text-sm font-medium text-gray-700">Max File Upload Size (MB)</label>
+                        <input type="number"
+                               name="max_file_upload_size"
+                               id="max_file_upload_size"
+                               value="{{ old('max_file_upload_size', $siteSettings['max_file_upload_size'] ?? 10) }}"
+                               min="1"
+                               max="1024"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        @error('max_file_upload_size')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <div>
-                    <label for="max_storage_per_user" class="block text-sm font-medium text-gray-700">Max Storage per User (GB)</label>
-                    <input type="number"
-                           name="max_storage_per_user"
-                           id="max_storage_per_user"
-                           value="{{ old('max_storage_per_user', $siteSettings['max_storage_per_user'] ?? 5) }}"
-                           min="1"
-                           max="100"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    @error('max_storage_per_user')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <div>
+                        <label for="max_storage_per_user" class="block text-sm font-medium text-gray-700">Max Storage per User (GB)</label>
+                        <input type="number"
+                               name="max_storage_per_user"
+                               id="max_storage_per_user"
+                               value="{{ old('max_storage_per_user', $siteSettings['max_storage_per_user'] ?? 5) }}"
+                               min="1"
+                               max="100"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        @error('max_storage_per_user')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <div class="flex justify-end">
-                    <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Save Storage Settings
-                    </button>
-                </div>
-            </form>
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Storage Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Personal Admin Preferences -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Personal Admin Preferences</h3>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Personal Admin Preferences</h3>
+                <button type="button"
+                        onclick="toggleSection('admin-preferences')"
+                        class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg id="admin-preferences-icon" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
 
-            <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
-                @csrf
-                @method('PUT')
+            <div id="admin-preferences" class="collapsible-content">
+                <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-                <div>
-                    <label for="theme" class="block text-sm font-medium text-gray-700">Admin Theme</label>
-                    <select name="theme"
-                            id="theme"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <option value="light" {{ old('theme', $userSettings['theme'] ?? 'light') === 'light' ? 'selected' : '' }}>Light</option>
-                        <option value="dark" {{ old('theme', $userSettings['theme'] ?? 'light') === 'dark' ? 'selected' : '' }}>Dark</option>
-                    </select>
-                    @error('theme')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <div>
+                        <label for="theme" class="block text-sm font-medium text-gray-700">Admin Theme</label>
+                        <select name="theme"
+                                id="theme"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="light" {{ old('theme', $userSettings['theme'] ?? 'light') === 'light' ? 'selected' : '' }}>Light</option>
+                            <option value="dark" {{ old('theme', $userSettings['theme'] ?? 'light') === 'dark' ? 'selected' : '' }}>Dark</option>
+                        </select>
+                        @error('theme')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <div class="flex items-center">
-                    <input type="checkbox"
-                           name="notifications_enabled"
-                           id="notifications_enabled"
-                           value="1"
-                           {{ old('notifications_enabled', $userSettings['notifications_enabled'] ?? true) ? 'checked' : '' }}
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="notifications_enabled" class="ml-2 block text-sm text-gray-900">
-                        Enable Admin Notifications
-                    </label>
-                </div>
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               name="notifications_enabled"
+                               id="notifications_enabled"
+                               value="1"
+                               {{ old('notifications_enabled', $userSettings['notifications_enabled'] ?? true) ? 'checked' : '' }}
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="notifications_enabled" class="ml-2 block text-sm text-gray-900">
+                            Enable Admin Notifications
+                        </label>
+                    </div>
 
-                <div class="flex justify-end">
-                    <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Save Personal Settings
-                    </button>
-                </div>
-            </form>
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Personal Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -259,76 +303,183 @@
 <!-- Admin Tools -->
 <div class="mt-8 bg-white shadow rounded-lg">
     <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Administrative Tools</h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">Cache Management</h4>
-                <p class="text-xs text-gray-600 mb-3">Clear all application caches and optimize performance.</p>
-                <button type="button"
-                        onclick="clearAllCache()"
-                        class="w-full bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                    Clear All Cache
-                </button>
-            </div>
-
-            <div class="bg-blue-50 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">Database Backup</h4>
-                <p class="text-xs text-gray-600 mb-3">Create a complete backup of the database.</p>
-                <button type="button"
-                        onclick="createBackup()"
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Create Backup
-                </button>
-            </div>
-
-            <div class="bg-green-50 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">System Health</h4>
-                <p class="text-xs text-gray-600 mb-3">Run comprehensive system health check.</p>
-                <button type="button"
-                        onclick="runHealthCheck()"
-                        class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    Health Check
-                </button>
-            </div>
-
-            <div class="bg-red-50 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">Emergency Reset</h4>
-                <p class="text-xs text-gray-600 mb-3">Reset critical system components if needed.</p>
-                <button type="button"
-                        onclick="emergencyReset()"
-                        class="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                    Emergency Reset
-                </button>
-            </div>
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Administrative Tools</h3>
+            <button type="button"
+                    onclick="toggleSection('admin-tools')"
+                    class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <svg id="admin-tools-icon" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
         </div>
 
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-yellow-50 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">Export Data</h4>
-                <p class="text-xs text-gray-600 mb-3">Export user data, logs, and system information.</p>
-                <button type="button"
-                        onclick="exportAllData()"
-                        class="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                    Export All Data
-                </button>
+        <div id="admin-tools" class="collapsible-content">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Cache Management</h4>
+                    <p class="text-xs text-gray-600 mb-3">Clear all application caches and optimize performance.</p>
+                    <button type="button"
+                            onclick="clearAllCache()"
+                            class="w-full bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Clear All Cache
+                    </button>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Database Backup</h4>
+                    <p class="text-xs text-gray-600 mb-3">Create a complete backup of the database.</p>
+                    <button type="button"
+                            onclick="createBackup()"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Create Backup
+                    </button>
+                </div>
+
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">System Health</h4>
+                    <p class="text-xs text-gray-600 mb-3">Run comprehensive system health check.</p>
+                    <button type="button"
+                            onclick="runHealthCheck()"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Health Check
+                    </button>
+                </div>
+
+                <div class="bg-red-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Emergency Reset</h4>
+                    <p class="text-xs text-gray-600 mb-3">Reset critical system components if needed.</p>
+                    <button type="button"
+                            onclick="emergencyReset()"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Emergency Reset
+                    </button>
+                </div>
             </div>
 
-            <div class="bg-purple-50 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">Activity Logs</h4>
-                <p class="text-xs text-gray-600 mb-3">View and download comprehensive activity logs.</p>
-                <button type="button"
-                        onclick="viewActivityLogs()"
-                        class="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                    View Logs
-                </button>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-yellow-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Export Data</h4>
+                    <p class="text-xs text-gray-600 mb-3">Export user data, logs, and system information.</p>
+                    <button type="button"
+                            onclick="exportAllData()"
+                            class="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        Export All Data
+                    </button>
+                </div>
+
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Activity Logs</h4>
+                    <p class="text-xs text-gray-600 mb-3">View and download comprehensive activity logs.</p>
+                    <button type="button"
+                            onclick="viewActivityLogs()"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        View Logs
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+@push('styles')
+<style>
+    .collapsible-content {
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        overflow: hidden;
+    }
+
+    .collapsible-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    .collapsible-content.expanded {
+        max-height: 2000px;
+        opacity: 1;
+    }
+
+    @media (min-width: 768px) {
+        .collapsible-content {
+            max-height: none !important;
+            opacity: 1 !important;
+        }
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
+// Initialize collapsible sections on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // On mobile, start with sections collapsed except the first one
+    if (window.innerWidth < 768) {
+        const sections = ['site-config', 'system-controls', 'storage-limits', 'admin-preferences', 'admin-tools'];
+        sections.forEach((sectionId, index) => {
+            const content = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId + '-icon');
+
+            if (index === 0) {
+                // First section starts expanded
+                content.classList.add('expanded');
+                content.classList.remove('collapsed');
+            } else {
+                // Other sections start collapsed
+                content.classList.add('collapsed');
+                content.classList.remove('expanded');
+                if (icon) {
+                    icon.style.transform = 'rotate(-90deg)';
+                }
+            }
+        });
+    } else {
+        // On desktop, all sections are expanded
+        const sections = ['site-config', 'system-controls', 'storage-limits', 'admin-preferences', 'admin-tools'];
+        sections.forEach(sectionId => {
+            const content = document.getElementById(sectionId);
+            content.classList.add('expanded');
+            content.classList.remove('collapsed');
+        });
+    }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 768) {
+        // Desktop view - expand all sections
+        const sections = ['site-config', 'system-controls', 'storage-limits', 'admin-preferences', 'admin-tools'];
+        sections.forEach(sectionId => {
+            const content = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId + '-icon');
+
+            content.classList.add('expanded');
+            content.classList.remove('collapsed');
+            if (icon) {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        });
+    }
+});
+
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const icon = document.getElementById(sectionId + '-icon');
+
+    if (content.classList.contains('collapsed')) {
+        content.classList.remove('collapsed');
+        content.classList.add('expanded');
+        if (icon) {
+            icon.style.transform = 'rotate(0deg)';
+        }
+    } else {
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+        if (icon) {
+            icon.style.transform = 'rotate(-90deg)';
+        }
+    }
+}
+
 function clearAllCache() {
     if (confirm('Are you sure you want to clear all application caches?\n\nThis will:\n- Clear route cache\n- Clear config cache\n- Clear view cache\n- Clear compiled services\n\nThis may temporarily slow down the application.')) {
         fetch('{{ route("admin.settings.update") }}', {

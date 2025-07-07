@@ -8,11 +8,17 @@
 
     <title>@yield('title', 'Global Admin Portal') - {{ $siteName ?? config('app.name') }}</title>
     <link rel="icon" type="image/jpg" href="{{ asset($siteLogo ?? 'storage/logos/family-cloud-logo.png') }}">
-    <meta name="description" content="@yield('meta_description', 'Global Admin Portal - ' . ($siteDescription ?? 'Family Cloud System Administration'))">
+    <meta name="description"
+        content="@yield('meta_description', 'Global Admin Portal - ' . ($siteDescription ?? 'Family Cloud System Administration'))">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6.4.0 with correct SRI hash -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Scripts -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -38,113 +44,113 @@
 
     <!-- Theme Toggle Script -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Theme management
-        let currentTheme = localStorage.getItem('theme') || 'system';
+        document.addEventListener('DOMContentLoaded', function () {
+            // Theme management
+            let currentTheme = localStorage.getItem('theme') || 'system';
 
-        function applyTheme(theme) {
-            // Remove dark class first
-            document.documentElement.classList.remove('dark');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else if (theme === 'system') {
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            function applyTheme(theme) {
+                // Remove dark class first
+                document.documentElement.classList.remove('dark');
+                if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
-                }
-            }
-            updateThemeUI(theme);
-        }
-
-        function updateThemeUI(theme) {
-            document.querySelectorAll('[data-theme]').forEach(btn => {
-                const btnTheme = btn.getAttribute('data-theme');
-                if (btnTheme === theme) {
-                    btn.classList.add('bg-gray-200', 'dark:bg-gray-700');
-                } else {
-                    btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-                }
-            });
-            ['', 'Mobile'].forEach(suffix => {
-                const iconElement = document.getElementById(`themeDropdownIcon${suffix}`);
-                const textElement = document.getElementById(`themeDropdownText${suffix}`);
-                if (iconElement && textElement) {
-                    if (theme === 'dark') {
-                        iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.293 14.293A8 8 0 119.707 6.707a8.001 8.001 0 107.586 7.586z" /></svg>';
-                        textElement.textContent = 'Dark';
-                    } else if (theme === 'light') {
-                        iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71M12 5a7 7 0 100 14a7 7 0 000-14z" /></svg>';
-                        textElement.textContent = 'Light';
-                    } else {
-                        iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71" /></svg>';
-                        textElement.textContent = 'System';
+                } else if (theme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark');
                     }
                 }
-            });
-        }
-
-        function setTheme(theme) {
-            currentTheme = theme;
-            localStorage.setItem('theme', theme);
-            applyTheme(theme);
-        }
-
-        // Initialize theme on page load
-        applyTheme(currentTheme);
-
-        // Listen for system theme changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (localStorage.getItem('theme') === 'system') {
-                applyTheme('system');
+                updateThemeUI(theme);
             }
-        });
 
-        // Setup dropdown functionality
-        function setupDropdown(toggleId, menuId) {
-            const toggle = document.getElementById(toggleId);
-            const menu = document.getElementById(menuId);
-            if (!toggle || !menu) return;
-            toggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                menu.classList.toggle('hidden');
-                const otherMenuId = toggleId === 'themeToggleDropdown' ? 'themeDropdownMenuMobile' : 'themeDropdownMenu';
-                const otherMenu = document.getElementById(otherMenuId);
-                if (otherMenu) {
-                    otherMenu.classList.add('hidden');
+            function updateThemeUI(theme) {
+                document.querySelectorAll('[data-theme]').forEach(btn => {
+                    const btnTheme = btn.getAttribute('data-theme');
+                    if (btnTheme === theme) {
+                        btn.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                    } else {
+                        btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                    }
+                });
+                ['', 'Mobile'].forEach(suffix => {
+                    const iconElement = document.getElementById(`themeDropdownIcon${suffix}`);
+                    const textElement = document.getElementById(`themeDropdownText${suffix}`);
+                    if (iconElement && textElement) {
+                        if (theme === 'dark') {
+                            iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.293 14.293A8 8 0 119.707 6.707a8.001 8.001 0 107.586 7.586z" /></svg>';
+                            textElement.textContent = 'Dark';
+                        } else if (theme === 'light') {
+                            iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71M12 5a7 7 0 100 14a7 7 0 000-14z" /></svg>';
+                            textElement.textContent = 'Light';
+                        } else {
+                            iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71" /></svg>';
+                            textElement.textContent = 'System';
+                        }
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                currentTheme = theme;
+                localStorage.setItem('theme', theme);
+                applyTheme(theme);
+            }
+
+            // Initialize theme on page load
+            applyTheme(currentTheme);
+
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (localStorage.getItem('theme') === 'system') {
+                    applyTheme('system');
                 }
             });
-            menu.querySelectorAll('[data-theme]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    setTheme(btn.getAttribute('data-theme'));
-                    menu.classList.add('hidden');
+
+            // Setup dropdown functionality
+            function setupDropdown(toggleId, menuId) {
+                const toggle = document.getElementById(toggleId);
+                const menu = document.getElementById(menuId);
+                if (!toggle || !menu) return;
+                toggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    menu.classList.toggle('hidden');
+                    const otherMenuId = toggleId === 'themeToggleDropdown' ? 'themeDropdownMenuMobile' : 'themeDropdownMenu';
+                    const otherMenu = document.getElementById(otherMenuId);
+                    if (otherMenu) {
+                        otherMenu.classList.add('hidden');
+                    }
+                });
+                menu.querySelectorAll('[data-theme]').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        setTheme(btn.getAttribute('data-theme'));
+                        menu.classList.add('hidden');
+                    });
+                });
+            }
+            setupDropdown('themeToggleDropdown', 'themeDropdownMenu');
+            setupDropdown('themeToggleDropdownMobile', 'themeDropdownMenuMobile');
+            // Mobile menu button functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    mobileMenu.classList.toggle('hidden');
+                    document.getElementById('themeDropdownMenuMobile')?.classList.add('hidden');
+                    document.getElementById('themeDropdownMenu')?.classList.add('hidden');
+                });
+            }
+            // Close all dropdowns when clicking outside
+            document.addEventListener('click', function (e) {
+                const themeDropdowns = ['themeDropdownMenu', 'themeDropdownMenuMobile'];
+                themeDropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    const toggle = document.getElementById(dropdownId.replace('Menu', ''));
+                    if (dropdown && toggle && !dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
                 });
             });
-        }
-        setupDropdown('themeToggleDropdown', 'themeDropdownMenu');
-        setupDropdown('themeToggleDropdownMobile', 'themeDropdownMenuMobile');
-        // Mobile menu button functionality
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mobileMenu.classList.toggle('hidden');
-                document.getElementById('themeDropdownMenuMobile')?.classList.add('hidden');
-                document.getElementById('themeDropdownMenu')?.classList.add('hidden');
-            });
-        }
-        // Close all dropdowns when clicking outside
-        document.addEventListener('click', function(e) {
-            const themeDropdowns = ['themeDropdownMenu', 'themeDropdownMenuMobile'];
-            themeDropdowns.forEach(dropdownId => {
-                const dropdown = document.getElementById(dropdownId);
-                const toggle = document.getElementById(dropdownId.replace('Menu', ''));
-                if (dropdown && toggle && !dropdown.contains(e.target) && !toggle.contains(e.target)) {
-                    dropdown.classList.add('hidden');
-                }
-            });
         });
-    });
     </script>
 
     <script>
@@ -232,4 +238,5 @@
         });
     </script>
 </body>
+
 </html>

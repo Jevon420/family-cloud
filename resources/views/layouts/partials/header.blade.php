@@ -131,13 +131,14 @@
             <div class="pt-2 pb-3 space-y-1 max-h-[70vh] overflow-y-auto">
                 <a href="{{ route('home') }}" class="@if(request()->routeIs('home')) bg-indigo-50 border-indigo-500 text-indigo-700 @else border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 @endif block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</a>
                 @auth
-                    @if(auth()->user()->hasRole('global_admin'))
+                    @if(auth()->user()->hasRole('Global Admin'))
                         <a href="{{ route('admin.home') }}" class="@if(request()->routeIs('admin.*')) bg-indigo-50 border-indigo-500 text-indigo-700 @else border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 @endif block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Global Admin</a>
-                    @elseif(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.settings.comprehensive.index') }}" class="@if(request()->routeIs('admin.settings.comprehensive.index')) bg-indigo-50 border-indigo-500 text-indigo-700 @else border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 @endif block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Global Settings</a>
+                    @elseif(auth()->user()->hasRole('Admin'))
                         <a href="{{ route('admin.home') }}" class="@if(request()->routeIs('admin.*')) bg-indigo-50 border-indigo-500 text-indigo-700 @else border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 @endif block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Admin Dashboard</a>
-                    @elseif(auth()->user()->hasRole('developer'))
+                    @elseif(auth()->user()->hasRole('Developer'))
                         <a href="{{ route('developer.home') }}" class="@if(request()->routeIs('developer.*')) bg-indigo-50 border-indigo-500 text-indigo-700 @else border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 @endif block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Dev Dashboard</a>
-                    @elseif(auth()->user()->hasRole('family'))
+                    @elseif(auth()->user()->hasRole('Family'))
                         <a href="{{ route('family.home') }}" class="@if(request()->routeIs('family.*')) bg-indigo-50 border-indigo-500 text-indigo-700 @else border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 @endif block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Dashboard</a>
                     @endif
                 @endauth
@@ -161,18 +162,18 @@
                         </div>
                     </div>
                     <div class="mt-3 space-y-1">
-                        @if(auth()->user()->hasRole('global_admin'))
+                        @if(auth()->user()->hasRole('Global Admin'))
                             <a href="{{ route('admin.home') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Global Admin Dashboard</a>
                             <a href="{{ route('admin.settings.comprehensive.index') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Global Settings</a>
                         @elseif(auth()->user()->hasRole('admin'))
                             <a href="{{ route('admin.home') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Admin Dashboard</a>
                         @endif
 
-                        @if(auth()->user()->hasRole('developer'))
+                        @if(auth()->user()->hasRole('Developer'))
                             <a href="{{ route('developer.home') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Developer Dashboard</a>
                         @endif
 
-                        @if(auth()->user()->hasRole('family'))
+                        @if(auth()->user()->hasRole('Family'))
                             <a href="{{ route('family.home') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Family Dashboard</a>
                         @endif
 

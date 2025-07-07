@@ -71,20 +71,23 @@ class ProfileController extends Controller
             $profile->created_by = $user->id;
         }
 
+        $profile->display_name = $validated['name'];
+        $profile->phone = $request->input('phone', null); // Assuming phone is
+        $profile->avatar = $request->input('photo_path', null);
         $profile->bio = $validated['bio'] ?? null;
-        $profile->location = $validated['location'] ?? null;
-        $profile->birth_date = $validated['birth_date'] ?? null;
+        $profile->address = $validated['location'] ?? null;
+        $profile->birthdate = $validated['birth_date'] ?? null;
         $profile->updated_by = $user->id;
 
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             // Delete old photo if exists
-            if ($profile->photo_path) {
-                Storage::disk('public')->delete($profile->photo_path);
+            if ($profile->avatar) {
+                Storage::disk('public')->delete($profile->avatar);
             }
 
             $path = $request->file('profile_photo')->store('profile-photos', 'public');
-            $profile->photo_path = $path;
+            $profile->avatar = $path;
         }
 
         $user->profile()->save($profile);

@@ -79,8 +79,8 @@
                                 Profile Photo
                             </label>
                             <div class="flex items-center mb-4">
-                                @if(isset($profile->photo_path))
-                                    <img src="{{ asset('storage/' . $profile->photo_path) }}" alt="{{ $user->name }}" class="w-24 h-24 rounded-full object-cover">
+                                @if(isset($profile->avatar))
+                                    <img src="{{ asset('storage/' . $profile->avatar) }}" alt="{{ $user->name }}" class="w-24 h-24 rounded-full object-cover">
                                 @else
                                     <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center {{ $darkMode ? 'bg-gray-700' : '' }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

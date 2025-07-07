@@ -83,4 +83,9 @@ class Folder extends Model
     {
         return $this->morphMany(SharedItem::class, 'shared');
     }
+
+    public function subfolders()
+    {
+        return $this->hasMany(Folder::class, 'parent_id');
+    }
 }

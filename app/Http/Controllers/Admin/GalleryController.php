@@ -81,7 +81,8 @@ class GalleryController extends Controller
         $data['updated_by'] = auth()->id();
 
         if ($request->hasFile('cover_image')) {
-            $path = $request->file('cover_image')->store('gallery_covers', 'public');
+            $gallerySlug = $data['slug'];
+            $path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
             $data['cover_image'] = $path;
         }
 
@@ -151,7 +152,8 @@ class GalleryController extends Controller
                 Storage::disk('public')->delete($gallery->cover_image);
             }
 
-            $path = $request->file('cover_image')->store('gallery_covers', 'public');
+            $gallerySlug = $data['slug'];
+            $path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
             $data['cover_image'] = $path;
         }
 

@@ -17,23 +17,134 @@
     <!-- Scripts -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     @stack('styles')
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col transition-colors duration-300">
     <div id="app" class="flex flex-1 min-h-0">
         @include('admin.layouts.partials.sidebar')
-        <div class="flex-1 flex flex-col min-h-0 bg-white dark:bg-gray-900 transition-colors duration-300">
+        <div class="flex-1 flex flex-col min-h-0 bg-white transition-colors duration-300">
             @include('admin.layouts.partials.header')
-            <main class="flex-1 p-6 md:p-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+            <main class="flex-1 p-6 md:p-8 bg-gray-50 transition-colors duration-300">
                 @yield('content')
             </main>
         </div>
     </div>
 
     @stack('scripts')
-</body>
 
+    <!-- Theme Toggle Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Theme management
+        let currentTheme = localStorage.getItem('theme') || 'system';
+
+        function applyTheme(theme) {
+            // Remove dark class first
+            document.documentElement.classList.remove('dark');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (theme === 'system') {
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            }
+            updateThemeUI(theme);
+        }
+
+        function updateThemeUI(theme) {
+            document.querySelectorAll('[data-theme]').forEach(btn => {
+                const btnTheme = btn.getAttribute('data-theme');
+                if (btnTheme === theme) {
+                    btn.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                } else {
+                    btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                }
+            });
+            ['', 'Mobile'].forEach(suffix => {
+                const iconElement = document.getElementById(`themeDropdownIcon${suffix}`);
+                const textElement = document.getElementById(`themeDropdownText${suffix}`);
+                if (iconElement && textElement) {
+                    if (theme === 'dark') {
+                        iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.293 14.293A8 8 0 119.707 6.707a8.001 8.001 0 107.586 7.586z" /></svg>';
+                        textElement.textContent = 'Dark';
+                    } else if (theme === 'light') {
+                        iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71M12 5a7 7 0 100 14a7 7 0 000-14z" /></svg>';
+                        textElement.textContent = 'Light';
+                    } else {
+                        iconElement.innerHTML = '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.07l-.71.71M21 12h-1M4 12H3m16.66 5.66l-.71-.71M4.05 4.93l-.71-.71" /></svg>';
+                        textElement.textContent = 'System';
+                    }
+                }
+            });
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
+        }
+
+        // Initialize theme on page load
+        applyTheme(currentTheme);
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (localStorage.getItem('theme') === 'system') {
+                applyTheme('system');
+            }
+        });
+
+        // Setup dropdown functionality
+        function setupDropdown(toggleId, menuId) {
+            const toggle = document.getElementById(toggleId);
+            const menu = document.getElementById(menuId);
+            if (!toggle || !menu) return;
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                menu.classList.toggle('hidden');
+                const otherMenuId = toggleId === 'themeToggleDropdown' ? 'themeDropdownMenuMobile' : 'themeDropdownMenu';
+                const otherMenu = document.getElementById(otherMenuId);
+                if (otherMenu) {
+                    otherMenu.classList.add('hidden');
+                }
+            });
+            menu.querySelectorAll('[data-theme]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    setTheme(btn.getAttribute('data-theme'));
+                    menu.classList.add('hidden');
+                });
+            });
+        }
+        setupDropdown('themeToggleDropdown', 'themeDropdownMenu');
+        setupDropdown('themeToggleDropdownMobile', 'themeDropdownMenuMobile');
+        // Mobile menu button functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileMenu.classList.toggle('hidden');
+                document.getElementById('themeDropdownMenuMobile')?.classList.add('hidden');
+                document.getElementById('themeDropdownMenu')?.classList.add('hidden');
+            });
+        }
+        // Close all dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            const themeDropdowns = ['themeDropdownMenu', 'themeDropdownMenuMobile'];
+            themeDropdowns.forEach(dropdownId => {
+                const dropdown = document.getElementById(dropdownId);
+                const toggle = document.getElementById(dropdownId.replace('Menu', ''));
+                if (dropdown && toggle && !dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+    });
+    </script>
+</body>
 </html>

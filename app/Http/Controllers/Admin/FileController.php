@@ -83,6 +83,7 @@ class FileController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
+            $folderSlug = $request->folder_id ? Folder::find($request->folder_id)->slug : 'uncategorized';
             $filename = time() . '_' . $file->getClientOriginalName();
 
             // Use the uploaded file name if no name is provided
@@ -92,8 +93,8 @@ class FileController extends Controller
 
             $data['slug'] = Str::slug($data['name']);
 
-            // Store file
-            $path = $file->storeAs('files', $filename, 'public');
+            // Store file in folder-specific directory
+            $path = $file->storeAs("files/{$folderSlug}", $filename, 'public');
             $data['file_path'] = $path;
 
             // Set mime type and file size
@@ -107,7 +108,7 @@ class FileController extends Controller
                         $constraint->aspectRatio();
                     })->encode();
 
-                    $thumbnailPath = 'files/thumbnails/' . $filename;
+                    $thumbnailPath = "files/{$folderSlug}/thumbnails/{$filename}";
                     Storage::disk('public')->put($thumbnailPath, $thumbnail);
                     $data['thumbnail_path'] = $thumbnailPath;
                 } catch (\Exception $e) {
@@ -189,10 +190,11 @@ class FileController extends Controller
             }
 
             $uploadedFile = $request->file('file');
+            $folderSlug = $request->folder_id ? Folder::find($request->folder_id)->slug : 'uncategorized';
             $filename = time() . '_' . $uploadedFile->getClientOriginalName();
 
-            // Store file
-            $path = $uploadedFile->storeAs('files', $filename, 'public');
+            // Store file in folder-specific directory
+            $path = $uploadedFile->storeAs("files/{$folderSlug}", $filename, 'public');
             $data['file_path'] = $path;
 
             // Set mime type and file size
@@ -206,7 +208,7 @@ class FileController extends Controller
                         $constraint->aspectRatio();
                     })->encode();
 
-                    $thumbnailPath = 'files/thumbnails/' . $filename;
+                    $thumbnailPath = "files/{$folderSlug}/thumbnails/{$filename}";
                     Storage::disk('public')->put($thumbnailPath, $thumbnail);
                     $data['thumbnail_path'] = $thumbnailPath;
                 } catch (\Exception $e) {

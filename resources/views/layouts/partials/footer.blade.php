@@ -61,9 +61,9 @@
                 </p>
                 <div class="mt-4 md:mt-0 flex flex-col md:flex-row items-center">
                     <ul class="flex space-x-6 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
-                        <li><a href="#" class="hover:text-white">Cookie Policy</a></li>
+                        <li><a href="{{ route('privacy-policy') }}" class="hover:text-white">Privacy Policy</a></li>
+                        <li><a href="{{ route('terms-of-service') }}" class="hover:text-white">Terms of Service</a></li>
+                        <li><a href="{{ route('cookie-policy') }}" class="hover:text-white">Cookie Policy</a></li>
                         <li><a href="https://boostbyte.dev" class="hover:text-white">powered by <span class="font-semibold">boostbyte.dev</span></a></li>
                     </ul>
                 </div>

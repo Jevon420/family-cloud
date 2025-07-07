@@ -65,12 +65,13 @@ class GalleryController extends Controller
 
         $gallery = new Gallery();
         $gallery->user_id = Auth::id();
-        $gallery->title = $validated['title'];
+        $gallery->name = $validated['title'];
         $gallery->slug = Str::slug($validated['title']) . '-' . Str::random(5);
         $gallery->description = $validated['description'] ?? null;
 
         if ($request->hasFile('cover_image')) {
-            $path = $request->file('cover_image')->store('gallery_covers/' . Auth::id(), 'public');
+            $gallerySlug = Str::slug($validated['title']) . '-' . Str::random(5);
+            $path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
             $gallery->cover_image = $path;
         }
 
@@ -125,14 +126,15 @@ class GalleryController extends Controller
         ]);
 
         foreach ($request->file('photos') as $photoFile) {
-            $path = $photoFile->store('gallery_photos/' . Auth::id(), 'public');
+            $path = $photoFile->store("photos/{$gallery->slug}", 'public');
 
             $photo = new Photo();
             $photo->user_id = Auth::id();
             $photo->gallery_id = $gallery->id;
-            $photo->title = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $photo->slug = Str::slug($photoFile->getClientOriginalName(), '-') . '-' . Str::random(5);
+            $photo->name = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
             $photo->file_path = $path;
-            $photo->file_type = $photoFile->getClientMimeType();
+            $photo->mime_type = $photoFile->getClientMimeType();
             $photo->file_size = $photoFile->getSize();
             $photo->created_by = Auth::id();
             $photo->updated_by = Auth::id();

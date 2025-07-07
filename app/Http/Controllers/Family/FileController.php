@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Family;
 use App\Http\Controllers\Controller;
 use App\Models\File;
 use App\Models\Folder;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -105,16 +106,18 @@ class FileController extends Controller
         ]);
 
         $file = $request->file('file');
-        $path = $file->store('user_files/' . Auth::id(), 'public');
+        $folderSlug = $validated['folder_id'] ? Folder::find($validated['folder_id'])->slug : 'uncategorized';
+        $path = $file->store("files/{$folderSlug}", 'public');
 
         $newFile = new File();
         $newFile->user_id = Auth::id();
-        $newFile->title = $validated['title'];
+        $newFile->name = $validated['title'];
+        $newFile->slug = Str::slug($validated['title']) . '-' . Str::random(5);
         $newFile->description = $validated['description'] ?? null;
         $newFile->folder_id = $validated['folder_id'] ?? null;
-        $newFile->filename = $file->getClientOriginalName();
+        //$newFile->filename = $file->getClientOriginalName();
         $newFile->file_path = $path;
-        $newFile->file_type = $file->getClientMimeType();
+        $newFile->mime_type = $file->getClientMimeType();
         $newFile->file_size = $file->getSize();
         $newFile->created_by = Auth::id();
         $newFile->updated_by = Auth::id();

@@ -31,6 +31,11 @@ Route::get('/logout', function() {
     return view('auth.logout');
 })->name('logout.get');
 
+// Terms of Service, Privacy Policy, and Cookie Policy
+Route::get('/terms-of-service', [\App\Http\Controllers\Frontend\TermsOfServiceController::class, 'show'])->name('terms-of-service');
+Route::get('/privacy-policy', [\App\Http\Controllers\Frontend\PrivacyPolicyController::class, 'show'])->name('privacy-policy');
+Route::get('/cookie-policy', [\App\Http\Controllers\Frontend\CookiePolicyController::class, 'show'])->name('cookie-policy');
+
 // Auth Required Routes
 Route::middleware(['auth'])->group(function () {
     // Public Galleries, Photos, Files, and Folders (Auth Required)

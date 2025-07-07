@@ -84,18 +84,19 @@ class PhotoController extends Controller
 
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
+            $gallerySlug = Gallery::find($request->gallery_id)->slug;
             $filename = time() . '_' . $image->getClientOriginalName();
 
-            // Store original image
-            $path = $image->storeAs('photos', $filename, 'public');
+            // Store original image in gallery-specific folder
+            $path = $image->storeAs("photos/{$gallerySlug}", $filename, 'public');
             $data['file_path'] = $path;
 
-            // Create and store thumbnail
+            // Create and store thumbnail in gallery-specific folder
             $thumbnail = Image::make($image)->resize(300, null, function ($constraint) {
                 $constraint->aspectRatio();
             })->encode();
 
-            $thumbnailPath = 'photos/thumbnails/' . $filename;
+            $thumbnailPath = "photos/{$gallerySlug}/thumbnails/{$filename}";
             Storage::disk('public')->put($thumbnailPath, $thumbnail);
             $data['thumbnail_path'] = $thumbnailPath;
 
@@ -177,18 +178,19 @@ class PhotoController extends Controller
             }
 
             $image = $request->file('photo');
+            $gallerySlug = Gallery::find($request->gallery_id)->slug;
             $filename = time() . '_' . $image->getClientOriginalName();
 
-            // Store original image
-            $path = $image->storeAs('photos', $filename, 'public');
+            // Store original image in gallery-specific folder
+            $path = $image->storeAs("photos/{$gallerySlug}", $filename, 'public');
             $data['file_path'] = $path;
 
-            // Create and store thumbnail
+            // Create and store thumbnail in gallery-specific folder
             $thumbnail = Image::make($image)->resize(300, null, function ($constraint) {
                 $constraint->aspectRatio();
             })->encode();
 
-            $thumbnailPath = 'photos/thumbnails/' . $filename;
+            $thumbnailPath = "photos/{$gallerySlug}/thumbnails/{$filename}";
             Storage::disk('public')->put($thumbnailPath, $thumbnail);
             $data['thumbnail_path'] = $thumbnailPath;
 

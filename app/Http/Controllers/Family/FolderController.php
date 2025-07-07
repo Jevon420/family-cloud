@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Folder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class FolderController extends Controller
 {
@@ -79,11 +81,15 @@ class FolderController extends Controller
         $folder = new Folder();
         $folder->user_id = Auth::id();
         $folder->name = $validated['name'];
+        $folder->slug = Str::slug($validated['name']) . '-' . Str::random(5);
         $folder->description = $validated['description'] ?? null;
         $folder->parent_id = $validated['parent_id'] ?? null;
         $folder->created_by = Auth::id();
         $folder->updated_by = Auth::id();
         $folder->save();
+
+        $folderSlug = Str::slug($validated['name']);
+        Storage::disk('public')->makeDirectory("files/folder/{$folderSlug}");
 
         return redirect()->route('family.folders.show', $folder->id)
             ->with('success', 'Folder created successfully.');

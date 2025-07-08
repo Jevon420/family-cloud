@@ -39,6 +39,9 @@ Route::get('/terms-of-service', [\App\Http\Controllers\Frontend\TermsOfServiceCo
 Route::get('/privacy-policy', [\App\Http\Controllers\Frontend\PrivacyPolicyController::class, 'show'])->name('privacy-policy');
 Route::get('/cookie-policy', [\App\Http\Controllers\Frontend\CookiePolicyController::class, 'show'])->name('cookie-policy');
 
+// Shared link route (public access)
+Route::get('/shared/{token}', [\App\Http\Controllers\Family\SharingController::class, 'showSharedLink'])->name('shared.link');
+
 // Auth Required Routes
 Route::middleware(['auth', 'password.change.required'])->group(function () {
     // Public Galleries, Photos, Files, and Folders (Auth Required)
@@ -254,6 +257,15 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
             Route::get('/files', [\App\Http\Controllers\Family\StorageController::class, 'files'])->name('files');
             Route::get('/photos', [\App\Http\Controllers\Family\StorageController::class, 'photos'])->name('photos');
             Route::get('/galleries', [\App\Http\Controllers\Family\StorageController::class, 'galleries'])->name('galleries');
+        });
+
+        // Sharing functionality
+        Route::prefix('sharing')->name('sharing.')->group(function () {
+            Route::post('/share-with-user', [\App\Http\Controllers\Family\SharingController::class, 'shareWithUser'])->name('share-with-user');
+            Route::post('/generate-link', [\App\Http\Controllers\Family\SharingController::class, 'generateShareLink'])->name('generate-link');
+            Route::delete('/remove-share/{shareId}', [\App\Http\Controllers\Family\SharingController::class, 'removeShare'])->name('remove-share');
+            Route::get('/shared-users', [\App\Http\Controllers\Family\SharingController::class, 'getSharedUsers'])->name('shared-users');
+            Route::get('/search-users', [\App\Http\Controllers\Family\SharingController::class, 'searchUsers'])->name('search-users');
         });
 
         // Files and Folders

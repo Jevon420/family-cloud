@@ -109,4 +109,100 @@ trait HasMediaVisibility
     {
         return $this->visibility && $this->visibility->visibility === 'link';
     }
+
+    /**
+     * Get the visibility relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function visibility()
+    {
+        return $this->morphOne('App\Models\MediaVisibility', 'media');
+    }
+
+    /**
+     * Get the shared media relationships.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function sharedMedia()
+    {
+        return $this->morphMany('App\Models\SharedMedia', 'media');
+    }
+
+    /**
+     * Scope for media shared with a specific user.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $userId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSharedWithUser($query, $userId)
+    {
+        return $query->whereHas('sharedMedia', function($q) use ($userId) {
+            $q->where('shared_with', $userId)
+              ->where(function ($query) {
+                  $query->whereNull('expires_at')
+                        ->orWhere('expires_at', '>', now());
+              });
+        });
+    }
+
+    /**
+     * Check if media is shared with a specific user.
+     *
+     * @param  int  $userId
+     * @return bool
+     */
+    public function isSharedWithUser($userId)
+    {
+        return $this->sharedMedia()
+            ->where('shared_with', $userId)
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', now());
+            })
+            ->exists();
+    }
+
+    /**
+     * Share media with a user.
+     *
+     * @param  int  $userId
+     * @param  array  $permissions
+     * @param  \DateTime|null  $expiresAt
+     * @return \App\Models\SharedMedia
+     */
+    public function shareWithUser($userId, $permissions = ['view'], $expiresAt = null)
+    {
+        return $this->sharedMedia()->create([
+            'shared_by' => auth()->id(),
+            'shared_with' => $userId,
+            'permissions' => $permissions,
+            'expires_at' => $expiresAt,
+            'share_token' => \Str::random(32),
+            'created_by' => auth()->id(),
+        ]);
+    }
+
+    /**
+     * Generate a shareable link.
+     *
+     * @param  \DateTime|null  $expiresAt
+     * @return string
+     */
+    public function generateShareableLink($expiresAt = null)
+    {
+        $this->visibility()->updateOrCreate(
+            ['media_type' => get_class($this), 'media_id' => $this->id],
+            [
+                'visibility' => 'link',
+                'share_token' => \Str::random(32),
+                'expires_at' => $expiresAt,
+                'created_by' => auth()->id(),
+            ]
+        );
+
+        return route('shared.link', $this->visibility->share_token);
+    }
 }

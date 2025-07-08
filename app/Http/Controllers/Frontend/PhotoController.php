@@ -4,30 +4,59 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Photo;
+use App\Models\SharedMedia;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
 {
     public function index(Request $request)
     {
-        $photos = Photo::public()
+        $photos = Photo::where('visibility', 'public')
+            ->with('visibility')
             ->orderBy('created_at', 'desc')
             ->paginate(24);
 
+        $sharedPhotos = collect();
+        if (auth()->check()) {
+            $sharedPhotos = Photo::sharedWithUser(auth()->id())
+                ->with(['visibility', 'sharedMedia' => function($query) {
+                    $query->where('shared_with', auth()->id());
+                }])
+                ->orderBy('created_at', 'desc')
+                ->paginate(24);
+        }
+
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('public.photos.partials.photo-grid', compact('photos'))->render(),
-                'hasMorePages' => $photos->hasMorePages()
+                'html' => view('public.photos.partials.photo-grid', compact('photos', 'sharedPhotos'))->render(),
+                'hasMorePages' => $photos->hasMorePages() || $sharedPhotos->hasMorePages()
             ]);
         }
 
-        return view('public.photos.index', compact('photos'));
+        return view('public.photos.index', compact('photos', 'sharedPhotos'));
     }
 
     public function show(Request $request, $id)
     {
         $photo = Photo::where('id', $id)
-            ->public()
+            ->where(function($query) {
+                $query->whereHas('visibility', function($q) {
+                    $q->where('visibility', 'public');
+                });
+
+                if (auth()->check()) {
+                    $query->orWhere(function($q) {
+                        $q->whereHas('sharedMedia', function($sq) {
+                            $sq->where('shared_with', auth()->id())
+                              ->where(function ($expireQuery) {
+                                  $expireQuery->whereNull('expires_at')
+                                            ->orWhere('expires_at', '>', now());
+                              });
+                        });
+                    });
+                }
+            })
+            ->with(['visibility', 'sharedMedia'])
             ->firstOrFail();
 
         // Get next and previous photos

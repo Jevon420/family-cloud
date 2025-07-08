@@ -8,18 +8,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Traits\TracksAudit;
 
-class MediaVisibility extends Model
+class SharedMedia extends Model
 {
     use HasFactory, SoftDeletes, TracksAudit;
 
-    protected $table = 'media_visibility';
+    protected $table = 'shared_media';
 
     protected $fillable = [
         'media_type',
         'media_id',
-        'visibility',
-        'allow_download',
+        'shared_by',
+        'shared_with',
         'share_token',
+        'permissions',
         'expires_at',
         'created_by',
         'updated_by',
@@ -29,7 +30,7 @@ class MediaVisibility extends Model
     ];
 
     protected $casts = [
-        'allow_download' => 'boolean',
+        'permissions' => 'array',
         'expires_at' => 'datetime',
         'restored_at' => 'datetime',
     ];
@@ -38,6 +39,16 @@ class MediaVisibility extends Model
     public function media()
     {
         return $this->morphTo();
+    }
+
+    public function sharedBy()
+    {
+        return $this->belongsTo(User::class, 'shared_by');
+    }
+
+    public function sharedWith()
+    {
+        return $this->belongsTo(User::class, 'shared_with');
     }
 
     public function creator()
@@ -58,5 +69,35 @@ class MediaVisibility extends Model
     public function restorer()
     {
         return $this->belongsTo(User::class, 'restored_by');
+    }
+
+    // Scopes
+    public function scopeActiveShares($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>', now());
+        });
+    }
+
+    public function scopeSharedWithUser($query, $userId)
+    {
+        return $query->where('shared_with', $userId);
+    }
+
+    public function scopeSharedByUser($query, $userId)
+    {
+        return $query->where('shared_by', $userId);
+    }
+
+    // Helper methods
+    public function isExpired()
+    {
+        return $this->expires_at && $this->expires_at < now();
+    }
+
+    public function hasPermission($permission)
+    {
+        return in_array($permission, $this->permissions ?? []);
     }
 }

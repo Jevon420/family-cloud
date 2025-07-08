@@ -48,6 +48,72 @@
             <!-- Empty State -->
             <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No galleries</h3>
+                <p class="mt-1 text-sm text-gray-500">No public galleries are available at the moment.</p>
+            </div>
+        @endif
+
+        <!-- Shared with You Section -->
+        @auth
+            @if(isset($sharedGalleries) && $sharedGalleries->count() > 0)
+                <div class="mt-16 border-t border-gray-200 pt-16">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl font-bold text-gray-900">Shared with You</h2>
+                        <p class="mt-2 text-gray-600">Galleries that have been shared with you privately</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                        @foreach($sharedGalleries as $gallery)
+                            <div class="group relative">
+                                <div class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+                                    @if($gallery->cover_image)
+                                        <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->name }}" class="w-full h-full object-center object-cover lg:w-full lg:h-full">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                                            <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="mt-4 flex justify-between">
+                                    <div>
+                                        <h3 class="text-sm text-gray-700">
+                                            <a href="{{ route('galleries.show', $gallery->slug) }}">
+                                                <span aria-hidden="true" class="absolute inset-0"></span>
+                                                {{ $gallery->name }}
+                                            </a>
+                                        </h3>
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Shared by {{ $gallery->user->name }}
+                                        </p>
+                                        @if($gallery->description)
+                                            <p class="mt-1 text-xs text-gray-500">{{ Str::limit($gallery->description, 60) }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">{{ $gallery->photos_count }} photos</p>
+                                        <p class="text-xs text-gray-500">{{ $gallery->created_at->format('M j, Y') }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Shared indicator -->
+                                <div class="absolute top-2 right-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                        </svg>
+                                        Shared
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        @endauth
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-7v14a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2h10a2 2 0 012 2z" />
                 </svg>
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No galleries yet</h3>
@@ -61,7 +127,7 @@
                     </a>
                 </div>
             </div>
-        @endif
+
     </div>
 </div>
 @endsection

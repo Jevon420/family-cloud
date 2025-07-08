@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\EmailConfiguration;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use App\Notifications\RegistrationRequestNotification;
 use App\Notifications\RegistrationRequestReceived;
 use App\Notifications\NewRegistrationSiteNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 
 class CustomRegisterController extends Controller
 {
@@ -69,6 +71,14 @@ class CustomRegisterController extends Controller
 
         event(new Registered($user = $this->create($request->all())));
 
+        // Get the support email configuration
+        $supportEmailConfig = EmailConfiguration::where('email', 'support@jevonredhead.com')->first();
+
+        if ($supportEmailConfig) {
+            // Configure mail to use support email temporarily
+            $this->configureMailer($supportEmailConfig);
+        }
+
         // Notify the user that their registration is pending approval
         $user->notify(new RegistrationRequestReceived($user));
 
@@ -77,12 +87,28 @@ class CustomRegisterController extends Controller
         Notification::send($admins, new RegistrationRequestNotification($user));
 
         // Notify the site email
-        $siteEmail = config('mail.from.address');
+        $siteEmail = $supportEmailConfig ? $supportEmailConfig->email : config('mail.from.address');
         Notification::route('mail', $siteEmail)
             ->notify(new NewRegistrationSiteNotification($user));
 
         return redirect()->route('login')
             ->with('status', 'Your registration request has been received. You will be notified by email once an administrator approves your account.');
+    }
+
+    /**
+     * Configure the mailer to use the support email configuration
+     */
+    private function configureMailer(EmailConfiguration $emailConfig)
+    {
+        config([
+            'mail.mailers.smtp.host' => $emailConfig->smtp_host,
+            'mail.mailers.smtp.port' => $emailConfig->smtp_port,
+            'mail.mailers.smtp.encryption' => $emailConfig->smtp_encryption,
+            'mail.mailers.smtp.username' => $emailConfig->smtp_username,
+            'mail.mailers.smtp.password' => $emailConfig->password,
+            'mail.from.address' => $emailConfig->email,
+            'mail.from.name' => config('app.name'),
+        ]);
     }
 
     /**

@@ -69,7 +69,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('family.storage') }}" class="block px-4 py-3 rounded-lg text-white font-medium bg-gradient-to-r from-indigo-700 to-indigo-500 shadow-md hover:shadow-lg transform hover:scale-105 transition-transform">
+                    <a href="{{ route('family.storage.index') }}" class="block px-4 py-3 rounded-lg text-white font-medium bg-gradient-to-r from-indigo-700 to-indigo-500 shadow-md hover:shadow-lg transform hover:scale-105 transition-transform">
                         <div class="flex items-center">
                             <svg class="mr-3 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 1.79 4 4 4h8c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4H8c-2.21 0-4 1.79-4 4z" />

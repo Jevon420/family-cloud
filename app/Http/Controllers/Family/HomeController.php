@@ -30,8 +30,8 @@ class HomeController extends Controller
         }
 
         $userSettings = auth()->user()->settings()->pluck('value', 'key');
-        $simpleDashboard = $userSettings['simple_dashboard'] ?? false;
-        $darkMode = $userSettings['dark_mode'] ?? false;
+        $simpleDashboard = filter_var($userSettings['simple_dashboard'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $darkMode = filter_var($userSettings['dark_mode'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         // Get recent galleries with cover images
         $recentGalleries = auth()->user()->galleries()

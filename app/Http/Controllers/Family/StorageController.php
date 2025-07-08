@@ -20,27 +20,27 @@ class StorageController extends Controller
     public function index()
     {
         $userSettings = auth()->user()->settings()->pluck('value', 'key');
-        $darkMode = $userSettings['dark_mode'] ?? false;
+        $darkMode = filter_var($userSettings['dark_mode'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         // Get comprehensive storage data
         $storageData = $this->getStorageData();
-        
+
         return view('family.storage.index', compact('storageData', 'darkMode'));
     }
 
     public function files()
     {
         $userSettings = auth()->user()->settings()->pluck('value', 'key');
-        $darkMode = $userSettings['dark_mode'] ?? false;
+        $darkMode = filter_var($userSettings['dark_mode'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $files = auth()->user()->files()
-            ->select('id', 'name', 'size', 'mime_type', 'created_at')
-            ->orderBy('size', 'desc')
+            ->select('id', 'name', 'file_size', 'mime_type', 'created_at')
+            ->orderBy('file_size', 'desc')
             ->paginate(20);
 
-        $totalSize = auth()->user()->files()->sum('size');
+        $totalSize = auth()->user()->files()->sum('file_size');
         $fileTypes = auth()->user()->files()
-            ->select('mime_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(size) as total_size'))
+            ->select('mime_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(file_size) as total_size'))
             ->groupBy('mime_type')
             ->orderBy('total_size', 'desc')
             ->get();
@@ -51,7 +51,7 @@ class StorageController extends Controller
     public function photos()
     {
         $userSettings = auth()->user()->settings()->pluck('value', 'key');
-        $darkMode = $userSettings['dark_mode'] ?? false;
+        $darkMode = filter_var($userSettings['dark_mode'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $photos = auth()->user()->photos()
             ->select('id', 'name', 'file_size', 'mime_type', 'file_path', 'created_at')
@@ -71,7 +71,7 @@ class StorageController extends Controller
     public function galleries()
     {
         $userSettings = auth()->user()->settings()->pluck('value', 'key');
-        $darkMode = $userSettings['dark_mode'] ?? false;
+        $darkMode = filter_var($userSettings['dark_mode'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $galleries = auth()->user()->galleries()
             ->withCount('photos')
@@ -88,7 +88,7 @@ class StorageController extends Controller
     private function getStorageData()
     {
         $userId = auth()->id();
-        
+
         // Basic counts
         $totalFiles = File::where('user_id', $userId)->count();
         $totalFolders = Folder::where('user_id', $userId)->count();
@@ -96,14 +96,14 @@ class StorageController extends Controller
         $totalGalleries = Gallery::where('user_id', $userId)->count();
 
         // Storage calculations
-        $fileStorage = File::where('user_id', $userId)->sum('size') ?? 0;
+        $fileStorage = File::where('user_id', $userId)->sum('file_size') ?? 0;
         $photoStorage = Photo::where('user_id', $userId)->sum('file_size') ?? 0;
         $totalUsed = $fileStorage + $photoStorage;
         $maxStorage = auth()->user()->storage_quota_gb ? auth()->user()->storage_quota_gb * 1024 * 1024 * 1024 : 5 * 1024 * 1024 * 1024;
 
         // File type breakdown
         $fileTypes = File::where('user_id', $userId)
-            ->select('mime_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(size) as total_size'))
+            ->select('mime_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(file_size) as total_size'))
             ->groupBy('mime_type')
             ->orderBy('total_size', 'desc')
             ->get();
@@ -122,12 +122,12 @@ class StorageController extends Controller
             $files = File::where('user_id', $userId)
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
-                ->sum('size') ?? 0;
+                ->sum('file_size') ?? 0;
             $photos = Photo::where('user_id', $userId)
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->sum('file_size') ?? 0;
-            
+
             $monthlyUsage->push([
                 'month' => $date->format('M Y'),
                 'files' => $files,
@@ -138,7 +138,7 @@ class StorageController extends Controller
 
         // Largest files
         $largestFiles = File::where('user_id', $userId)
-            ->orderBy('size', 'desc')
+            ->orderBy('file_size', 'desc')
             ->take(10)
             ->get();
 

@@ -10,7 +10,7 @@
             <h1 class="text-3xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">Storage Details</h1>
             <p class="mt-2 text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-600' }}">Detailed breakdown of your storage usage</p>
         </div>
-        <a href="{{ route('family.dashboard') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
+        <a href="{{ route('family.home') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
             <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
@@ -39,7 +39,7 @@
                 </div>
                 <div class="text-center space-y-2">
                     <p class="text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-600' }}">
-                        {{ number_format($storageData['summary']['totalUsed'] / (1024 * 1024), 2) }} MB used of 
+                        {{ number_format($storageData['summary']['totalUsed'] / (1024 * 1024), 2) }} MB used of
                         {{ number_format($storageData['summary']['maxStorage'] / (1024 * 1024), 2) }} MB
                     </p>
                     <p class="text-xs {{ $darkMode ? 'text-gray-500' : 'text-gray-500' }}">
@@ -62,7 +62,7 @@
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $storageData['summary']['totalUsed'] > 0 ? ($storageData['summary']['fileStorage'] / $storageData['summary']['totalUsed']) * 100 : 0 }}%"></div>
                 </div>
-                
+
                 <div class="flex justify-between items-center">
                     <span class="text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-600' }}">Photos</span>
                     <span class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }}">

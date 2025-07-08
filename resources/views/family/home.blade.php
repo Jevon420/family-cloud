@@ -36,13 +36,13 @@
         <h2 class="text-xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">Storage Overview</h2>
         <a href="{{ route('family.storage.index') }}" class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">View Details →</a>
     </div>
-    
+
     <!-- Storage Progress Bar -->
     <div class="mb-6 p-4 {{ $darkMode ? 'bg-gray-800' : 'bg-white' }} rounded-lg shadow">
         <div class="flex justify-between items-center mb-2">
             <span class="text-sm font-medium {{ $darkMode ? 'text-gray-300' : 'text-gray-700' }}">Storage Used</span>
             <span class="text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">
-                {{ number_format($storageSummary['usedStorage'] / (1024 * 1024), 2) }} MB of 
+                {{ number_format($storageSummary['usedStorage'] / (1024 * 1024), 2) }} MB of
                 {{ number_format($storageSummary['maxStorage'] / (1024 * 1024), 2) }} MB
             </span>
         </div>
@@ -263,7 +263,7 @@
 function toggleSection(sectionId) {
     const section = document.getElementById(sectionId);
     const toggle = document.getElementById(sectionId + 'Toggle');
-    
+
     if (section.classList.contains('expanded')) {
         section.classList.remove('expanded');
         section.classList.add('collapsed');

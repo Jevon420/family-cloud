@@ -10,7 +10,9 @@
             <a href="{{ route('admin.photos.edit', $photo) }}" class="px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 mr-2">
                 Edit Photo
             </a>
-            <a href="{{ route('admin.photos.index') }}" class="px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            @php $darkMode = false; @endphp
+            @include('family.partials.share-button', ['media' => $photo, 'mediaType' => 'photo'])
+            <a href="{{ route('admin.photos.index') }}" class="px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 ml-2">
                 Back to Photos
             </a>
         </div>

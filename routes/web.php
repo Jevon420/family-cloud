@@ -42,6 +42,9 @@ Route::get('/cookie-policy', [\App\Http\Controllers\Frontend\CookiePolicyControl
 // Shared link route (public access)
 Route::get('/shared/{token}', [\App\Http\Controllers\Family\SharingController::class, 'showSharedLink'])->name('shared.link');
 
+// Shared media route (for user-to-user shares)
+Route::get('/shared/media/{token}', [\App\Http\Controllers\Family\SharingController::class, 'showSharedMedia'])->name('shared.media');
+
 // Auth Required Routes
 Route::middleware(['auth', 'password.change.required'])->group(function () {
     // Public Galleries, Photos, Files, and Folders (Auth Required)
@@ -266,6 +269,9 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
             Route::delete('/remove-share/{shareId}', [\App\Http\Controllers\Family\SharingController::class, 'removeShare'])->name('remove-share');
             Route::get('/shared-users', [\App\Http\Controllers\Family\SharingController::class, 'getSharedUsers'])->name('shared-users');
             Route::get('/search-users', [\App\Http\Controllers\Family\SharingController::class, 'searchUsers'])->name('search-users');
+            Route::get('/media-visibility', [\App\Http\Controllers\Family\SharingController::class, 'getMediaVisibility'])->name('media-visibility');
+            Route::post('/update-visibility', [\App\Http\Controllers\Family\SharingController::class, 'updateVisibility'])->name('update-visibility');
+            Route::post('/email-link', [\App\Http\Controllers\Family\SharingController::class, 'emailShareLink'])->name('email-link');
         });
 
         // Files and Folders

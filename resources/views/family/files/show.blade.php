@@ -6,6 +6,9 @@
 <div class="container mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">{{ $file->title }}</h1>
+        <div>
+            @include('family.partials.share-button', ['media' => $file, 'mediaType' => 'file', 'darkMode' => $darkMode])
+        </div>
     </div>
 
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900' }}">
@@ -17,4 +20,6 @@
         </a>
     </div>
 </div>
+
+@include('family.partials.sharing-modal', ['darkMode' => $darkMode])
 @endsection

@@ -15,8 +15,9 @@
                 @endif
             </div>
         </div>
-        <div>
-            <a href="{{ route('admin.folders.edit', $folder) }}" class="px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 mr-2">
+        <div class="flex space-x-2">
+            @include('family.partials.share-button', ['media' => $folder, 'mediaType' => 'folder', 'darkMode' => false])
+            <a href="{{ route('admin.folders.edit', $folder) }}" class="px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
                 Edit Folder
             </a>
             <a href="{{ route('admin.folders.index') }}" class="px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -310,4 +311,6 @@
         </div>
     </div>
 </div>
+
+@include('family.partials.sharing-modal', ['darkMode' => false])
 @endsection

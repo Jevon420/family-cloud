@@ -123,6 +123,18 @@ class FileController extends Controller
         $newFile->updated_by = Auth::id();
         $newFile->save();
 
+        // Create a visibility record for the file (default to private)
+        // If this file belongs to a folder, inherit the folder's visibility
+        $visibility = 'private';
+        if ($newFile->folder_id && $newFile->folder->visibility) {
+            $visibility = $newFile->folder->visibility->visibility;
+        }
+
+        $newFile->visibility()->create([
+            'visibility' => $visibility,
+            'created_by' => Auth::id(),
+        ]);
+
         return redirect()->route('family.files.show', $newFile->id)
             ->with('success', 'File uploaded successfully.');
     }

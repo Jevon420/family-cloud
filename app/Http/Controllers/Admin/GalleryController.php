@@ -88,6 +88,12 @@ class GalleryController extends Controller
 
         $gallery = Gallery::create($data);
 
+        // Create a visibility record for the gallery
+        $gallery->visibility()->create([
+            'visibility' => $request->visibility,
+            'created_by' => auth()->id(),
+        ]);
+
         if ($request->has('tags')) {
             $gallery->tags()->attach($request->tags);
         }

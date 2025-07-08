@@ -1,4 +1,26 @@
-@if($media->visibility === 'private' || $media->isPrivate())
+@php
+    try {
+        // Ensure there's a visibility record for this media
+        if (!$media->visibility) {
+            try {
+                $media->visibility()->create([
+                    'visibility' => 'private',
+                    'created_by' => auth()->id(),
+                ]);
+                // Refresh the model to get the new visibility relationship
+                $media->refresh();
+            } catch (\Exception $e) {
+                // Log the error but still show the button
+                \Log::error('Error creating visibility record: ' . $e->getMessage());
+            }
+        }
+    } catch (\Exception $e) {
+        // Log the error but still show the button
+        \Log::error('Error in share button: ' . $e->getMessage());
+    }
+@endphp
+
+{{-- Always show the share button, regardless of visibility --}}
 <button onclick="openSharingModal('{{ $mediaType }}', {{ $media->id }}, '{{ addslashes($media->name) }}')"
         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md {{ $darkMode ? 'text-gray-300 bg-gray-700 hover:bg-gray-600' : 'text-gray-700 bg-gray-100 hover:bg-gray-200' }} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         title="Share {{ $media->name }}">
@@ -7,4 +29,3 @@
     </svg>
     Share
 </button>
-@endif

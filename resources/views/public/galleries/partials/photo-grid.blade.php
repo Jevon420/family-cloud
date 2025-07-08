@@ -3,7 +3,7 @@
     @foreach($photos as $photo)
     <a href="{{ route('photos.show', $photo->id) }}" class="group">
         <div class="aspect-w-1 aspect-h-1 xl:aspect-w-7 xl:aspect-h-8 w-full overflow-hidden rounded-lg bg-gray-200 shadow-md">
-            <img src="{{ asset($photo->thumbnail_path ?? $photo->file_path) }}" alt="{{ $photo->name }}" class="h-full w-full object-cover object-center group-hover:opacity-75">
+            <img src="{{ asset('/storage/' . ($photo->thumbnail_path ?? $photo->file_path)) }}" alt="{{ $photo->name }}" class="h-full w-full object-cover object-center group-hover:opacity-75">
         </div>
         <h3 class="mt-4 text-sm text-gray-700">{{ $photo->name }}</h3>
     </a>

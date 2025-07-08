@@ -88,6 +88,12 @@ class FolderController extends Controller
 
         $folder = Folder::create($data);
 
+        // Create a visibility record for the folder
+        $folder->visibility()->create([
+            'visibility' => $request->visibility,
+            'created_by' => auth()->id(),
+        ]);
+
         if ($request->has('tags')) {
             $folder->tags()->attach($request->tags);
         }

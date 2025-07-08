@@ -10,7 +10,9 @@
             <a href="{{ route('admin.galleries.edit', $gallery) }}" class="px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 mr-2">
                 Edit Gallery
             </a>
-            <a href="{{ route('admin.galleries.index') }}" class="px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            @php $darkMode = false; @endphp
+            @include('family.partials.share-button', ['media' => $gallery, 'mediaType' => 'gallery'])
+            <a href="{{ route('admin.galleries.index') }}" class="px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 ml-2">
                 Back to Galleries
             </a>
         </div>

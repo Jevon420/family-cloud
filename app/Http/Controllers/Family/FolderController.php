@@ -88,6 +88,18 @@ class FolderController extends Controller
         $folder->updated_by = Auth::id();
         $folder->save();
 
+        // Create a visibility record for the folder (default to private)
+        // If this folder has a parent, inherit the parent's visibility
+        $visibility = 'private';
+        if ($folder->parent_id && $folder->parent->visibility) {
+            $visibility = $folder->parent->visibility->visibility;
+        }
+
+        $folder->visibility()->create([
+            'visibility' => $visibility,
+            'created_by' => Auth::id(),
+        ]);
+
         $folderSlug = Str::slug($validated['name']);
         Storage::disk('public')->makeDirectory("files/folder/{$folderSlug}");
 

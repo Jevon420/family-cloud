@@ -119,6 +119,12 @@ class FileController extends Controller
 
         $file = File::create($data);
 
+        // Create a visibility record for the file
+        $file->visibility()->create([
+            'visibility' => $request->visibility,
+            'created_by' => auth()->id(),
+        ]);
+
         if ($request->has('tags')) {
             $file->tags()->attach($request->tags);
         }

@@ -71,13 +71,19 @@ class GalleryController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $gallerySlug = Str::slug($validated['title']) . '-' . Str::random(5);
-            $path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
+            $path = $request->file('cover_image')->storeAs("galleries/gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
             $gallery->cover_image = $path;
         }
 
         $gallery->created_by = Auth::id();
         $gallery->updated_by = Auth::id();
         $gallery->save();
+
+        // Create a visibility record for the gallery (default to private)
+        $gallery->visibility()->create([
+            'visibility' => 'private',
+            'created_by' => Auth::id(),
+        ]);
 
         return redirect()->route('family.galleries.show', $gallery->slug)
             ->with('success', 'Gallery created successfully.');
@@ -161,6 +167,13 @@ class GalleryController extends Controller
             $photo->created_by = Auth::id();
             $photo->updated_by = Auth::id();
             $photo->save();
+
+            // Create a visibility record for the photo (inherit from gallery or default to private)
+            $galleryVisibility = $gallery->visibility ? $gallery->visibility->visibility : 'private';
+            $photo->visibility()->create([
+                'visibility' => $galleryVisibility,
+                'created_by' => Auth::id(),
+            ]);
         }
 
         return redirect()->route('family.galleries.show', $gallery->slug)

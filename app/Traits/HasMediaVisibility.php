@@ -87,6 +87,11 @@ trait HasMediaVisibility
      */
     public function isPrivate()
     {
+        // If no visibility record exists, treat it as private (to allow sharing)
+        if (!$this->visibility) {
+            return true;
+        }
+
         return $this->visibility && $this->visibility->visibility === 'private';
     }
 

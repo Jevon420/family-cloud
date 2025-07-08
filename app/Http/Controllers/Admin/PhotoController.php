@@ -107,6 +107,12 @@ class PhotoController extends Controller
 
         $photo = Photo::create($data);
 
+        // Create a visibility record for the photo
+        $photo->visibility()->create([
+            'visibility' => $request->visibility,
+            'created_by' => auth()->id(),
+        ]);
+
         if ($request->has('tags')) {
             $photo->tags()->attach($request->tags);
         }

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordChangeNotification;
+use App\Services\EmailConfigurationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 
 class PasswordChangeController extends Controller
@@ -54,7 +57,10 @@ class PasswordChangeController extends Controller
             'password_change_required' => false,
         ]);
 
-        return redirect()->intended('/family/home')
+        EmailConfigurationService::configureSupportEmail();
+        Mail::to($user->email)->send(new PasswordChangeNotification($user));
+
+        return redirect()->intended('/family')
                          ->with('success', 'Password changed successfully!');
     }
 }

@@ -96,7 +96,29 @@ class GalleryController extends Controller
         // Check if the user is authorized to view this gallery
         $this->authorize('view', $gallery);
 
-        $photos = $gallery->photos()->latest()->paginate(24);
+        // Handle search and filter
+        $query = $gallery->photos();
+
+        if (request()->has('search')) {
+            $search = request('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if (request()->has('sort') && !empty(request('sort'))) {
+            $sort = request('sort');
+            $sortOrder = request('sort_order', 'asc');
+            $query->orderBy($sort, $sortOrder);
+        } else {
+            $query->latest();
+        }
+
+        $photos = $query->paginate(24);
+
+        // Handle AJAX request
+        if (request()->ajax()) {
+            $html = view('family.galleries.partials.photos', compact('photos'))->render();
+            return response()->json(['html' => $html]);
+        }
 
         // User settings for view preferences
         $theme = $this->getUserSetting('theme', 'light');

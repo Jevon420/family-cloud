@@ -23,14 +23,44 @@ class PhotoController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $photos = $user->photos()->with('gallery')->latest()->paginate(24);
+        $search = request('search');
+        $galleryId = request('gallery');
+        $sort = request('sort');
+        $sortOrder = request('sort_order', 'asc');
+
+        $photosQuery = $user->photos()->with('gallery')->latest();
+
+        if ($search) {
+            $photosQuery->where('name', 'like', "%$search%");
+        }
+
+        if ($galleryId) {
+            $photosQuery->where('gallery_id', $galleryId);
+        }
+
+        if ($sort === 'name') {
+            $photosQuery->orderBy('name', $sortOrder);
+        } elseif ($sort === 'date') {
+            $photosQuery->orderBy('created_at', $sortOrder);
+        } elseif ($sort === 'type') {
+            $photosQuery->orderBy('mime_type', $sortOrder);
+        }
+
+        $photos = $photosQuery->paginate(24);
+
+        $galleries = $user->galleries()->get();
 
         // User settings for view preferences
         $theme = $this->getUserSetting('theme', 'light');
         $darkMode = $this->getUserSetting('dark_mode', 'false') === 'true';
         $galleryLayout = $this->getUserSetting('gallery_layout', 'grid');
 
-        return view('family.photos.index', compact('photos', 'theme', 'darkMode', 'galleryLayout'));
+        if (request()->ajax()) {
+            $html = view('family.photos.partials.photos', compact('photos', 'galleryLayout', 'darkMode'))->render();
+            return response()->json(['html' => $html]);
+        }
+
+        return view('family.photos.index', compact('photos', 'theme', 'darkMode', 'galleryLayout', 'galleries'));
     }
 
     /**

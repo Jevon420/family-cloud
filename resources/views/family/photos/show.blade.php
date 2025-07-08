@@ -22,6 +22,9 @@
                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                 Download
             </a>
+            <button type="button" onclick="openModal({{ $photo->id }})" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                View Gallery
+            </button>
         </div>
     </div>
 
@@ -63,7 +66,11 @@
 
             <div class="my-4 bg-gray-100 p-1 rounded-lg {{ $darkMode ? 'bg-gray-700' : '' }}">
                 <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->title }}"
-                     class="w-full h-auto max-h-[80vh] object-contain mx-auto">
+                     class="w-full h-auto max-h-[80vh] object-contain mx-auto cursor-pointer photo-trigger"
+                     data-photo-id="{{ $photo->id }}"
+                     data-photo-url="{{ asset('storage/' . $photo->file_path) }}"
+                     data-photo-title="{{ $photo->title }}"
+                     data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
             </div>
 
             @if($photo->description)
@@ -74,5 +81,191 @@
             @endif
         </div>
     </div>
+
+    <!-- Photo Carousel Modal -->
+    <div id="photoCarouselModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-700 bg-opacity-75 backdrop-blur-sm">
+        <div class="relative w-full h-full flex flex-col">
+            <!-- Close Button -->
+            <button id="closeCarouselModal" class="absolute top-4 right-4 z-10 bg-red-500 text-white rounded-full p-3 hover:bg-red-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <!-- Main Photo Display -->
+            <div class="flex-1 flex items-center justify-center p-4">
+                <div class="relative max-w-4xl max-h-full">
+                    <!-- Navigation Buttons -->
+                    <button id="prevPhotoBtn" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-3 hover:bg-opacity-70 transition-all z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="nextPhotoBtn" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-3 hover:bg-opacity-70 transition-all z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Photo Container -->
+                    <div class="relative">
+                        <img id="modalPhoto" src="" alt="" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl">
+                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
+                            <h3 id="modalPhotoTitle" class="text-lg font-bold"></h3>
+                            <p id="modalPhotoDate" class="text-sm opacity-75"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Strip -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-sm p-4">
+                <div class="flex space-x-2 overflow-x-auto scrollbar-hide" id="photoThumbnails">
+                    <!-- Thumbnails will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get all gallery photos for this photo's gallery
+        const photoData = <?php echo json_encode($photo->gallery->photos->map(function($galleryPhoto) {
+            return [
+                'id' => $galleryPhoto->id,
+                'url' => asset('storage/' . $galleryPhoto->file_path),
+                'title' => $galleryPhoto->name,
+                'date' => $galleryPhoto->created_at->format('F j, Y')
+            ];
+        })->values()->all()); ?>;
+
+        let currentPhotoIndex = 0;
+        const modal = document.getElementById('photoCarouselModal');
+        const modalPhoto = document.getElementById('modalPhoto');
+        const modalPhotoTitle = document.getElementById('modalPhotoTitle');
+        const modalPhotoDate = document.getElementById('modalPhotoDate');
+        const thumbnailContainer = document.getElementById('photoThumbnails');
+
+        // Generate thumbnails
+        function generateThumbnails() {
+            thumbnailContainer.innerHTML = '';
+            photoData.forEach((photo, index) => {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = `flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${index === currentPhotoIndex ? 'ring-4 ring-blue-500 scale-110' : 'opacity-70 hover:opacity-100'}`;
+                thumbnail.innerHTML = `<img src="${photo.url}" alt="${photo.title}" class="w-full h-full object-cover">`;
+                thumbnail.onclick = () => showPhoto(index);
+                thumbnailContainer.appendChild(thumbnail);
+            });
+
+            // Center thumbnails
+            thumbnailContainer.style.justifyContent = 'center';
+        }
+
+        // Show photo at index
+        function showPhoto(index) {
+            if (index < 0 || index >= photoData.length) return;
+
+            currentPhotoIndex = index;
+            const photo = photoData[index];
+
+            modalPhoto.src = photo.url;
+            modalPhoto.alt = photo.title;
+            modalPhotoTitle.textContent = photo.title;
+            modalPhotoDate.textContent = photo.date;
+
+            // Update thumbnails
+            generateThumbnails();
+
+            // Scroll to current thumbnail
+            const activeThumbnail = thumbnailContainer.children[index];
+            if (activeThumbnail) {
+                activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Open modal
+        function openModal(photoId) {
+            const photoIndex = photoData.findIndex(photo => photo.id == photoId);
+            if (photoIndex !== -1) {
+                showPhoto(photoIndex);
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Event listeners
+        document.getElementById('closeCarouselModal').onclick = closeModal;
+        document.getElementById('prevPhotoBtn').onclick = () => showPhoto(currentPhotoIndex - 1);
+        document.getElementById('nextPhotoBtn').onclick = () => showPhoto(currentPhotoIndex + 1);
+
+        // Photo trigger clicks
+        document.querySelectorAll('.photo-trigger').forEach(trigger => {
+            trigger.onclick = (e) => {
+                e.preventDefault();
+                const photoId = trigger.dataset.photoId;
+                openModal(photoId);
+            };
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!modal.classList.contains('hidden')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeModal();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        showPhoto(currentPhotoIndex - 1);
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        showPhoto(currentPhotoIndex + 1);
+                        break;
+                }
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        modalPhoto.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        modalPhoto.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                // Swipe left - next photo
+                showPhoto(currentPhotoIndex + 1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                // Swipe right - previous photo
+                showPhoto(currentPhotoIndex - 1);
+            }
+        }
+    </script>
+
+    <style>
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
 </div>
 @endsection

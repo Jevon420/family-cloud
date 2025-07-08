@@ -14,6 +14,25 @@
         </a>
     </div>
 
+    <!-- Search and Filter -->
+    <div class="flex justify-between items-center mb-6">
+        <form method="GET" action="{{ route('family.galleries.index') }}" class="flex items-center space-x-2">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search galleries..."
+                   class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select name="sort" id="sortSelect" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">Sort By</option>
+                <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Name</option>
+                <option value="date" {{ request('sort') == 'date' ? 'selected' : '' }}>Date</option>
+            </select>
+            <select name="sort_order" id="sortOrder" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Descending</option>
+            </select>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Search</button>
+        </form>
+        <a href="{{ route('family.galleries.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm text-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset</a>
+    </div>
+
     <!-- Layout Options -->
     <div class="mb-6 flex justify-end space-x-2">
         <button type="button" onclick="window.location.href='{{ request()->fullUrlWithQuery(['layout' => 'grid']) }}'" class="px-3 py-1 rounded {{ $galleryLayout === 'grid' ? 'bg-indigo-600 text-white' : ($darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300') }}">
@@ -141,4 +160,74 @@
         </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const container = document.querySelector('.container');
+
+        form.addEventListener('change', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+
+            fetch(`{{ route('family.galleries.index') }}?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = data.html;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        const sortDropdown = document.querySelector('select[name="sort"]');
+        const sortOrderDropdown = document.getElementById('sortOrder');
+
+        sortDropdown.addEventListener('change', function () {
+            const selectedSort = sortDropdown.value;
+
+            sortOrderDropdown.innerHTML = '';
+
+            if (selectedSort === 'name') {
+                sortOrderDropdown.innerHTML = `
+                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Descending</option>
+                `;
+            } else if (selectedSort === 'date') {
+                sortOrderDropdown.innerHTML = `
+                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Latest</option>
+                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Earliest</option>
+                `;
+            }
+        });
+
+        const resetButton = document.querySelector('a[href="{{ route('family.galleries.index') }}"]');
+
+        resetButton.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            form.reset();
+
+            sortOrderDropdown.innerHTML = `
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            `;
+
+            fetch(`{{ route('family.galleries.index') }}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = data.html;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
 @endsection

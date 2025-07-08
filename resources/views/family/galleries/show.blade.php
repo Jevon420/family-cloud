@@ -1,13 +1,25 @@
 @extends('family.layouts.app')
 
-@section('title', $gallery->title)
+@section('title', $gallery->name)
+
+@push('styles')
+<style>
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+@endpush
 
 @section('content')
 <div class="container mx-auto">
     <!-- Gallery Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-            <h1 class="text-2xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">{{ $gallery->title }}</h1>
+            <h1 class="text-2xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">{{ $gallery->name }}</h1>
             @if($gallery->description)
                 <p class="mt-1 text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-600' }}">{{ $gallery->description }}</p>
             @endif
@@ -26,6 +38,11 @@
                 </svg>
                 Add Photos
             </button>
+            @if($photos->isNotEmpty())
+                <button type="button" onclick="openModal({{ $photos->first()->id }})" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Watch Gallery
+                </button>
+            @endif
         </div>
     </div>
 
@@ -42,6 +59,27 @@
             </svg>
         </button>
     </div>
+
+    <!-- Search, Filter, Sort -->
+    <div class="flex justify-between items-center mb-6">
+        <form method="GET" action="{{ route('family.galleries.show', $gallery->slug) }}" class="flex items-center space-x-2">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search photos..."
+                   class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select name="sort" id="sortSelect" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">Sort By</option>
+                <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Name</option>
+                <option value="date" {{ request('sort') == 'date' ? 'selected' : '' }}>Date</option>
+            </select>
+            <select name="sort_order" id="sortOrder" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Descending</option>
+            </select>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Search</button>
+        </form>
+        <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm text-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset</a>
+    </div>
+
+
 
     @if($photos->isEmpty())
         <div class="text-center py-12 {{ $darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-500' }} rounded-lg">
@@ -64,15 +102,15 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 @foreach($photos as $photo)
                 <div class="group relative">
-                    <a href="{{ route('family.photos.show', $photo->id) }}" class="block">
+                    <a href="#" class="block photo-trigger" data-photo-id="{{ $photo->id }}" data-photo-url="{{ asset('storage/' . $photo->file_path) }}" data-photo-title="{{ $photo->name }}" data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
                         <div class="aspect-w-1 aspect-h-1 overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
-                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->title }}" class="object-cover">
+                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->name }}" class="object-cover">
                             <div class="flex items-end p-2 opacity-0 group-hover:opacity-100" aria-hidden="true">
                                 <div class="w-full rounded-md {{ $darkMode ? 'bg-gray-800 bg-opacity-75 text-white' : 'bg-white bg-opacity-75 text-gray-900' }} py-1 px-2 text-center text-xs font-medium backdrop-blur backdrop-filter">View Photo</div>
                             </div>
                         </div>
                         <div class="mt-2">
-                            <h3 class="text-sm {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $photo->title }}</h3>
+                            <h3 class="text-sm {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $photo->name }}</h3>
                             <p class="text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">{{ $photo->created_at->format('M j, Y') }}</p>
                         </div>
                     </a>
@@ -83,12 +121,12 @@
             <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
                 @foreach($photos as $photo)
                 <div class="mb-4 break-inside-avoid">
-                    <a href="{{ route('family.photos.show', $photo->id) }}" class="block">
+                    <a href="#" class="block photo-trigger" data-photo-id="{{ $photo->id }}" data-photo-url="{{ asset('storage/' . $photo->file_path) }}" data-photo-title="{{ $photo->name }}" data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
                         <div class="overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
-                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->title }}" class="w-full">
+                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->name }}" class="w-full">
                         </div>
                         <div class="mt-2">
-                            <h3 class="text-sm {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $photo->title }}</h3>
+                            <h3 class="text-sm {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $photo->name }}</h3>
                             <p class="text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">{{ $photo->created_at->format('M j, Y') }}</p>
                         </div>
                     </a>
@@ -152,10 +190,185 @@
             </div>
         </div>
     </div>
+
+    <!-- Photo Carousel Modal -->
+    <div id="photoCarouselModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-700 bg-opacity-75 backdrop-blur-sm">
+        <div class="relative w-full h-full flex flex-col">
+            <!-- Close Button -->
+            <button id="closeCarouselModal" class="absolute top-4 right-4 z-10 bg-red-500 text-white rounded-full p-3 hover:bg-red-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <!-- Main Photo Display -->
+            <div class="flex-1 flex items-center justify-center p-4">
+                <div class="relative max-w-4xl max-h-full">
+                    <!-- Navigation Buttons -->
+                    <button id="prevPhotoBtn" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-3 hover:bg-opacity-70 transition-all z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="nextPhotoBtn" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-3 hover:bg-opacity-70 transition-all z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Photo Container -->
+                    <div class="relative">
+                        <img id="modalPhoto" src="" alt="" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl">
+                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
+                            <h3 id="modalPhotoTitle" class="text-lg font-bold"></h3>
+                            <p id="modalPhotoDate" class="text-sm opacity-75"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Strip -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-sm p-4">
+                <div class="flex space-x-2 overflow-x-auto scrollbar-hide" id="photoThumbnails">
+                    <!-- Thumbnails will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-@endsection
+
 
 @push('scripts')
+<script>
+    const photoData = <?php echo json_encode($photos->map(function($photo) {
+        return [
+            'id' => $photo->id,
+            'url' => asset('storage/' . $photo->file_path),
+            'title' => $photo->name,
+            'date' => $photo->created_at->format('F j, Y')
+        ];
+    })->values()->all()); ?>;
+
+    let currentPhotoIndex = 0;
+    const modal = document.getElementById('photoCarouselModal');
+    const modalPhoto = document.getElementById('modalPhoto');
+    const modalPhotoTitle = document.getElementById('modalPhotoTitle');
+    const modalPhotoDate = document.getElementById('modalPhotoDate');
+    const thumbnailContainer = document.getElementById('photoThumbnails');
+
+    // Generate thumbnails
+    function generateThumbnails() {
+        thumbnailContainer.innerHTML = '';
+        photoData.forEach((photo, index) => {
+            const thumbnail = document.createElement('div');
+            thumbnail.className = `flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${index === currentPhotoIndex ? 'ring-4 ring-blue-500 scale-110' : 'opacity-70 hover:opacity-100'}`;
+            thumbnail.innerHTML = `<img src="${photo.url}" alt="${photo.title}" class="w-full h-full object-cover">`;
+            thumbnail.onclick = () => showPhoto(index);
+            thumbnailContainer.appendChild(thumbnail);
+        });
+
+        // Center thumbnails
+        thumbnailContainer.style.justifyContent = 'center';
+    }
+
+    // Show photo at index
+    function showPhoto(index) {
+        if (index < 0 || index >= photoData.length) return;
+
+        currentPhotoIndex = index;
+        const photo = photoData[index];
+
+        modalPhoto.src = photo.url;
+        modalPhoto.alt = photo.title;
+        modalPhotoTitle.textContent = photo.title;
+        modalPhotoDate.textContent = photo.date;
+
+        // Update thumbnails
+        generateThumbnails();
+
+        // Scroll to current thumbnail
+        const activeThumbnail = thumbnailContainer.children[index];
+        if (activeThumbnail) {
+            activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Open modal
+    function openModal(photoId) {
+        const photoIndex = photoData.findIndex(photo => photo.id == photoId);
+        if (photoIndex !== -1) {
+            showPhoto(photoIndex);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Close modal
+    function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    // Event listeners
+    document.getElementById('closeCarouselModal').onclick = closeModal;
+    document.getElementById('prevPhotoBtn').onclick = () => showPhoto(currentPhotoIndex - 1);
+    document.getElementById('nextPhotoBtn').onclick = () => showPhoto(currentPhotoIndex + 1);
+
+    // Photo trigger clicks
+    document.querySelectorAll('.photo-trigger').forEach(trigger => {
+        trigger.onclick = (e) => {
+            e.preventDefault();
+            const photoId = trigger.dataset.photoId;
+            openModal(photoId);
+        };
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (!modal.classList.contains('hidden')) {
+            switch(e.key) {
+                case 'Escape':
+                    closeModal();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    showPhoto(currentPhotoIndex - 1);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    showPhoto(currentPhotoIndex + 1);
+                    break;
+            }
+        }
+    });
+
+    // Touch/swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    modalPhoto.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    modalPhoto.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        if (touchEndX < touchStartX - 50) {
+            // Swipe left - next photo
+            showPhoto(currentPhotoIndex + 1);
+        }
+        if (touchEndX > touchStartX + 50) {
+            // Swipe right - previous photo
+            showPhoto(currentPhotoIndex - 1);
+        }
+    }
+</script>
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('photoUpload', () => ({
@@ -169,4 +382,51 @@
         }));
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const container = document.querySelector('.container');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+
+            fetch(`{{ route('family.galleries.show', $gallery->slug) }}?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = data.html;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        const resetButton = document.querySelector('a[href="{{ route('family.galleries.show', $gallery->slug) }}"]');
+
+        resetButton.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            form.reset();
+
+            // Clear query parameters
+            const url = `{{ route('family.galleries.show', $gallery->slug) }}`;
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = data.html;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
 @endpush
+@endsection

@@ -249,7 +249,12 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
         Route::put('/settings', [\App\Http\Controllers\Family\UserSettingsController::class, 'update'])->name('settings.update');
 
         // User Storage Management
-        Route::get('/storage', [App\Http\Controllers\User\StorageController::class, 'index'])->name('storage');
+        Route::prefix('storage')->name('storage.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Family\StorageController::class, 'index'])->name('index');
+            Route::get('/files', [\App\Http\Controllers\Family\StorageController::class, 'files'])->name('files');
+            Route::get('/photos', [\App\Http\Controllers\Family\StorageController::class, 'photos'])->name('photos');
+            Route::get('/galleries', [\App\Http\Controllers\Family\StorageController::class, 'galleries'])->name('galleries');
+        });
 
         // Files and Folders
         Route::prefix('files')->name('files.')->group(function () {
@@ -282,6 +287,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
             Route::get('/{id}/edit', [\App\Http\Controllers\Family\PhotoController::class, 'edit'])->name('edit');
             Route::put('/{id}', [\App\Http\Controllers\Family\PhotoController::class, 'update'])->name('update');
             Route::get('/{id}/download', [\App\Http\Controllers\Family\PhotoController::class, 'download'])->name('download');
+            // Photo view route removed - now handled by modal carousel
         });
 
         // Profile Management
@@ -296,6 +302,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
         Route::get('/help', [\App\Http\Controllers\Family\HelpController::class, 'index'])->name('help.index');
         Route::get('/help/{section}', [\App\Http\Controllers\Family\HelpController::class, 'show'])->name('help.show');
     });
+
 });
 
 // Password change routes for first login

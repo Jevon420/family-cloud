@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Models\EmailConfiguration;
+use App\Services\EmailConfigurationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -71,13 +72,8 @@ class CustomRegisterController extends Controller
 
         event(new Registered($user = $this->create($request->all())));
 
-        // Get the support email configuration
-        $supportEmailConfig = EmailConfiguration::where('email', 'support@jevonredhead.com')->first();
-
-        if ($supportEmailConfig) {
-            // Configure mail to use support email temporarily
-            $this->configureMailer($supportEmailConfig);
-        }
+        // Configure mail to use support email
+        $supportEmailConfig = EmailConfigurationService::configureSupportEmail();
 
         // Notify the user that their registration is pending approval
         $user->notify(new RegistrationRequestReceived($user));
@@ -93,22 +89,6 @@ class CustomRegisterController extends Controller
 
         return redirect()->route('login')
             ->with('status', 'Your registration request has been received. You will be notified by email once an administrator approves your account.');
-    }
-
-    /**
-     * Configure the mailer to use the support email configuration
-     */
-    private function configureMailer(EmailConfiguration $emailConfig)
-    {
-        config([
-            'mail.mailers.smtp.host' => $emailConfig->smtp_host,
-            'mail.mailers.smtp.port' => $emailConfig->smtp_port,
-            'mail.mailers.smtp.encryption' => $emailConfig->smtp_encryption,
-            'mail.mailers.smtp.username' => $emailConfig->smtp_username,
-            'mail.mailers.smtp.password' => $emailConfig->password,
-            'mail.from.address' => $emailConfig->email,
-            'mail.from.name' => config('app.name'),
-        ]);
     }
 
     /**

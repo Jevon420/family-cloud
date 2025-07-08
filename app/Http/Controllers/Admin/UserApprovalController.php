@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\EmailConfiguration;
+use App\Services\EmailConfigurationService;
 use App\Notifications\AccountApprovedNotification;
 use App\Notifications\UserApprovedSiteNotification;
 use App\Notifications\RegistrationRejectedNotification;
@@ -47,12 +49,15 @@ class UserApprovalController extends Controller
             $user->assignRole('Family');
         }
 
+        // Configure mail to use support email
+        $supportEmailConfig = EmailConfigurationService::configureSupportEmail();
+
         try {
             // Send notification with credentials
             $user->notify(new AccountApprovedNotification($user, $password));
 
             // Notify the site email about the approval
-            $siteEmail = config('mail.from.address');
+            $siteEmail = $supportEmailConfig ? $supportEmailConfig->email : config('mail.from.address');
             Notification::route('mail', $siteEmail)
                 ->notify(new UserApprovedSiteNotification($user, Auth::user()));
 
@@ -84,12 +89,15 @@ class UserApprovalController extends Controller
             'email' => $user->email,
         ];
 
+        // Configure mail to use support email
+        $supportEmailConfig = EmailConfigurationService::configureSupportEmail();
+
         // Send rejection notification to the user
         Notification::route('mail', $userData['email'])
             ->notify(new RegistrationRejectedNotification($userData, Auth::user()));
 
         // Notify the site email about the rejection
-        $siteEmail = config('mail.from.address');
+        $siteEmail = $supportEmailConfig ? $supportEmailConfig->email : config('mail.from.address');
         Notification::route('mail', $siteEmail)
             ->notify(new UserRejectedSiteNotification($userData, Auth::user()));
 

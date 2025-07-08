@@ -23,9 +23,9 @@
 
 
     <!-- Scripts -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"></script>
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ mix('js/app.js') }}" defer></script>
     @stack('styles')
 </head>
 

@@ -3,9 +3,9 @@
 @section('title', $photo->title)
 
 @section('content')
-<div class="container px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <div class="flex items-center">
+<div class="container px-2 sm:px-4 py-2">
+    <div class="flex flex-wrap justify-between items-center mb-6">
+        <div class="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
             <a href="{{ route('family.photos.index') }}" class="mr-2 text-indigo-600 hover:text-indigo-800 {{ $darkMode ? 'text-indigo-400 hover:text-indigo-300' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
@@ -13,26 +13,45 @@
             </a>
             <h1 class="text-2xl font-semibold {{ $darkMode ? 'text-white' : 'text-gray-800' }}">{{ $photo->title }}</h1>
         </div>
-        <div class="flex space-x-2">
-            @include('family.partials.share-button', ['media' => $photo, 'mediaType' => 'photo', 'darkMode' => $darkMode])
-            <a href="{{ route('family.photos.edit', $photo->id) }}"
-               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Edit Photo
-            </a>
-            <a href="{{ route('family.photos.download', $photo->id) }}"
-               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                Download
-            </a>
-            <button type="button" onclick="openModal({{ $photo->id }})" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                View Gallery
+
+        <!-- Options Icon for Mobile View -->
+        <div x-data="{ showOptions: false }" class="relative w-full sm:w-auto">
+            <button type="button" x-on:click="showOptions = !showOptions" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }} w-full sm:hidden">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V5zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd" />
+                </svg>
+                Options
             </button>
+
+            <div x-show="showOptions" x-cloak class="absolute top-full left-0 w-full bg-white shadow-md rounded-md mt-2 z-10">
+                @include('family.partials.share-button', ['media' => $photo, 'mediaType' => 'photo', 'darkMode' => $darkMode])
+                <a href="{{ route('family.photos.edit', $photo->id) }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit Photo</a>
+                <a href="{{ route('family.photos.download', $photo->id) }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Download</a>
+                <button type="button" onclick="openModal({{ $photo->id }})" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">View Gallery</button>
+            </div>
+
+            <!-- Action Buttons for Desktop View -->
+            <div class="hidden sm:flex flex-wrap space-x-2">
+                @include('family.partials.share-button', ['media' => $photo, 'mediaType' => 'photo', 'darkMode' => $darkMode])
+                <a href="{{ route('family.photos.edit', $photo->id) }}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Edit Photo
+                </a>
+                <a href="{{ route('family.photos.download', $photo->id) }}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Download
+                </a>
+                <button type="button" onclick="openModal({{ $photo->id }})" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    View Gallery
+                </button>
+            </div>
         </div>
     </div>
 
     <div class="bg-white shadow rounded-lg overflow-hidden {{ $darkMode ? 'bg-gray-800' : '' }}">
         <div class="p-4 sm:p-6">
-            <div class="flex flex-col sm:flex-row justify-between mb-4">
-                <div>
+            <div class="flex flex-wrap justify-between mb-4">
+                <div class="w-full sm:w-auto">
                     <p class="text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-600' }}">
                         From gallery: <a href="{{ route('family.galleries.show', $photo->gallery->slug) }}"
                                       class="text-indigo-600 hover:text-indigo-800 {{ $darkMode ? 'text-indigo-400 hover:text-indigo-300' : '' }}">
@@ -42,10 +61,10 @@
                         Added: {{ $photo->created_at->format('M d, Y') }}
                     </p>
                 </div>
-                <div class="flex mt-2 sm:mt-0 space-x-2">
+                <div class="flex flex-wrap mt-2 sm:mt-0 space-x-2 w-full sm:w-auto">
                     @if($prevPhoto)
                         <a href="{{ route('family.photos.show', $prevPhoto->id) }}"
-                           class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600' : 'text-gray-700 bg-white hover:bg-gray-50' }} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                           class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600' : 'text-gray-700 bg-white hover:bg-gray-50' }} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full sm:w-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
@@ -55,7 +74,7 @@
 
                     @if($nextPhoto)
                         <a href="{{ route('family.photos.show', $nextPhoto->id) }}"
-                           class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600' : 'text-gray-700 bg-white hover:bg-gray-50' }} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                           class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600' : 'text-gray-700 bg-white hover:bg-gray-50' }} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full sm:w-auto">
                             Next
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />

@@ -13,12 +13,17 @@
                         Email Management
                     </h4>
                     <div>
-                        <a href="{{ route('admin.emails.compose') }}" class="btn btn-success">
-                            <i class="fas fa-plus me-1"></i>Compose
-                        </a>
-                        <a href="{{ route('admin.email.configurations.index') }}" class="btn btn-outline-light">
-                            <i class="fas fa-cogs me-1"></i>Configurations
-                        </a>
+                        <button class="btn btn-outline-light d-md-none" id="toggleViewOptions">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div id="viewOptions" class="d-none">
+                            <a href="{{ route('admin.emails.compose') }}" class="btn btn-success">
+                                <i class="fas fa-plus me-1"></i>Compose
+                            </a>
+                            <a href="{{ route('admin.email.configurations.index') }}" class="btn btn-outline-light">
+                                <i class="fas fa-cogs me-1"></i>Configurations
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -262,5 +267,15 @@ function showAlert(type, message) {
         alert.remove();
     }, 5000);
 }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('toggleViewOptions');
+        const viewOptions = document.getElementById('viewOptions');
+
+        toggleButton.addEventListener('click', function() {
+            viewOptions.classList.toggle('d-none');
+        });
+    });
 </script>
 @endpush

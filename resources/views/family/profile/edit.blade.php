@@ -3,7 +3,7 @@
 @section('title', 'Edit Profile')
 
 @section('content')
-<div class="container px-4 py-6">
+<div class="container px-4 py-6 mx-auto sm:px-6 lg:px-8">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold {{ $darkMode ? 'text-white' : 'text-gray-800' }}">My Profile</h1>
         <a href="{{ route('family.profile.password') }}"

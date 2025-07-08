@@ -15,8 +15,8 @@
 @endpush
 
 @section('content')
-<div class="container mx-auto">
-    <!-- Gallery Header -->
+<div class="container mx-auto px-2 sm:px-4">
+    <!-- Adjusted layout for mobile view -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">{{ $gallery->name }}</h1>
@@ -25,27 +25,48 @@
             @endif
             <p class="text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">Created {{ $gallery->created_at->format('F j, Y') }} • {{ $photos->total() }} photos</p>
         </div>
-        <div class="flex space-x-2">
-            <a href="{{ route('family.galleries.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
-                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                </svg>
-                Back to Galleries
-            </a>
 
-            @include('family.partials.share-button', ['media' => $gallery, 'mediaType' => 'gallery'])
-
-            <button type="button" x-data="{}" x-on:click="$dispatch('open-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        <!-- Options Icon for Mobile View -->
+        <div x-data="{ showOptions: false }" class="relative w-full sm:w-auto">
+            <button type="button" x-on:click="showOptions = !showOptions" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }} w-full sm:hidden">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V5zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd" />
                 </svg>
-                Add Photos
+                Options
             </button>
-            @if($photos->isNotEmpty())
-                <button type="button" onclick="openModal({{ $photos->first()->id }})" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Watch Gallery
+
+            <div x-show="showOptions" x-cloak class="absolute top-full left-0 w-full bg-white shadow-md rounded-md mt-2 z-10">
+                <a href="{{ route('family.galleries.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Back to Galleries</a>
+                @include('family.partials.share-button', ['media' => $gallery, 'mediaType' => 'gallery'])
+                <button type="button" x-on:click="$dispatch('open-modal')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Add Photos</button>
+                @if($photos->isNotEmpty())
+                    <button type="button" onclick="openModal({{ $photos->first()->id }})" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Watch Gallery</button>
+                @endif
+            </div>
+
+            <!-- Action Buttons for Desktop View -->
+            <div class="hidden sm:flex flex-wrap space-x-2">
+                <a href="{{ route('family.galleries.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
+                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Back to Galleries
+                </a>
+
+                @include('family.partials.share-button', ['media' => $gallery, 'mediaType' => 'gallery'])
+
+                <button type="button" x-data="{}" x-on:click="$dispatch('open-modal')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Add Photos
                 </button>
-            @endif
+                @if($photos->isNotEmpty())
+                    <button type="button" onclick="openModal({{ $photos->first()->id }})" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Watch Gallery
+                    </button>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -53,7 +74,7 @@
     <div class="mb-6 flex justify-end space-x-2">
         <button type="button" onclick="window.location.href='{{ request()->fullUrlWithQuery(['layout' => 'grid']) }}'" class="px-3 py-1 rounded {{ $galleryLayout === 'grid' ? 'bg-indigo-600 text-white' : ($darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300') }}">
             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 012 2v2a2 2 01-2 2h-2a2 2 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 012 2v2a2 2 01-2 2h-2a2 2 01-2-2v-2z" />
             </svg>
         </button>
         <button type="button" onclick="window.location.href='{{ request()->fullUrlWithQuery(['layout' => 'masonry']) }}'" class="px-3 py-1 rounded {{ $galleryLayout === 'masonry' ? 'bg-indigo-600 text-white' : ($darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300') }}">
@@ -64,8 +85,36 @@
     </div>
 
     <!-- Search, Filter, Sort -->
-    <div class="flex justify-between items-center mb-6">
-        <form method="GET" action="{{ route('family.galleries.show', $gallery->slug) }}" class="flex items-center space-x-2">
+    <div x-data="{ showSearchOptions: false }" class="flex flex-col sm:flex-row justify-between items-center mb-6">
+        <!-- Mobile Options Icon -->
+        <button type="button" x-on:click="showSearchOptions = !showSearchOptions" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }} w-full sm:hidden">
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V5zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd" />
+            </svg>
+            Search Options
+        </button>
+
+        <!-- Mobile Dropdown for Search Options -->
+        <div x-show="showSearchOptions" x-cloak class="absolute top-full left-0 w-full bg-white shadow-md rounded-md mt-2 z-10">
+            <form method="GET" action="{{ route('family.galleries.show', $gallery->slug) }}" class="flex flex-col space-y-2 px-4 py-2">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search photos..."
+                       class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <select name="sort" id="sortSelect" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Sort By</option>
+                    <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Name</option>
+                    <option value="date" {{ request('sort') == 'date' ? 'selected' : '' }}>Date</option>
+                </select>
+                <select name="sort_order" id="sortOrder" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Descending</option>
+                </select>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Search</button>
+            </form>
+            <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="block px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm text-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset</a>
+        </div>
+
+        <!-- Desktop View -->
+        <form method="GET" action="{{ route('family.galleries.show', $gallery->slug) }}" class="hidden sm:flex items-center space-x-2">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search photos..."
                    class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <select name="sort" id="sortSelect" class="px-4 py-2 border rounded-md shadow-sm text-sm {{ $darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800' }} focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -79,7 +128,7 @@
             </select>
             <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Search</button>
         </form>
-        <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm text-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset</a>
+        <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="hidden sm:block px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm text-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset</a>
     </div>
 
 
@@ -429,6 +478,13 @@
             })
             .catch(error => console.error('Error:', error));
         });
+    });
+</script>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('searchOptions', () => ({
+            showSearchOptions: false
+        }));
     });
 </script>
 

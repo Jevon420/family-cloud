@@ -51,7 +51,7 @@
         <div class="flex flex-col md:flex-row flex-1">
             @include('family.layouts.partials.sidebar', ['theme' => $theme, 'darkMode' => $darkMode])
 
-            <main class="flex-1 p-4 md:p-6 overflow-y-auto {{ $darkMode ? 'bg-gray-800' : 'bg-gray-50' }}">
+            <main class="flex-1 md:p-6 overflow-y-auto {{ $darkMode ? 'bg-gray-800' : 'bg-gray-50' }}">
                 @if(session('success'))
                     <div class="mb-4 {{ $darkMode ? 'bg-green-900 border-green-700 text-green-100' : 'bg-green-100 border-green-500 text-green-700' }} border-l-4 p-4 rounded" role="alert">
                         {{ session('success') }}

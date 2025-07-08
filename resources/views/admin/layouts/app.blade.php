@@ -34,7 +34,7 @@
         @include('admin.layouts.partials.sidebar')
         <div class="flex-1 flex flex-col min-h-0 bg-white transition-colors duration-300">
             @include('admin.layouts.partials.header')
-            <main class="flex-1 p-6 md:p-8 bg-gray-50 transition-colors duration-300">
+            <main class="flex-1 p-2 md:p-8 bg-gray-50 transition-colors duration-300">
                 @yield('content')
             </main>
         </div>

@@ -101,7 +101,7 @@
                             <a href="{{ route('family.home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Family Dashboard</a>
                         @endif
 
-                        <a href="{{ route('family.storage') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">My Storage</a>
+                        <a href="{{ route('family.storage.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">My Storage</a>
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

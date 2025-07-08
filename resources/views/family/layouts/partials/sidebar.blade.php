@@ -1,7 +1,7 @@
 <aside class="relative bg-gradient-to-br from-gray-900 via-indigo-800 to-indigo-900 shadow-lg rounded-lg w-full md:w-64 md:min-h-screen md:flex-shrink-0" x-data="{ open: false }">
     <!-- Mobile menu button -->
     <div class="md:hidden flex items-center justify-between bg-gradient-to-r from-indigo-900 to-indigo-700 px-4 py-3 rounded-t-lg">
-        <div class="text-white font-semibold">Menu</div>
+        <div class="text-white font-semibold"><a href="{{ route('family.home') }}">Menu</a></div>
         <button @click="open = !open" class="text-white focus:outline-none">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />

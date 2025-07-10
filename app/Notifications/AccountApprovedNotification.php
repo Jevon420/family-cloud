@@ -45,18 +45,12 @@ class AccountApprovedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $loginUrl = url(route('login'));
-
         return (new MailMessage)
             ->subject('Your Account Has Been Approved - Family Cloud')
-            ->greeting('Hello ' . $this->user->name . '!')
-            ->line('Good news! Your Family Cloud account has been approved.')
-            ->line('You can now log in using the following credentials:')
-            ->line('Email: ' . $this->user->email)
-            ->line('Password: ' . $this->password)
-            ->line('**Important:** You will be required to change your password on your first login.')
-            ->action('Login Now', $loginUrl)
-            ->line('Thank you for joining Family Cloud!');
+            ->view('emails.account-approved-notification', [
+                'user' => $this->user,
+                'password' => $this->password
+            ]);
     }
 
     /**

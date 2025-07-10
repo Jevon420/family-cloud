@@ -23,9 +23,9 @@
 
 
     <!-- Scripts -->
-    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"></script>
-    <script src="{{ mix('js/app.js') }}" defer></script>
+    <script src="{{ asset('js/app.js') }}" defer></script>
     @stack('styles')
 </head>
 
@@ -174,6 +174,21 @@
                 preloader.style.display = 'none';
             }
         });
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(`${inputId}-eye`);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
     </script>
 </body>
 

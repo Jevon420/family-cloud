@@ -11,6 +11,10 @@ use App\Http\Controllers\Frontend\FolderController as FrontendFolderController;
 use App\Http\Controllers\Auth\CustomRegisterController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Notifications\RegistrationRequestNotification;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -347,3 +351,14 @@ Route::get('/test-roles', [App\Http\Controllers\TestController::class, 'index'])
 
 // User storage route (for authenticated users outside family portal)
 Route::middleware(['auth', 'password.change.required'])->get('/storage', [App\Http\Controllers\User\StorageController::class, 'index'])->name('user.storage');
+
+
+Route::get('/send-test-mail-config', function () {
+    $fromAddress = config('mail.from.address');
+    Mail::raw('This is a test email.', function ($message) use ($fromAddress) {
+        $message->from($fromAddress);
+        $message->to('jevon_redhead@yahoo.com');
+        $message->subject('Test Email');
+    });
+    return 'Test mail sent';
+});

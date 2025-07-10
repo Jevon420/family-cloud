@@ -273,6 +273,9 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Storage Used
                         </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Password Change Required
+                        </th>
                         <th scope="col" class="relative px-6 py-3">
                             <span class="sr-only">Actions</span>
                         </th>
@@ -326,6 +329,13 @@
                             <!-- Storage calculation would go here -->
                             0 MB / 5 GB
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($user->password_change_required) bg-yellow-100 text-yellow-800
+                                @else bg-green-100 text-green-800 @endif">
+                                {{ $user->password_change_required ? 'Yes' : 'No' }}
+                            </span>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex space-x-2">
                                 <button type="button" onclick="editUser({{ $user->id }})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
@@ -340,7 +350,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                             No users found.
                         </td>
                     </tr>
@@ -420,6 +430,19 @@
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">Storage Used:</span>
                         <span class="text-gray-900">0 MB / 5 GB</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Password Change Required:</span>
+                        <span class="text-gray-900">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($user->password_change_required) bg-yellow-100 text-yellow-800
+                                @else bg-green-100 text-green-800 @endif">
+                                {{ $user->password_change_required ? 'Yes' : 'No' }}
+                            </span>
+                        </span>
                     </div>
                 </div>
 

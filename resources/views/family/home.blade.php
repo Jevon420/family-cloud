@@ -47,7 +47,7 @@
             </span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ min(($storageSummary['usedStorage'] / $storageSummary['maxStorage']) * 100, 100) }}%"></div>
+            <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ $storageSummary['maxStorage'] > 0 ? min(($storageSummary['usedStorage'] / $storageSummary['maxStorage']) * 100, 100) : 0 }}%"></div>
         </div>
     </div>
 

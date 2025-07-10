@@ -6,7 +6,7 @@
     <title>Family Cloud - CSS Frameworks Test</title>
 
     <!-- CSS -->
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body class="bg-gray-50">
     <div class="container mx-auto py-8">
@@ -116,6 +116,6 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="{{ mix('js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Password Changed Successfully</title>
+    <title>User Password Change Notification</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,18 +36,6 @@
             font-size: 12px;
             color: #666666;
         }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            color: #ffffff;
-            background-color: #4caf50;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
@@ -56,10 +44,14 @@
             <img src="{{ asset('storage/logos/family-cloud-logo.png') }}" alt="Family Cloud Logo">
         </div>
         <div class="email-body">
-            <h1>Hello {{ $user->name }},</h1>
-            <p>Your password has been changed successfully. If you did not make this change, please contact support immediately.</p>
-            <p>You can access your account using the link below:</p>
-            <p><a href="{{ url('/') }}" class="button">Access Family Cloud</a></p>
+            <h1>Notification: User Password Changed</h1>
+            <p>A user has successfully changed their password on Family Cloud.</p>
+            <p><strong>User Details:</strong></p>
+            <ul>
+                <li>Name: {{ $user->name }}</li>
+                <li>Email: {{ $user->email }}</li>
+            </ul>
+            <p>If you suspect any unauthorized activity, please investigate immediately.</p>
             <p>Thank you,</p>
             <p>The Family Cloud Team</p>
         </div>

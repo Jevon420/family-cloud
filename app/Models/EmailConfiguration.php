@@ -11,6 +11,7 @@ class EmailConfiguration extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'email_configurations';
     protected $fillable = [
         'name',
         'email',

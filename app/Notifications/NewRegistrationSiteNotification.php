@@ -4,9 +4,9 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\User;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class NewRegistrationSiteNotification extends Notification implements ShouldQueue
 {
@@ -43,17 +43,21 @@ class NewRegistrationSiteNotification extends Notification implements ShouldQueu
      */
     public function toMail($notifiable)
     {
+        $developerEmails = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'Developer');
+        })->pluck('email')->toArray();
+
+        $globalAdminEmails = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'Global Admin');
+        })->pluck('email')->toArray();
+
+        $recipients = array_merge($developerEmails, $globalAdminEmails, [config('mail.from.address')]);
+
+        \Mail::to($recipients)->send(new \App\Mail\NewRegistrationSiteMail($this->user));
+
         return (new MailMessage)
             ->subject('New User Registration - Family Cloud')
-            ->greeting('Hello!')
-            ->line('A new user registration has been submitted on Family Cloud.')
-            ->line('User details:')
-            ->line('Name: ' . $this->user->name)
-            ->line('Email: ' . $this->user->email)
-            ->line('Registration Date: ' . $this->user->created_at->format('Y-m-d H:i:s'))
-            ->line('Status: Pending Approval')
-            ->line('The request has been sent to administrators for review.')
-            ->line('This is an automated notification from the Family Cloud system.');
+            ->line('The notification has been sent to the relevant recipients.');
     }
 
     /**

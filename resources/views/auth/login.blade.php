@@ -27,8 +27,13 @@
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input id="password" type="password" name="password" required
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <div class="relative">
+                        <input id="password" type="password" name="password" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <button type="button" onclick="togglePasswordVisibility('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500">
+                            <i class="fas fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex items-center">
@@ -59,4 +64,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const passwordEyeIcon = document.getElementById(inputId + '-eye');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordEyeIcon.classList.remove('fa-eye');
+            passwordEyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordEyeIcon.classList.remove('fa-eye-slash');
+            passwordEyeIcon.classList.add('fa-eye');
+        }
+    }
+</script>
 @endsection

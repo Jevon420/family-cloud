@@ -45,9 +45,12 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" placeholder="Leave blank to keep current password">
+                            <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor: pointer;" onclick="togglePasswordVisibility()">
+                                <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                            </span>
                         </div>
 
                         <div class="mb-3">
@@ -181,5 +184,19 @@
             }
         });
     });
+
+    function togglePasswordVisibility() {
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('passwordToggleIcon');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
 </script>
 @endpush

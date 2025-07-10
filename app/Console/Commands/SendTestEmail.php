@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Mail\Message;
+use App\Models\EmailConfiguration;
 
 class SendTestEmail extends Command
 {
@@ -43,12 +44,29 @@ class SendTestEmail extends Command
         $this->info("Sending test email to {$email}...");
 
         try {
-            Mail::raw('This is a test email from Family Cloud to verify mail configuration is working.', function (Message $message) use ($email) {
-                $message->to($email)
+            // Send email from all email configurations
+            $emailConfigs = EmailConfiguration::all();
+
+            foreach ($emailConfigs as $config) {
+                Mail::raw('This is a test email from Family Cloud to verify mail configuration is working.', function (Message $message) use ($config) {
+                    $message->from($config->email)
+                        ->to('jevon_redhead@yahoo.com')
+                        ->subject('Family Cloud - Mail Configuration Test');
+                });
+
+                $this->info("Test email sent from {$config->email} to jevon_redhead@yahoo.com successfully!");
+            }
+
+            // Send email from the default mail from address
+            $defaultFromAddress = config('mail.from.address');
+            Mail::raw('This is a test email from Family Cloud to verify mail configuration is working.', function (Message $message) use ($defaultFromAddress) {
+                $message->from($defaultFromAddress)
+                    ->to('jevon_redhead@yahoo.com')
                     ->subject('Family Cloud - Mail Configuration Test');
             });
 
-            $this->info('Test email sent successfully!');
+            $this->info("Test email sent from default mail from address ({$defaultFromAddress}) to jevon_redhead@yahoo.com successfully!");
+
             return 0;
         } catch (\Exception $e) {
             $this->error('Failed to send test email!');

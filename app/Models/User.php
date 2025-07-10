@@ -155,4 +155,10 @@ class User extends Authenticatable
     {
         return $this->formatStorageSize($this->getAvailableStorageGB());
     }
+
+    //Get user Role
+    public function getRole()
+    {
+        return $this->roles->first();
+    }
 }

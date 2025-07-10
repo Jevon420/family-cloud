@@ -49,18 +49,12 @@ class RegistrationRequestNotification extends Notification implements ShouldQueu
 
         return (new MailMessage)
             ->subject('New User Registration Request - Family Cloud')
-            ->greeting('Hello Admin!')
-            ->line('A new user has requested to join Family Cloud.')
-            ->line('User details:')
-            ->line('Name: ' . $this->user->name)
-            ->line('Email: ' . $this->user->email)
-            ->line('Registration Date: ' . $this->user->created_at->format('M d, Y H:i'))
-            ->line('Please review this registration request and take appropriate action.')
-            ->action('View User Management', $userManagementUrl)
-            ->line('You can also use the direct action links below:')
-            ->action('Approve User', $approveUrl)
-            ->line('Or click here to reject: ' . $rejectUrl)
-            ->line('Thank you for managing Family Cloud!');
+            ->view('emails.registration-request-notification', [
+                'user' => $this->user,
+                'userManagementUrl' => $userManagementUrl,
+                'approveUrl' => $approveUrl,
+                'rejectUrl' => $rejectUrl
+            ]);
     }
 
     /**

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Password Changed Successfully</title>
+    <title>Account Approved</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,11 +57,15 @@
         </div>
         <div class="email-body">
             <h1>Hello {{ $user->name }},</h1>
-            <p>Your password has been changed successfully. If you did not make this change, please contact support immediately.</p>
-            <p>You can access your account using the link below:</p>
-            <p><a href="{{ url('/') }}" class="button">Access Family Cloud</a></p>
-            <p>Thank you,</p>
-            <p>The Family Cloud Team</p>
+            <p>Good news! Your Family Cloud account has been approved.</p>
+            <p>You can now log in using the following credentials:</p>
+            <ul>
+                <li>Email: {{ $user->email }}</li>
+                <li>Password: {{ $password }}</li>
+            </ul>
+            <p><strong>Important:</strong> You will be required to change your password on your first login.</p>
+            <p><a href="{{ url(route('login')) }}" class="button">Login Now</a></p>
+            <p>Thank you for joining Family Cloud!</p>
         </div>
         <div class="email-footer">
             <p>&copy; {{ date('Y') }} Family Cloud. All rights reserved.</p>

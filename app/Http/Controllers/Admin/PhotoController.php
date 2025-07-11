@@ -88,7 +88,7 @@ class PhotoController extends Controller
             $filename = time() . '_' . $image->getClientOriginalName();
 
             // Store original image in gallery-specific folder
-            $path = $image->storeAs("photos/{$gallerySlug}", $filename, 'public');
+            $path = $image->storeAs("familycloud/family/galleries/{$gallerySlug}/photos", $filename, 'public');
             $data['file_path'] = $path;
 
             // Create and store thumbnail in gallery-specific folder
@@ -96,7 +96,7 @@ class PhotoController extends Controller
                 $constraint->aspectRatio();
             })->encode();
 
-            $thumbnailPath = "photos/{$gallerySlug}/thumbnails/{$filename}";
+            $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}";
             Storage::disk('public')->put($thumbnailPath, $thumbnail);
             $data['thumbnail_path'] = $thumbnailPath;
 
@@ -188,7 +188,7 @@ class PhotoController extends Controller
             $filename = time() . '_' . $image->getClientOriginalName();
 
             // Store original image in gallery-specific folder
-            $path = $image->storeAs("photos/{$gallerySlug}", $filename, 'public');
+            $path = $image->storeAs("familycloud/family/galleries/{$gallerySlug}/photos", $filename, 'public');
             $data['file_path'] = $path;
 
             // Create and store thumbnail in gallery-specific folder
@@ -196,7 +196,7 @@ class PhotoController extends Controller
                 $constraint->aspectRatio();
             })->encode();
 
-            $thumbnailPath = "photos/{$gallerySlug}/thumbnails/{$filename}";
+            $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}";
             Storage::disk('public')->put($thumbnailPath, $thumbnail);
             $data['thumbnail_path'] = $thumbnailPath;
 

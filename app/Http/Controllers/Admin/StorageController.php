@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\StorageManagementService;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserProfile;
 use App\Models\SiteSetting;
 use App\Models\File;
 use App\Models\Photo;
@@ -59,6 +60,33 @@ class StorageController extends Controller
         return redirect()->route('admin.storage.index')->with('success', 'User quotas recalculated successfully.');
     }
 
+    public function generateSignedUrl(Request $request)
+    {
+        $validatedData = $request->validate([
+            'path' => 'required|string',
+            'type' => 'required|in:short,long',
+        ]);
+
+        $expiration = $validatedData['type'] === 'long'
+            ? SiteSetting::where('key', 'signed_url_long_expiration')->value('value') ?? 525600
+            : SiteSetting::where('key', 'signed_url_short_expiration')->value('value') ?? 5;
+
+        $maxExpirationMinutes = 10080; // Maximum expiration time for AWS Signature Version 4
+        $expiration = min($expiration, $maxExpirationMinutes); // Ensure expiration does not exceed the limit
+
+        $signedUrl = Storage::disk('wasabi')->temporaryUrl(
+            $validatedData['path'],
+            now()->addMinutes($expiration)
+        );
+
+        if ($request->wantsJson()) {
+            return response()->json(['url' => $signedUrl]);
+        }
+
+        // Redirect to the signed URL for direct image display
+        return redirect($signedUrl);
+    }
+
     private function getStorageStatistics()
     {
         // Local hosting storage statistics (site data, profile images, etc.)
@@ -80,7 +108,7 @@ class StorageController extends Controller
             'local_storage_used_gb' => $localStorageUsed,
             'local_storage_available_gb' => $localStorageAvailable,
             'local_files_count' => $this->getLocalFilesCount(),
-            'local_profile_images_count' => User::whereNotNull('profile_image')->count(),
+            'local_profile_images_count' => UserProfile::whereNotNull('avatar')->count(),
 
             // Wasabi storage
             'wasabi_total_storage_gb' => $wasabiTotalGb,

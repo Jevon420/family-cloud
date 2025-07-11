@@ -198,9 +198,10 @@ Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('
 
         // Storage management routes (Admin)
         Route::prefix('storage')->name('storage.')->group(function () {
-            Route::get('/', [App\Http\Controllers\Admin\StorageManagementController::class, 'index'])->name('index');
-            Route::put('/update', [App\Http\Controllers\Admin\StorageManagementController::class, 'update'])->name('update');
-            Route::post('/recalculate', [App\Http\Controllers\Admin\StorageManagementController::class, 'recalculateQuotas'])->name('recalculate');
+            Route::get('/', [App\Http\Controllers\Admin\StorageController::class, 'index'])->name('index');
+            Route::put('/update', [App\Http\Controllers\Admin\StorageController::class, 'update'])->name('update');
+            Route::post('/recalculate', [App\Http\Controllers\Admin\StorageController::class, 'recalculate'])->name('recalculate');
+            Route::get('/signed-url', [App\Http\Controllers\Admin\StorageController::class, 'generateSignedUrl'])->name('signedUrl');
         });
 
         // Email Management

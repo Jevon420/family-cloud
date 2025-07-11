@@ -40,6 +40,9 @@
         </div>
     </div>
 
+    <!-- Wasabi Image Auto-Refresh -->
+    <script src="{{ asset('js/wasabi-image-refresh.js') }}"></script>
+
     @stack('scripts')
 
     <!-- Theme Toggle Script -->

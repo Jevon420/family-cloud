@@ -292,9 +292,10 @@ class SettingsSeeder extends Seeder
                 'value' => '1000',
                 'type' => 'number',
                 'group' => 'storage',
-                'description' => 'Total storage available in Wasabi account (GB)',
+                'description' => 'Total Wasabi storage in GB',
                 'access_level' => 'global_admin',
-                'is_public' => false,
+                'requires_restart' => false,
+                'is_sensitive' => true,
             ],
             [
                 'key' => 'wasabi_allocation_percentage',
@@ -303,7 +304,8 @@ class SettingsSeeder extends Seeder
                 'group' => 'storage',
                 'description' => 'Percentage of Wasabi storage to allocate to FamilyCloud users',
                 'access_level' => 'global_admin',
-                'is_public' => false,
+                'requires_restart' => false,
+                'is_sensitive' => true,
             ],
 
             // Logging Settings

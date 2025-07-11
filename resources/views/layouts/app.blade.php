@@ -23,6 +23,10 @@
 
 
     <!-- Scripts -->
+
+    <!-- Wasabi Image Auto-Refresh -->
+    <script src="{{ asset('js/wasabi-image-refresh.js') }}"></script>
+
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>

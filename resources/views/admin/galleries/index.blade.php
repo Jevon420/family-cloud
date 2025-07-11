@@ -44,7 +44,7 @@
         <div class="bg-white rounded-lg shadow-md flex flex-col md:flex-row md:items-center p-4 group transition-all">
             <div class="flex-shrink-0 w-full md:w-32 h-32 flex items-center justify-center overflow-hidden mb-4 md:mb-0 md:mr-4">
                 @if($gallery->cover_image)
-                <img class="object-cover w-full h-full rounded-md" src="{{ Storage::url($gallery->cover_image) }}" alt="{{ $gallery->name }}">
+                <img class="object-cover w-full h-full rounded-md" src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}">
                 @else
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
                     <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

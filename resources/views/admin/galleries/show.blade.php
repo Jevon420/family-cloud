@@ -30,11 +30,7 @@
             <div class="md:flex">
                 <div class="md:flex-shrink-0">
                     @if($gallery->cover_image)
-                        {{-- <img class="h-48 w-full object-cover md:w-48" src="{{ Storage::url($gallery->cover_image) }}"
-                            alt="{{ $gallery->name }}"> --}}
-                        <img class="h-48 w-full object-cover md:w-48"
-                            src="{{ route('family.storage.refreshSignedUrl', ['path' => $gallery->cover_image, 'type' => 'short']) }}"
-                            alt="{{ $gallery->name }}">
+                        <img class="h-48 w-full object-cover md:w-48" src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}">
                     @else
                         <div class="h-48 w-full bg-gray-200 flex items-center justify-center md:w-48">
                             <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

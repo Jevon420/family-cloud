@@ -24,7 +24,7 @@
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Current Photo</label>
                 <div class="mt-2 mb-4">
-                    <img src="{{ Storage::url($photo->file_path) }}" alt="{{ $photo->name }}" class="max-h-64 rounded">
+                    <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path]) }}" alt="{{ $photo->name }}" class="max-h-64 rounded">
                 </div>
 
                 <label for="photo" class="block text-sm font-medium text-gray-700">Replace Photo</label>

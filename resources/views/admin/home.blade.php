@@ -23,7 +23,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Users</dt>
-                        <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $stats['total_users'] ?? 0 }}</dd>
+                        <dd class="text-base sm:text-lg font-medium text-gray-900" id="total-users">{{ $stats['total_users'] ?? 0 }}</dd>
                     </dl>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Photos</dt>
-                        <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $stats['total_photos'] ?? 0 }}</dd>
+                        <dd class="text-base sm:text-lg font-medium text-gray-900" id="total-photos">{{ $stats['total_photos'] ?? 0 }}</dd>
                     </dl>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Files</dt>
-                        <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $stats['total_files'] ?? 0 }}</dd>
+                        <dd class="text-base sm:text-lg font-medium text-gray-900" id="total-files">{{ $stats['total_files'] ?? 0 }}</dd>
                     </dl>
                 </div>
             </div>
@@ -77,7 +77,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                     <dl>
                         <dt class="text-xs sm:text-sm font-medium text-gray-500 truncate">Storage Used</dt>
-                        <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $stats['storage_used'] ?? '0 MB' }}</dd>
+                        <dd class="text-base sm:text-lg font-medium text-gray-900" id="storage-used">{{ $stats['storage_used'] ?? '0 MB' }}</dd>
                     </dl>
                 </div>
             </div>
@@ -146,25 +146,25 @@
             <div class="space-y-2 sm:space-y-3">
                 <div class="flex items-center justify-between">
                     <span class="text-xs sm:text-sm font-medium text-gray-900">Database Connection</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Active
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" id="database-connection">
+                        {{ $stats['database_connection'] }}
                     </span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs sm:text-sm font-medium text-gray-900">Cache System</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Running
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" id="cache-system">
+                        {{ $stats['cache_system'] }}
                     </span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs sm:text-sm font-medium text-gray-900">Queue Workers</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Operational
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" id="queue-workers">
+                        {{ $stats['queue_workers'] }}
                     </span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs sm:text-sm font-medium text-gray-900">Storage Available</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800" id="storage-available">
                         {{ $stats['storage_available'] ?? '1.2 GB' }}
                     </span>
                 </div>
@@ -300,6 +300,8 @@
     </div>
 </div>
 
+<div id="last-updated" class="text-xs text-gray-500">Updated at {{ now()->toTimeString() }}</div>
+
 @push('scripts')
 <script>
 function clearCache() {
@@ -323,6 +325,24 @@ function exportUsers() {
 function viewLogs() {
     alert('Activity logs opened in new window.');
 }
+
+function refreshStats() {
+    fetch('/admin/stats-refresh')
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('#total-users').textContent = data.total_users;
+            document.querySelector('#total-photos').textContent = data.total_photos;
+            document.querySelector('#total-files').textContent = data.total_files;
+            document.querySelector('#storage-used').textContent = data.storage_used;
+            document.querySelector('#storage-available').textContent = data.storage_available;
+            document.querySelector('#database-connection').textContent = data.database_connection;
+            document.querySelector('#cache-system').textContent = data.cache_system;
+            document.querySelector('#queue-workers').textContent = data.queue_workers;
+            document.querySelector('#last-updated').textContent = `Updated at ${new Date().toLocaleTimeString()}`;
+        });
+}
+
+setInterval(refreshStats, 5000); // Refresh every 5 seconds
 </script>
 @endpush
 @endsection

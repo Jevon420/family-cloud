@@ -42,8 +42,11 @@ class StorageManagementController extends Controller
             'auto_detect_storage' => $request->has('auto_detect_storage'),
         ]);
 
+        // After updating settings, recalculate actual storage usage
+        $this->storageService->recalculateUserStorage();
+
         return redirect()->route('admin.storage.index')
-            ->with('success', 'Storage settings updated successfully.');
+            ->with('success', 'Storage settings updated and user quotas recalculated successfully.');
     }
 
     /**
@@ -51,9 +54,13 @@ class StorageManagementController extends Controller
      */
     public function recalculateQuotas()
     {
+        // First update the storage quotas based on current settings
         $this->storageService->updateAllUserQuotas();
 
+        // Then recalculate actual storage usage for each user
+        $this->storageService->recalculateUserStorage();
+
         return redirect()->route('admin.storage.index')
-            ->with('success', 'User storage quotas recalculated successfully.');
+            ->with('success', 'User storage quotas and usage recalculated successfully.');
     }
 }

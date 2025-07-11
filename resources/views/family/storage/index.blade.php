@@ -170,5 +170,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Storage Overview by Type -->
+    <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Wasabi Storage Overview (User Content) -->
+        <div class="p-6 {{ $darkMode ? 'bg-gray-800' : 'bg-white' }} rounded-lg shadow">
+            <h3 class="text-lg font-semibold {{ $darkMode ? 'text-white' : 'text-gray-900' }} mb-4">
+                <i class="fas fa-cloud mr-2"></i>Wasabi Storage (Your Content)
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-600' }}">Used:</span>
+                    <span class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }}">
+                        {{ number_format($storageData['summary']['wasabiTotalUsed'] / (1024 * 1024), 2) }} MB
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-600' }}">Available:</span>
+                    <span class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }}">
+                        {{ number_format($storageData['summary']['wasabiAvailableStorage'] / (1024 * 1024), 2) }} MB
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-blue-500 h-3 rounded-full" style="width: {{ $storageData['summary']['wasabiUsagePercentage'] }}%"></div>
+                </div>
+                <p class="text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">
+                    Files, Photos, Galleries stored on Wasabi Cloud
+                </p>
+            </div>
+        </div>
+
+        <!-- Local Storage Overview (Profile Data) -->
+        <div class="p-6 {{ $darkMode ? 'bg-gray-800' : 'bg-white' }} rounded-lg shadow">
+            <h3 class="text-lg font-semibold {{ $darkMode ? 'text-white' : 'text-gray-900' }} mb-4">
+                <i class="fas fa-server mr-2"></i>Local Storage (Profile Data)
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-600' }}">Profile Image:</span>
+                    <span class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }}">
+                        {{ $storageData['summary']['localStorageUsedFormatted'] }}
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-green-500 h-3 rounded-full" style="width: 5%"></div>
+                </div>
+                <p class="text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">
+                    Profile image and account data stored locally
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

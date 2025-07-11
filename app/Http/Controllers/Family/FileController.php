@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\StorageManagementService;
 
 class FileController extends Controller
 {
@@ -134,6 +135,10 @@ class FileController extends Controller
             'visibility' => $visibility,
             'created_by' => Auth::id(),
         ]);
+
+        $storageService = app(StorageManagementService::class);
+        $storageService->calculateUserStorageUsage($newFile->user_id);
+        $storageService->updateUserStorage($newFile->user()->first());
 
         return redirect()->route('family.files.show', $newFile->id)
             ->with('success', 'File uploaded successfully.');

@@ -85,7 +85,7 @@
                 <div class="group relative">
                     <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
                         @if($gallery->cover_image)
-                            <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->title }}" class="object-cover">
+                            <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->name }}" class="object-cover">
                         @else
                             <img src="https://placehold.co/600x400?text=No+Cover" alt="Gallery placeholder" class="object-cover">
                         @endif
@@ -97,7 +97,7 @@
                         <h3 class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }}">
                             <a href="{{ route('family.galleries.show', $gallery->slug) }}">
                                 <span class="absolute inset-0"></span>
-                                {{ $gallery->title }}
+                                {{ $gallery->name }}
                             </a>
                         </h3>
                         <p class="text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">{{ $gallery->photos_count }} photos</p>
@@ -112,14 +112,14 @@
                 <div class="group relative mb-6 break-inside-avoid">
                     <div class="overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
                         @if($gallery->cover_image)
-                            <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->title }}" class="w-full">
+                            <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->name }}" class="w-full">
                         @else
                             <img src="https://placehold.co/600x{{ 300 + ($loop->index % 3) * 100 }}?text=No+Cover" alt="Gallery placeholder" class="w-full">
                         @endif
                         <div class="p-4">
                             <h3 class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }}">
                                 <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="block">
-                                    {{ $gallery->title }}
+                                    {{ $gallery->name }}
                                 </a>
                             </h3>
                             <div class="flex justify-between items-center mt-2">
@@ -139,7 +139,7 @@
                         <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="block hover:{{ $darkMode ? 'bg-gray-700' : 'bg-gray-50' }}">
                             <div class="px-4 py-4 sm:px-6">
                                 <div class="flex items-center justify-between">
-                                    <p class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $gallery->title }}</p>
+                                    <p class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $gallery->name }}</p>
                                     <div class="ml-2 flex-shrink-0 flex">
                                         <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $darkMode ? 'bg-indigo-900 text-indigo-100' : 'bg-indigo-100 text-indigo-800' }}">{{ $gallery->photos_count }} photos</p>
                                     </div>

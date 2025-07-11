@@ -254,7 +254,7 @@
 <!-- Users Table - Desktop View -->
 <div class="bg-white shadow rounded-lg overflow-hidden hidden lg:block">
     <div class="px-4 py-5 sm:p-6">
-        <div class="overflow-x-auto overflow-scroll">
+        <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -326,8 +326,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <!-- Storage calculation would go here -->
-                            0 MB / 5 GB
+                            {{ $user->getFormattedUsed() }} / {{ $user->getFormattedQuota() }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -429,7 +428,7 @@
                 <div class="mb-4">
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">Storage Used:</span>
-                        <span class="text-gray-900">0 MB / 5 GB</span>
+                        <span class="text-gray-900">{{ $user->getFormattedUsed() }} / {{ $user->getFormattedQuota() }}</span>
                     </div>
                 </div>
 

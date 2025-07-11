@@ -29,13 +29,13 @@ class GalleryController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhere('description', 'like', "%$search%")
-                  ->orWhereHas('user', function($uq) use ($search) {
-                      $uq->where('name', 'like', "%$search%")
-                         ->orWhere('email', 'like', "%$search%") ;
-                  });
+                    ->orWhere('description', 'like', "%$search%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', "%$search%")
+                            ->orWhere('email', 'like', "%$search%");
+                    });
             });
         }
         if ($request->filled('visibility')) {
@@ -82,7 +82,7 @@ class GalleryController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $gallerySlug = $data['slug'];
-            $path = $request->file('cover_image')->storeAs("galleries/gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
+            $path = $request->file('cover_image')->storeAs("familycloud/family/galleries/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'wasabi');
             $data['cover_image'] = $path;
         }
 
@@ -159,7 +159,8 @@ class GalleryController extends Controller
             }
 
             $gallerySlug = $data['slug'];
-            $path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
+            //$path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
+            $path = $request->file('cover_image')->storeAs("galleries/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'wasabi');
             $data['cover_image'] = $path;
         }
 

@@ -73,5 +73,6 @@ class Kernel extends HttpKernel
         'check.registration' => \App\Http\Middleware\CheckRegistrationEnabled::class,
         'password.change.required' => \App\Http\Middleware\EnsurePasswordChanged::class,
         'redirect.user.management' => \App\Http\Middleware\RedirectToUserManagement::class,
+        'check.storage' => \App\Http\Middleware\CheckUserStorage::class,
     ];
 }

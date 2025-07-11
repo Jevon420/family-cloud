@@ -52,6 +52,18 @@
                 @enderror
             </div>
 
+            <div class="mb-4">
+                <label for="cover_image" class="block text-sm font-medium text-gray-700">Cover Image</label>
+                <input type="file" name="cover_image" id="cover_image" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" onchange="previewImage(event)">
+                @if($gallery->cover_image)
+                <img src="{{ Storage::disk('wasabi')->url($gallery->cover_image) }}" alt="Current Cover Image" class="mt-2 max-h-40">
+                @endif
+                <img id="cover_image_preview" class="mt-2 max-h-40" style="display: none;" />
+                @error('cover_image')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="flex flex-wrap justify-end">
                 <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Update Gallery
@@ -60,4 +72,42 @@
         </form>
     </div>
 </div>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('cover_image_preview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Gallery updated successfully!');
+            } else {
+                alert('Error updating gallery.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 @endsection

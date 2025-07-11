@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Services\StorageManagementService;
 
 class FileController extends Controller
 {
@@ -129,6 +130,10 @@ class FileController extends Controller
             $file->tags()->attach($request->tags);
         }
 
+        $storageService = app(StorageManagementService::class);
+        $storageService->calculateUserStorageUsage($file->user_id);
+        $storageService->updateUserStorage($file->user);
+
         return redirect()->route('admin.files.show', $file)
             ->with('success', 'File uploaded successfully.');
     }
@@ -232,6 +237,10 @@ class FileController extends Controller
             $file->tags()->detach();
         }
 
+        $storageService = app(StorageManagementService::class);
+        $storageService->calculateUserStorageUsage($file->user_id);
+        $storageService->updateUserStorage($file->user()->first());
+
         return redirect()->route('admin.files.show', $file)
             ->with('success', 'File updated successfully.');
     }
@@ -251,7 +260,9 @@ class FileController extends Controller
             'created_by' => auth()->id()
         ]);
 
-        return Storage::disk('public')->download($file->file_path, $file->name);
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::disk('public')->get($file->file_path);
+        }, $file->name);
     }
 
     /**
@@ -268,6 +279,10 @@ class FileController extends Controller
 
         // Delete the file (soft delete)
         $file->delete();
+
+        $storageService = app(StorageManagementService::class);
+        $storageService->calculateUserStorageUsage($file->user_id);
+        $storageService->updateUserStorage($file->user()->first());
 
         return redirect()->route('admin.files.index')
             ->with('success', 'File deleted successfully.');

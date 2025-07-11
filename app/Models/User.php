@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'status',
         'password_change_required',
+        'storage_quota_gb',
+        'storage_used_gb',
     ];
 
     protected $hidden = [

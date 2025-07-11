@@ -7,8 +7,10 @@ use App\Models\File;
 use App\Models\Photo;
 use App\Models\Gallery;
 use App\Models\Folder;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class StorageController extends Controller
 {
@@ -95,11 +97,17 @@ class StorageController extends Controller
         $totalPhotos = Photo::where('user_id', $userId)->count();
         $totalGalleries = Gallery::where('user_id', $userId)->count();
 
-        // Storage calculations
+        // Wasabi storage calculations (user files, photos, galleries)
         $fileStorage = File::where('user_id', $userId)->sum('file_size') ?? 0;
         $photoStorage = Photo::where('user_id', $userId)->sum('file_size') ?? 0;
-        $totalUsed = $fileStorage + $photoStorage;
-        $maxStorage = auth()->user()->storage_quota_gb ? auth()->user()->storage_quota_gb * 1024 * 1024 * 1024 : 5 * 1024 * 1024 * 1024;
+        $totalWasabiUsed = $fileStorage + $photoStorage;
+        $maxWasabiStorage = auth()->user()->storage_quota_gb ? auth()->user()->storage_quota_gb * 1024 * 1024 * 1024 : 5 * 1024 * 1024 * 1024;
+
+        // Local storage (profile image size - minimal)
+        $profileImageSize = 0;
+        if (auth()->user()->profile_image && file_exists(public_path('storage/' . auth()->user()->profile_image))) {
+            $profileImageSize = filesize(public_path('storage/' . auth()->user()->profile_image));
+        }
 
         // File type breakdown
         $fileTypes = File::where('user_id', $userId)
@@ -154,12 +162,24 @@ class StorageController extends Controller
                 'totalFolders' => $totalFolders,
                 'totalPhotos' => $totalPhotos,
                 'totalGalleries' => $totalGalleries,
+
+                // Wasabi storage (user content)
                 'fileStorage' => $fileStorage,
                 'photoStorage' => $photoStorage,
-                'totalUsed' => $totalUsed,
-                'maxStorage' => $maxStorage,
-                'availableStorage' => $maxStorage - $totalUsed,
-                'usagePercentage' => $maxStorage > 0 ? ($totalUsed / $maxStorage) * 100 : 0,
+                'wasabiTotalUsed' => $totalWasabiUsed,
+                'wasabiMaxStorage' => $maxWasabiStorage,
+                'wasabiAvailableStorage' => $maxWasabiStorage - $totalWasabiUsed,
+                'wasabiUsagePercentage' => $maxWasabiStorage > 0 ? ($totalWasabiUsed / $maxWasabiStorage) * 100 : 0,
+
+                // Local storage (profile image)
+                'localStorageUsed' => $profileImageSize,
+                'localStorageUsedFormatted' => $this->formatBytes($profileImageSize),
+
+                // Legacy fields for compatibility
+                'totalUsed' => $totalWasabiUsed,
+                'maxStorage' => $maxWasabiStorage,
+                'availableStorage' => $maxWasabiStorage - $totalWasabiUsed,
+                'usagePercentage' => $maxWasabiStorage > 0 ? ($totalWasabiUsed / $maxWasabiStorage) * 100 : 0,
             ],
             'fileTypes' => $fileTypes,
             'photoTypes' => $photoTypes,
@@ -167,5 +187,52 @@ class StorageController extends Controller
             'largestFiles' => $largestFiles,
             'largestPhotos' => $largestPhotos,
         ];
+    }
+
+    private function formatBytes($size, $precision = 2)
+    {
+        $base = log($size, 1024);
+        $suffixes = array('B', 'KB', 'MB', 'GB', 'TB');
+
+        return round(pow(1024, $base - floor($base)), $precision) .' '. $suffixes[floor($base)];
+    }
+
+    public function generateSignedUrl($path, $type = 'short')
+    {
+        $expirationMinutes = $type === 'short'
+            ? config('settings.signed_url_short_expiration', 5)
+            : config('settings.signed_url_long_expiration', 525600);
+
+        return Storage::disk(env('WASABI_DISK'))->temporaryUrl($path, now()->addMinutes($expirationMinutes));
+    }
+
+    public function refreshSignedUrl(Request $request)
+    {
+        $path = $request->input('path');
+        $type = $request->input('type', 'short');
+
+        if (!$path) {
+            return response()->json(['error' => 'Path is required'], 400);
+        }
+
+        $signedUrl = $this->generateSignedUrl($path, $type);
+
+        return response()->json(['signed_url' => $signedUrl]);
+    }
+
+    public function updateStorageSettings(Request $request)
+    {
+        $validatedData = $request->validate([
+            'signed_url_short_expiration' => 'required|integer|min:1',
+            'signed_url_long_expiration_years' => 'required|integer|min:1',
+        ]);
+
+        $longExpirationMinutes = $validatedData['signed_url_long_expiration_years'] * 525600;
+
+        // Update settings in the database
+        SiteSetting::updateOrCreate(['key' => 'signed_url_short_expiration'], ['value' => $validatedData['signed_url_short_expiration']]);
+        SiteSetting::updateOrCreate(['key' => 'signed_url_long_expiration'], ['value' => $longExpirationMinutes]);
+
+        return redirect()->route('admin.storage.index')->with('success', 'Storage settings updated successfully.');
     }
 }

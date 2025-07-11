@@ -50,6 +50,14 @@ class UpdateStorageUsage extends Command
             // Calculate actual storage usage
             $usage = $storageService->calculateUserStorageUsage($user->id);
             $user->update(['storage_used_gb' => $usage]);
+
+            // Check if user has quota set
+            if ($user->storage_quota_gb <= 0) {
+                $perUserQuota = $storageService->calculatePerUserQuota();
+                $user->update(['storage_quota_gb' => $perUserQuota]);
+                $this->line(" Set missing quota for user: {$user->name}");
+            }
+
             $bar->advance();
         }
 

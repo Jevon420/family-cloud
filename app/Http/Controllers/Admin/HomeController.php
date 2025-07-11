@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\Photo;
 use App\Models\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -23,6 +26,9 @@ class HomeController extends Controller
             'total_files' => File::count(),
             'storage_used' => $this->formatBytes($this->getDirectorySize(storage_path('app'))),
             'storage_available' => $this->formatBytes(disk_free_space(storage_path('app'))),
+            'database_connection' => $this->checkDatabaseConnection(),
+            'cache_system' => $this->checkCacheSystem(),
+            'queue_workers' => $this->checkQueueWorkers(),
         ];
 
         $roleStats = User::selectRaw('roles.name as role, count(*) as count')
@@ -44,6 +50,22 @@ class HomeController extends Controller
         $pendingUsersCount = User::where('status', 'pending')->count();
 
         return view('admin.home', compact('stats', 'roleStats', 'pendingUsersCount'));
+    }
+
+    public function refreshStats()
+    {
+        $stats = [
+            'total_users' => User::count(),
+            'total_photos' => Photo::count(),
+            'total_files' => File::count(),
+            'storage_used' => $this->formatBytes($this->getDirectorySize(storage_path('app'))),
+            'storage_available' => $this->formatBytes(disk_free_space(storage_path('app'))),
+            'database_connection' => $this->checkDatabaseConnection(),
+            'cache_system' => $this->checkCacheSystem(),
+            'queue_workers' => $this->checkQueueWorkers(),
+        ];
+
+        return response()->json($stats);
     }
 
     private function getDirectorySize($path)
@@ -75,5 +97,32 @@ class HomeController extends Controller
         $base = log($bytes, 1024);
 
         return round(pow(1024, $base - floor($base)), $precision) . ' ' . $units[floor($base)];
+    }
+
+    private function checkDatabaseConnection()
+    {
+        try {
+            return \DB::connection()->getPdo() ? 'Active' : 'Inactive';
+        } catch (\Exception $e) {
+            return 'Inactive';
+        }
+    }
+
+    private function checkCacheSystem()
+    {
+        try {
+            return \Cache::store('file')->get('key') !== null ? 'Running' : 'Stopped';
+        } catch (\Exception $e) {
+            return 'Stopped';
+        }
+    }
+
+    private function checkQueueWorkers()
+    {
+        try {
+            return \Queue::size() > 0 ? 'Operational' : 'Idle';
+        } catch (\Exception $e) {
+            return 'Idle';
+        }
     }
 }

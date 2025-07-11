@@ -24,7 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Run storage usage calculation daily
+        $schedule->command('storage:update-usage')->daily();
     }
 
     /**

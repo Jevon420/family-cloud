@@ -282,7 +282,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
         Route::prefix('files')->name('files.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Family\FileController::class, 'index'])->name('index');
             Route::get('/create', [\App\Http\Controllers\Family\FileController::class, 'create'])->name('create');
-            Route::post('/', [\App\Http\Controllers\Family\FileController::class, 'store'])->name('store');
+            Route::post('/', [\App\Http\Controllers\Family\FileController::class, 'store'])->name('store')->middleware('check.storage');
             Route::get('/{id}', [\App\Http\Controllers\Family\FileController::class, 'show'])->name('show');
             Route::get('/{id}/download', [\App\Http\Controllers\Family\FileController::class, 'download'])->name('download');
         });
@@ -300,7 +300,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
             Route::get('/create', [\App\Http\Controllers\Family\GalleryController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Family\GalleryController::class, 'store'])->name('store');
             Route::get('/{slug}', [\App\Http\Controllers\Family\GalleryController::class, 'show'])->name('show');
-            Route::post('/{slug}/photos', [\App\Http\Controllers\Family\GalleryController::class, 'uploadPhotos'])->name('photos.upload');
+            Route::post('/{slug}/photos', [\App\Http\Controllers\Family\GalleryController::class, 'uploadPhotos'])->name('photos.upload')->middleware('check.storage');
         });
 
         Route::prefix('photos')->name('photos.')->group(function () {
@@ -362,3 +362,6 @@ Route::get('/send-test-mail-config', function () {
     });
     return 'Test mail sent';
 });
+
+// Admin AJAX route for refreshing stats
+Route::get('/admin/stats-refresh', [App\Http\Controllers\Admin\HomeController::class, 'refreshStats'])->name('admin.stats.refresh');

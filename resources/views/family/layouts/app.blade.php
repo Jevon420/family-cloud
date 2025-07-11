@@ -101,6 +101,7 @@
                 gif.src = '{{ asset('storage/logos/preloader/loader.gif') }}';
                 gif.alt = 'Loading...';
                 gif.style.marginBottom = '20px';
+                gif.style.margin = 'auto';
 
                 const userName = '{{ auth()->user()->name }}';
                 const welcomeText = document.createElement('h1');

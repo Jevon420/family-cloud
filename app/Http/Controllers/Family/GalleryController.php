@@ -71,7 +71,7 @@ class GalleryController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $gallerySlug = Str::slug($validated['title']) . '-' . Str::random(5);
-            $path = $request->file('cover_image')->storeAs("galleries/gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
+            $path = $request->file('cover_image')->storeAs("galleries/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
             $gallery->cover_image = $path;
         }
 

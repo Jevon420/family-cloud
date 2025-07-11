@@ -19,10 +19,13 @@ use App\Models\Tag;
 use App\Models\Taggable;
 
 use App\Observers\AuditObserver;
+use App\Observers\FileObserver;
+use App\Observers\PhotoObserver;
 use App\Traits\TracksAudit;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
+use App\Console\Commands\UpdateUserStorageCommand;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        File::observe(FileObserver::class);
+        Photo::observe(PhotoObserver::class);
 
         /* $auditedModels = [
             File::class,

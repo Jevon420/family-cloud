@@ -137,6 +137,24 @@ class SettingsSeeder extends Seeder
                 'access_level' => 'global_admin',
                 'is_public' => true,
             ],
+            [
+                'key' => 'signed_url_short_expiration',
+                'value' => '5',
+                'type' => 'number',
+                'group' => 'storage',
+                'description' => 'Expiration time for short-term signed URLs in minutes',
+                'access_level' => 'global_admin',
+                'is_public' => false,
+            ],
+            [
+                'key' => 'signed_url_long_expiration',
+                'value' => '525600',
+                'type' => 'number',
+                'group' => 'storage',
+                'description' => 'Expiration time for long-term signed URLs in minutes (default: 1 year)',
+                'access_level' => 'global_admin',
+                'is_public' => false,
+            ],
         ];
 
         foreach ($siteSettings as $setting) {
@@ -268,6 +286,24 @@ class SettingsSeeder extends Seeder
                 'access_level' => 'developer',
                 'requires_restart' => true,
                 'is_sensitive' => true,
+            ],
+            [
+                'key' => 'wasabi_total_storage_gb',
+                'value' => '1000',
+                'type' => 'number',
+                'group' => 'storage',
+                'description' => 'Total storage available in Wasabi account (GB)',
+                'access_level' => 'global_admin',
+                'is_public' => false,
+            ],
+            [
+                'key' => 'wasabi_allocation_percentage',
+                'value' => '80',
+                'type' => 'number',
+                'group' => 'storage',
+                'description' => 'Percentage of Wasabi storage to allocate to FamilyCloud users',
+                'access_level' => 'global_admin',
+                'is_public' => false,
             ],
 
             // Logging Settings

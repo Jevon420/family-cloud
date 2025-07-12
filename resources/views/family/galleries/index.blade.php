@@ -85,7 +85,7 @@
                 <div class="group relative">
                     <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
                         @if($gallery->cover_image)
-                            <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->name }}" class="object-cover">
+                            <img src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}" class="object-cover">
                         @else
                             <img src="https://placehold.co/600x400?text=No+Cover" alt="Gallery placeholder" class="object-cover">
                         @endif
@@ -112,7 +112,7 @@
                 <div class="group relative mb-6 break-inside-avoid">
                     <div class="overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
                         @if($gallery->cover_image)
-                            <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->name }}" class="w-full">
+                            <img src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}" class="w-full">
                         @else
                             <img src="https://placehold.co/600x{{ 300 + ($loop->index % 3) * 100 }}?text=No+Cover" alt="Gallery placeholder" class="w-full">
                         @endif
@@ -241,4 +241,47 @@
         });
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const images = document.querySelectorAll('img');
+
+        images.forEach(image => {
+            const preloader = document.createElement('div');
+            preloader.className = 'image-preloader';
+            preloader.style.cssText = 'width: 100%; height: 100%; background: url(/path/to/preloader.gif) center center no-repeat;';
+            image.parentElement.style.position = 'relative';
+            image.parentElement.appendChild(preloader);
+
+            image.onload = function () {
+                preloader.remove();
+            };
+
+            image.onerror = function () {
+                preloader.style.background = 'url(/path/to/error-image.png) center center no-repeat';
+            };
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const lazyImages = document.querySelectorAll('img');
+
+        lazyImages.forEach(image => {
+            image.setAttribute('loading', 'lazy');
+        });
+    });
+</script>
+
+<style>
+    .image-preloader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+    }
+</style>
 @endsection

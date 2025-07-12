@@ -18,6 +18,7 @@ class CreatePhotosTable extends Migration
             $table->string('slug')->unique();
             $table->string('file_path');         // full-size image
             $table->string('thumbnail_path')->nullable(); // preview
+            $table->unsignedBigInteger('thumbnail_size'); // in bytes
 
             $table->text('description')->nullable();
 

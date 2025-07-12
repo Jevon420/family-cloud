@@ -310,7 +310,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
             Route::get('/{id}/edit', [\App\Http\Controllers\Family\PhotoController::class, 'edit'])->name('edit');
             Route::put('/{id}', [\App\Http\Controllers\Family\PhotoController::class, 'update'])->name('update');
             Route::get('/{id}/download', [\App\Http\Controllers\Family\PhotoController::class, 'download'])->name('download');
-            // Photo view route removed - now handled by modal carousel
+            Route::get('/{id}/debug', [\App\Http\Controllers\Family\PhotoController::class, 'debugPhotoPaths'])->name('debug');
         });
 
         // Profile Management
@@ -366,3 +366,9 @@ Route::get('/send-test-mail-config', function () {
 
 // Admin AJAX route for refreshing stats
 Route::get('/admin/stats-refresh', [App\Http\Controllers\Admin\HomeController::class, 'refreshStats'])->name('admin.stats.refresh');
+
+// Utility route for fixing all photo paths
+Route::get('/admin/storage/fix-photo-paths', [\App\Http\Controllers\Admin\StorageController::class, 'fixAllPhotosPaths'])->name('admin.storage.fix-photo-paths');
+
+// AJAX route for updating user storage usage (Admin)
+Route::post('/admin/storage/update-user-storage-usage', [App\Http\Controllers\Admin\StorageController::class, 'updateUserStorageUsage'])->name('admin.storage.updateUserStorageUsage');

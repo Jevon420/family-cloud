@@ -19,7 +19,7 @@
         <div class="p-4 sm:p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->title }}"
+                    <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']) }}" alt="{{ $photo->title }}"
                          class="w-full h-auto rounded-lg shadow-sm">
                 </div>
 

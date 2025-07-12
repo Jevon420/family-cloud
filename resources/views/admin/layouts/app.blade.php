@@ -26,6 +26,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
+    <!-- Wasabi Image Auto-Refresh -->
+    <script src="{{ asset('js/wasabi-image-refresh.js') }}"></script>
+
     @stack('styles')
 </head>
 
@@ -39,9 +42,6 @@
             </main>
         </div>
     </div>
-
-    <!-- Wasabi Image Auto-Refresh -->
-    <script src="{{ asset('js/wasabi-image-refresh.js') }}"></script>
 
     @stack('scripts')
 

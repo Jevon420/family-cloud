@@ -27,6 +27,14 @@ class GalleryController extends Controller
         $user = Auth::user();
         $galleries = $user->galleries()->withCount('photos')->latest()->paginate(12);
 
+        // Add signed URLs for gallery cover images
+        $galleries->getCollection()->transform(function ($gallery) {
+            if ($gallery->cover_image) {
+                $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+            }
+            return $gallery;
+        });
+
         // User settings for view preferences
         $theme = $this->getUserSetting('theme', 'light');
         $darkMode = $this->getUserSetting('dark_mode', 'false') === 'true';
@@ -70,9 +78,10 @@ class GalleryController extends Controller
         $gallery->description = $validated['description'] ?? null;
 
         if ($request->hasFile('cover_image')) {
-            $gallerySlug = Str::slug($validated['title']) . '-' . Str::random(5);
-            $path = $request->file('cover_image')->storeAs("galleries/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
-            $gallery->cover_image = $path;
+            $gallerySlug = $gallery->slug;
+            $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/" . $request->file('cover_image')->getClientOriginalName();
+            $request->file('cover_image')->storeAs('', $coverImagePath, 'wasabi');
+            $gallery->cover_image = $coverImagePath;
         }
 
         $gallery->created_by = Auth::id();
@@ -102,6 +111,11 @@ class GalleryController extends Controller
         // Check if the user is authorized to view this gallery
         $this->authorize('view', $gallery);
 
+        // Add signed URL for gallery cover image
+        if ($gallery->cover_image) {
+            $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+        }
+
         // Handle search and filter
         $query = $gallery->photos();
 
@@ -118,7 +132,27 @@ class GalleryController extends Controller
             $query->latest();
         }
 
-        $photos = $query->paginate(24);
+        $photos = $query->paginate(24);        // Add signed URLs for all photos
+        $photos->getCollection()->transform(function ($photo) use ($gallery) {
+            // Always get the current gallery slug
+            $filename = basename($photo->file_path);
+            $photo->file_path = "familycloud/family/galleries/{$gallery->slug}/photos/{$filename}";
+
+            // Similarly fix the thumbnail path
+            if ($photo->thumbnail_path) {
+                $thumbnailFilename = basename($photo->thumbnail_path);
+                $photo->thumbnail_path = "familycloud/family/galleries/{$gallery->slug}/photos/thumbnails/{$thumbnailFilename}";
+                $photo->save();
+            } else {
+                // If no thumbnail path, set it to the same as file path
+                $photo->thumbnail_path = $photo->file_path;
+                $photo->save();
+            }
+
+            $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
+            $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path, 'type' => 'long']);
+            return $photo;
+        });
 
         // Handle AJAX request
         if (request()->ajax()) {
@@ -154,14 +188,34 @@ class GalleryController extends Controller
         ]);
 
         foreach ($request->file('photos') as $photoFile) {
-            $path = $photoFile->store("photos/{$gallery->slug}", 'public');
+            $filename = $photoFile->getClientOriginalName();
+            $photoPath = "familycloud/family/galleries/{$gallery->slug}/photos/{$filename}";
+            $thumbnailPath = "familycloud/family/galleries/{$gallery->slug}/photos/thumbnails/{$filename}";
+
+            // Store original photo in Wasabi
+            $photoFile->storeAs('', $photoPath, 'wasabi');
+
+            // Create and store thumbnail in Wasabi
+            try {
+                $thumbnail = \Intervention\Image\Facades\Image::make($photoFile)
+                    ->fit(400, 400, function ($constraint) {
+                        $constraint->upsize();
+                    })
+                    ->encode();
+
+                Storage::disk('wasabi')->put($thumbnailPath, $thumbnail->__toString());
+            } catch (\Exception $e) {
+                // If thumbnail creation fails, use original as thumbnail
+                $thumbnailPath = $photoPath;
+            }
 
             $photo = new Photo();
             $photo->user_id = Auth::id();
             $photo->gallery_id = $gallery->id;
-            $photo->slug = Str::slug($photoFile->getClientOriginalName(), '-') . '-' . Str::random(5);
-            $photo->name = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $photo->file_path = $path;
+            $photo->slug = Str::slug(pathinfo($filename, PATHINFO_FILENAME), '-') . '-' . Str::random(5);
+            $photo->name = pathinfo($filename, PATHINFO_FILENAME);
+            $photo->file_path = $photoPath;
+            $photo->thumbnail_path = $thumbnailPath;
             $photo->mime_type = $photoFile->getClientMimeType();
             $photo->file_size = $photoFile->getSize();
             $photo->created_by = Auth::id();

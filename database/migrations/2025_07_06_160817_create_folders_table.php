@@ -16,6 +16,7 @@ class CreateFoldersTable extends Migration
             $table->string('slug')->unique(); // URL-safe folder name
             $table->text('description')->nullable(); // folder description
             $table->string('cover_image')->nullable(); // path to cover image
+            $table->unsignedBigInteger('folder_size')->default(0); // in bytes
             $table->enum('visibility', ['private', 'public'])->default('private');
             $table->timestamps();
 

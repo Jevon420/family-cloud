@@ -38,7 +38,7 @@
                 </div>
             </div>
             <div class="p-6 flex justify-center">
-                <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path]) }}" alt="{{ $photo->name }}" class="max-w-full max-h-96 object-contain">
+                <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path]) }}" alt="{{ $photo->name }}" class="max-w-full max-h-96 object-contain wasabi-monitored" onerror="this.src='{{ asset('images/placeholder.php') }}'; console.log('Image failed to load: {{ $photo->file_path }}');">
             </div>
         </div>
 

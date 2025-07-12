@@ -7,6 +7,7 @@ use App\Models\Gallery;
 use App\Models\Photo;
 use App\Models\SharedMedia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
 {
@@ -17,6 +18,14 @@ class GalleryController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
+        // Add signed URLs for each gallery cover image
+        $galleries->getCollection()->transform(function ($gallery) {
+            if ($gallery->cover_image) {
+                $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+            }
+            return $gallery;
+        });
+
         $sharedGalleries = collect();
         if (auth()->check()) {
             $sharedGalleries = Gallery::sharedWithUser(auth()->id())
@@ -25,6 +34,14 @@ class GalleryController extends Controller
                 }])
                 ->orderBy('created_at', 'desc')
                 ->paginate(12);
+
+            // Add signed URLs for each shared gallery cover image
+            $sharedGalleries->getCollection()->transform(function ($gallery) {
+                if ($gallery->cover_image) {
+                    $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+                }
+                return $gallery;
+            });
         }
 
         if ($request->ajax()) {
@@ -60,12 +77,24 @@ class GalleryController extends Controller
             ->with(['visibility', 'sharedMedia'])
             ->firstOrFail();
 
+        // Add signed URL for gallery cover image
+        if ($gallery->cover_image) {
+            $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+        }
+
         $photos = $gallery->photos()
             ->whereHas('visibility', function($q) {
                 $q->where('visibility', 'public');
             })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
+
+        // Add signed URLs for photos
+        $photos->getCollection()->transform(function ($photo) {
+            $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
+            $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
+            return $photo;
+        });
 
         if ($request->ajax()) {
             return response()->json([

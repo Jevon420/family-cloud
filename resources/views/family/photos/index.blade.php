@@ -78,7 +78,7 @@
                 @foreach($photos as $photo)
                     <div class="bg-white rounded-lg overflow-hidden shadow-md {{ $darkMode ? 'bg-gray-800' : '' }}">
                         <a href="{{ route('family.photos.show', $photo->id) }}" class="block relative pb-[75%]">
-                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->name }}"
+                            <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'short']) }}" alt="{{ $photo->name }}"
                                 class="absolute inset-0 w-full h-full object-cover">
                         </a>
                         <div class="p-4">

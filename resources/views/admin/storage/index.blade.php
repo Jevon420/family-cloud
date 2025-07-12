@@ -200,4 +200,25 @@
         </div>
     </div>
 </div>
+<script>
+    function updateUserStorageUsage() {
+        fetch('{{ route('admin.storage.updateUserStorageUsage') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('User storage usage updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating user storage usage:', error);
+        });
+    }
+
+    // Refresh every 5 minutes
+    setInterval(updateUserStorageUsage, 300000); // 300,000 ms = 5 minutes
+</script>
 @endsection

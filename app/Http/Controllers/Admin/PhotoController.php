@@ -87,16 +87,26 @@ class PhotoController extends Controller
             $gallerySlug = Gallery::find($request->gallery_id)->slug;
             $filename = time() . '_' . $image->getClientOriginalName();
 
-            // Store original image in gallery-specific folder
-            $path = $image->storeAs("familycloud/family/galleries/{$gallerySlug}/photos", $filename, 'public');
-            $data['file_path'] = $path;
+            // Store original image in Wasabi
+            $photoPath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
+            $image->storeAs('', $photoPath, 'wasabi');
+            $data['file_path'] = $photoPath;
 
-            // Create and store thumbnail in gallery-specific folder
-            $thumbnail = Image::make($image)->resize(300, null, function ($constraint) {
-                $constraint->aspectRatio();
-            })->encode();
+            // Create and store thumbnail in Wasabi
+            try {
+                $thumbnail = Image::make($image)
+                    ->fit(300, 300, function ($constraint) {
+                        $constraint->upsize();
+                    })
+                    ->encode();
 
-            $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}";
+                $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}";
+                Storage::disk('wasabi')->put($thumbnailPath, $thumbnail->__toString());
+                $data['thumbnail_path'] = $thumbnailPath;
+            } catch (\Exception $e) {
+                // If thumbnail creation fails, use original as thumbnail
+                $data['thumbnail_path'] = $photoPath;
+            }
             Storage::disk('public')->put($thumbnailPath, $thumbnail);
             $data['thumbnail_path'] = $thumbnailPath;
 

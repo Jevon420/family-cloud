@@ -154,11 +154,14 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 @foreach($photos as $photo)
                 <div class="group relative">
-                    <a href="#" class="block photo-trigger" data-photo-id="{{ $photo->id }}" data-photo-url="{{ asset('storage/' . $photo->file_path) }}" data-photo-title="{{ $photo->name }}" data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
+                    <a href="#" class="block photo-trigger" data-photo-id="{{ $photo->id }}" data-photo-url="{{ $photo->signed_url }}" data-photo-title="{{ $photo->name }}" data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
                         <div class="aspect-w-1 aspect-h-1 overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
-                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->name }}" class="object-cover">
+                            <img src="{{ $photo->signed_thumbnail_url }}" alt="{{ $photo->name }}" class="object-cover wasabi-monitored" onerror="this.src='{{ asset('images/placeholder.jpg') }}'; console.log('Image failed to load: {{ $photo->file_path }}');">
                             <div class="flex items-end p-2 opacity-0 group-hover:opacity-100" aria-hidden="true">
                                 <div class="w-full rounded-md {{ $darkMode ? 'bg-gray-800 bg-opacity-75 text-white' : 'bg-white bg-opacity-75 text-gray-900' }} py-1 px-2 text-center text-xs font-medium backdrop-blur backdrop-filter">View Photo</div>
+                            </div>
+                            <div class="absolute top-0 right-0 p-1">
+                                <a href="{{ route('family.photos.debug', $photo->id) }}" target="_blank" class="text-xs bg-blue-500 text-white px-2 py-1 rounded">Debug</a>
                             </div>
                         </div>
                         <div class="mt-2">
@@ -173,9 +176,12 @@
             <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
                 @foreach($photos as $photo)
                 <div class="mb-4 break-inside-avoid">
-                    <a href="#" class="block photo-trigger" data-photo-id="{{ $photo->id }}" data-photo-url="{{ asset('storage/' . $photo->file_path) }}" data-photo-title="{{ $photo->name }}" data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
+                    <a href="#" class="block photo-trigger" data-photo-id="{{ $photo->id }}" data-photo-url="{{ $photo->signed_url }}" data-photo-title="{{ $photo->name }}" data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
                         <div class="overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
-                            <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->name }}" class="w-full">
+                            <img src="{{ $photo->signed_thumbnail_url }}" alt="{{ $photo->name }}" class="w-full wasabi-monitored" onerror="this.src='{{ asset('images/placeholder.php') }}'; console.log('Image failed to load: {{ $photo->file_path }}');">
+                            <div class="absolute top-0 right-0 p-1">
+                                <a href="{{ route('family.photos.debug', $photo->id) }}" target="_blank" class="text-xs bg-blue-500 text-white px-2 py-1 rounded">Debug</a>
+                            </div>
                         </div>
                         <div class="mt-2">
                             <h3 class="text-sm {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $photo->name }}</h3>
@@ -270,7 +276,7 @@
 
                     <!-- Photo Container -->
                     <div class="relative">
-                        <img id="modalPhoto" src="" alt="" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl">
+                        <img id="modalPhoto" src="" alt="" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl wasabi-monitored">
                         <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
                             <h3 id="modalPhotoTitle" class="text-lg font-bold"></h3>
                             <p id="modalPhotoDate" class="text-sm opacity-75"></p>
@@ -296,7 +302,7 @@
     const photoData = <?php echo json_encode($photos->map(function($photo) {
         return [
             'id' => $photo->id,
-            'url' => asset('storage/' . $photo->file_path),
+            'url' => route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']),
             'title' => $photo->name,
             'date' => $photo->created_at->format('F j, Y')
         ];
@@ -315,7 +321,7 @@
         photoData.forEach((photo, index) => {
             const thumbnail = document.createElement('div');
             thumbnail.className = `flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${index === currentPhotoIndex ? 'ring-4 ring-blue-500 scale-110' : 'opacity-70 hover:opacity-100'}`;
-            thumbnail.innerHTML = `<img src="${photo.url}" alt="${photo.title}" class="w-full h-full object-cover">`;
+            thumbnail.innerHTML = `<img src="${photo.url}" alt="${photo.title}" class="w-full h-full object-cover wasabi-monitored">`;
             thumbnail.onclick = () => showPhoto(index);
             thumbnailContainer.appendChild(thumbnail);
         });

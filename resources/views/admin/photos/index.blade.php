@@ -44,10 +44,10 @@
         <div class="bg-white rounded-lg shadow-md flex flex-col md:flex-row md:items-center p-4 group transition-all">
             <div class="flex-shrink-0 w-full md:w-32 h-32 flex items-center justify-center overflow-hidden mb-4 md:mb-0 md:mr-4">
                 @if($photo->thumbnail_path)
-                <img class="object-cover w-full h-full rounded-md" src="{{ route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path]) }}" alt="{{ $photo->name }}">
+                <img class="object-cover w-full h-full rounded-md wasabi-monitored" src="{{ route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path]) }}" alt="{{ $photo->name }}" onerror="this.src='{{ asset('images/placeholder.php') }}'; console.log('Image failed to load: {{ $photo->thumbnail_path }}');">
 
                 @elseif($photo->file_path)
-                <img class="object-cover w-full h-full rounded-md" src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path]) }}" alt="{{ $photo->name }}">
+                <img class="object-cover w-full h-full rounded-md wasabi-monitored" src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path]) }}" alt="{{ $photo->name }}" onerror="this.src='{{ asset('images/placeholder.php') }}'; console.log('Image failed to load: {{ $photo->file_path }}');">
                 @else
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
                     <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

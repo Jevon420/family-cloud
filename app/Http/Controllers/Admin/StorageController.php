@@ -60,31 +60,77 @@ class StorageController extends Controller
         return redirect()->route('admin.storage.index')->with('success', 'User quotas recalculated successfully.');
     }
 
+    /**
+     * Get a signed URL for a file in Wasabi storage, checking alternative paths if needed
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     */
     public function generateSignedUrl(Request $request)
     {
-        $validatedData = $request->validate([
-            'path' => 'required|string',
-            'type' => 'required|in:short,long',
-        ]);
+        $path = $request->input('path');
+        $type = $request->input('type', 'short');
 
-        $expiration = $validatedData['type'] === 'long'
-            ? SiteSetting::where('key', 'signed_url_long_expiration')->value('value') ?? 525600
-            : SiteSetting::where('key', 'signed_url_short_expiration')->value('value') ?? 5;
+        // Set expiration time based on type
+        $expiration = $type === 'long' ? 24 * 60 : 15;
 
-        $maxExpirationMinutes = 10080; // Maximum expiration time for AWS Signature Version 4
-        $expiration = min($expiration, $maxExpirationMinutes); // Ensure expiration does not exceed the limit
+        // Check if file exists in Wasabi
+        $wasabiDisk = Storage::disk('wasabi');
 
-        $signedUrl = Storage::disk('wasabi')->temporaryUrl(
-            $validatedData['path'],
-            now()->addMinutes($expiration)
-        );
+        if (!$wasabiDisk->exists($path)) {
+            // Try to find the file in alternative locations
+            // 1. First check if this is a photo path and try to find the correct gallery
+            if (str_contains($path, 'photos/')) {
+                $filename = basename($path);
 
-        if ($request->wantsJson()) {
-            return response()->json(['url' => $signedUrl]);
+                // Check if we can find a photo with this filename or path
+                $photo = \App\Models\Photo::where(function($query) use ($filename, $path) {
+                    $query->where('file_path', 'like', "%{$filename}")
+                          ->orWhere('file_path', $path)
+                          ->orWhere('thumbnail_path', $path);
+                })->first();
+
+                if ($photo && $photo->gallery) {
+                    $gallerySlug = $photo->gallery->slug;
+
+                    // Check if this is a thumbnail path
+                    if (str_contains($path, 'thumbnails/')) {
+                        $newPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}";
+                        $photo->thumbnail_path = $newPath;
+                    } else {
+                        $newPath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
+                        $photo->file_path = $newPath;
+                    }
+
+                    $photo->save();
+                    $path = $newPath;
+                }
+            }
+            // 2. Check if this is a gallery cover image
+            else if (str_contains($path, 'cover-image/')) {
+                $filename = basename($path);
+
+                // Try to find the gallery this cover belongs to
+                $gallery = \App\Models\Gallery::where('cover_image', 'like', "%{$filename}")->first();
+
+                if ($gallery) {
+                    $newPath = "familycloud/family/galleries/{$gallery->slug}/cover-image/{$filename}";
+                    $gallery->cover_image = $newPath;
+                    $gallery->save();
+                    $path = $newPath;
+                }
+            }
+
+            // If still not found, return a placeholder
+            if (!$wasabiDisk->exists($path)) {
+                return redirect()->to('/images/placeholder.php');
+            }
         }
 
-        // Redirect to the signed URL for direct image display
-        return redirect($signedUrl);
+        // Generate the signed URL
+        $url = $wasabiDisk->temporaryUrl($path, now()->addMinutes($expiration));
+
+        return redirect()->to($url);
     }
 
     private function getStorageStatistics()
@@ -184,16 +230,24 @@ class StorageController extends Controller
         $userCount = User::count();
         $perUserQuotaGb = $userCount > 0 ? $wasabiAllocatedGb / $userCount : 0;
 
-        // Update all users' storage quotas equally (admin can adjust individual users later)
         User::chunk(100, function ($users) use ($perUserQuotaGb) {
             foreach ($users as $user) {
-                $user->storage_quota_gb = $perUserQuotaGb;
-                $user->save();
+                // Calculate storage used by user
+                $userFilesSize = $user->files()->sum('file_size') ?? 0;
+                $userPhotosSize = $user->photos()->sum('file_size') ?? 0;
+                $userFoldersSize = $user->folders()->sum('folder_size') ?? 0;
+                $userThumbnailsSize = $user->photos()->sum('thumbnail_size') ?? 0;
+                $userGalleryCoverSize = $user->galleries()->sum('cover_image_size') ?? 0;
+
+                $totalUsedSizeGb = round(($userFilesSize + $userPhotosSize + $userFoldersSize + $userThumbnailsSize + $userGalleryCoverSize) / (1024 * 1024 * 1024), 2);
+
+                // Update user's storage quota and usage
+                $user->update([
+                    'storage_quota_gb' => $perUserQuotaGb,
+                    'storage_used_gb' => $totalUsedSizeGb,
+                ]);
             }
         });
-
-        // Recalculate actual usage for all users
-        $this->storageService->updateAllUserQuotas();
     }
 
     private function getDirectorySize($directory)
@@ -228,5 +282,130 @@ class StorageController extends Controller
             }
         }
         return $count;
+    }
+
+    /**
+     * Creates and saves a photo record in the database with the correct path structure
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fixAllPhotosPaths()
+    {
+        $photos = \App\Models\Photo::with('gallery')->get();
+        $fixed = 0;
+
+        foreach ($photos as $photo) {
+            if (!$photo->gallery) {
+                continue;
+            }
+
+            $gallerySlug = $photo->gallery->slug;
+            $filePathChanged = false;
+            $thumbnailPathChanged = false;
+
+            // Fix file path
+            if ($photo->file_path) {
+                $filename = basename($photo->file_path);
+                $newFilePath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
+
+                if ($photo->file_path !== $newFilePath) {
+                    $photo->file_path = $newFilePath;
+                    $filePathChanged = true;
+                }
+            }
+
+            // Fix thumbnail path
+            if ($photo->thumbnail_path) {
+                $thumbnailFilename = basename($photo->thumbnail_path);
+                $newThumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$thumbnailFilename}";
+
+                if ($photo->thumbnail_path !== $newThumbnailPath) {
+                    $photo->thumbnail_path = $newThumbnailPath;
+                    $thumbnailPathChanged = true;
+                }
+            } else if ($photo->file_path) {
+                // If no thumbnail path, set it to the same as file path
+                $photo->thumbnail_path = $photo->file_path;
+                $thumbnailPathChanged = true;
+            }
+
+            if ($filePathChanged || $thumbnailPathChanged) {
+                $photo->save();
+                $fixed++;
+            }
+        }
+
+        // Fix galleries cover images
+        $galleries = \App\Models\Gallery::all();
+        $fixedGalleries = 0;
+
+        foreach ($galleries as $gallery) {
+            if ($gallery->cover_image) {
+                $filename = basename($gallery->cover_image);
+                $newCoverPath = "familycloud/family/galleries/{$gallery->slug}/cover-image/{$filename}";
+
+                if ($gallery->cover_image !== $newCoverPath) {
+                    $gallery->cover_image = $newCoverPath;
+                    $gallery->save();
+                    $fixedGalleries++;
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'photos_fixed' => $fixed,
+            'galleries_fixed' => $fixedGalleries,
+            'total_photos' => $photos->count(),
+            'total_galleries' => $galleries->count()
+        ]);
+    }
+
+    public function updateUserStorageUsage(Request $request)
+    {
+        $users = User::all();
+        $updatedUsers = 0;
+
+        foreach ($users as $user) {
+            // Calculate storage used by user from database
+            $userFilesSize = $user->files()->sum('file_size') ?? 0;
+            $userPhotosSize = $user->photos()->sum('file_size') ?? 0;
+            $userFoldersSize = $user->folders()->sum('folder_size') ?? 0;
+            $userThumbnailsSize = $user->photos()->sum('thumbnail_size') ?? 0;
+            $userGalleryCoverSize = $user->galleries()->sum('cover_image_size') ?? 0;
+
+            // Calculate actual storage used in Wasabi
+            $wasabiDisk = Storage::disk('wasabi');
+            $actualStorageUsed = 0;
+
+            foreach ($user->files as $file) {
+                if ($wasabiDisk->exists($file->file_path)) {
+                    $actualStorageUsed += $wasabiDisk->size($file->file_path);
+                }
+            }
+
+            foreach ($user->photos as $photo) {
+                if ($wasabiDisk->exists($photo->file_path)) {
+                    $actualStorageUsed += $wasabiDisk->size($photo->file_path);
+                }
+                if ($wasabiDisk->exists($photo->thumbnail_path)) {
+                    $actualStorageUsed += $wasabiDisk->size($photo->thumbnail_path);
+                }
+            }
+
+            foreach ($user->galleries as $gallery) {
+                if ($wasabiDisk->exists($gallery->cover_image)) {
+                    $actualStorageUsed += $wasabiDisk->size($gallery->cover_image);
+                }
+            }
+
+            // Convert to GB and update storage_used_gb
+            $totalUsedSizeGb = round(($userFilesSize + $userPhotosSize + $userFoldersSize + $userThumbnailsSize + $userGalleryCoverSize + $actualStorageUsed) / (1024 * 1024 * 1024), 2);
+            $user->update(['storage_used_gb' => $totalUsedSizeGb]);
+            $updatedUsers++;
+        }
+
+        return response()->json(['success' => true, 'updated_users' => $updatedUsers]);
     }
 }

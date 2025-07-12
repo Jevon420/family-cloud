@@ -18,6 +18,7 @@ class CreateGalleriesTable extends Migration
             $table->text('description')->nullable();
 
             $table->string('cover_image')->nullable(); // one photo preview
+            $table->unsignedBigInteger('cover_image_size')->default(0); // in bytes
             $table->enum('visibility', ['private', 'public'])->default('private');
 
             $table->timestamps();

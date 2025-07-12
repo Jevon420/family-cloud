@@ -46,7 +46,31 @@ class PhotoController extends Controller
             $photosQuery->orderBy('mime_type', $sortOrder);
         }
 
-        $photos = $photosQuery->paginate(24);
+        $photos = $photosQuery->paginate(24);        // Add signed URLs for Wasabi storage
+        $photos->getCollection()->transform(function ($photo) {
+            // Always get the current gallery slug, even if the path looks correct
+            $gallerySlug = $photo->gallery->slug ?? 'unknown';
+            $filename = basename($photo->file_path);
+
+            // Ensure file path uses the correct gallery slug
+            $photo->file_path = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
+
+            // Similarly fix the thumbnail path
+            if ($photo->thumbnail_path) {
+                $thumbnailFilename = basename($photo->thumbnail_path);
+                $photo->thumbnail_path = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$thumbnailFilename}";
+                $photo->save();
+            } else {
+                // If no thumbnail path, set it to the same as file path
+                $photo->thumbnail_path = $photo->file_path;
+                $photo->save();
+            }
+
+            // Generate signed URLs
+            $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
+            $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path, 'type' => 'long']);
+            return $photo;
+        });
 
         $galleries = $user->galleries()->get();
 
@@ -74,7 +98,28 @@ class PhotoController extends Controller
         $photo = Photo::with('gallery')->findOrFail($id);
 
         // Check if the user is authorized to view this photo
-        $this->authorize('view', $photo);
+        $this->authorize('view', $photo);        // Check if the file path follows the expected pattern
+        // Always get the current gallery slug, even if the path looks correct
+        $gallerySlug = $photo->gallery->slug ?? 'unknown';
+        $filename = basename($photo->file_path);
+
+        // Ensure file path uses the correct gallery slug
+        $photo->file_path = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
+
+        // Similarly fix the thumbnail path
+        if ($photo->thumbnail_path) {
+            $thumbnailFilename = basename($photo->thumbnail_path);
+            $photo->thumbnail_path = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$thumbnailFilename}";
+            $photo->save();
+        } else {
+            // If no thumbnail path, set it to the same as file path
+            $photo->thumbnail_path = $photo->file_path;
+            $photo->save();
+        }
+
+        // Add signed URLs for Wasabi storage
+        $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
+        $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path, 'type' => 'long']);
 
         // Find next and previous photos in the same gallery
         $nextPhoto = Photo::where('gallery_id', $photo->gallery_id)
@@ -86,6 +131,17 @@ class PhotoController extends Controller
             ->where('id', '<', $photo->id)
             ->orderBy('id', 'desc')
             ->first();
+
+        // Add signed URLs for next and previous photos
+        if ($nextPhoto) {
+            $nextPhoto->signed_url = route('admin.storage.signedUrl', ['path' => $nextPhoto->file_path, 'type' => 'long']);
+            $nextPhoto->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $nextPhoto->thumbnail_path ?? $nextPhoto->file_path, 'type' => 'long']);
+        }
+
+        if ($prevPhoto) {
+            $prevPhoto->signed_url = route('admin.storage.signedUrl', ['path' => $prevPhoto->file_path, 'type' => 'long']);
+            $prevPhoto->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $prevPhoto->thumbnail_path ?? $prevPhoto->file_path, 'type' => 'long']);
+        }
 
         // User settings for view preferences
         $theme = $this->getUserSetting('theme', 'light');
@@ -155,7 +211,38 @@ class PhotoController extends Controller
         // Check if the user is authorized to download this photo
         $this->authorize('view', $photo);
 
-        return Storage::disk('public')->download($photo->file_path, $photo->title . '.jpg');
+        return Storage::disk('wasabi')->download($photo->file_path, $photo->title . '.jpg');
+    }
+
+    /**
+     * Debug method to check photo paths
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function debugPhotoPaths($id)
+    {
+        $photo = Photo::with('gallery')->findOrFail($id);
+
+        // Check if the user is authorized to view this photo
+        $this->authorize('view', $photo);
+
+        $gallerySlug = $photo->gallery->slug ?? 'unknown';
+        $filename = basename($photo->file_path);
+        $expectedPath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
+
+        $wasabiDisk = Storage::disk('wasabi');
+
+        return response()->json([
+            'photo_id' => $photo->id,
+            'gallery_slug' => $gallerySlug,
+            'current_file_path' => $photo->file_path,
+            'current_thumbnail_path' => $photo->thumbnail_path,
+            'expected_file_path' => $expectedPath,
+            'file_exists_in_wasabi' => $wasabiDisk->exists($photo->file_path),
+            'thumbnail_exists_in_wasabi' => $photo->thumbnail_path ? $wasabiDisk->exists($photo->thumbnail_path) : false,
+            'expected_path_exists_in_wasabi' => $wasabiDisk->exists($expectedPath)
+        ]);
     }
 
     /**

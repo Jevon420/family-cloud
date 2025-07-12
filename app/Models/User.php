@@ -163,4 +163,22 @@ class User extends Authenticatable
     {
         return $this->roles->first();
     }
+
+    /**
+     * Calculate storage used by the user in GB.
+     */
+    public function calculateStorageUsedGB()
+    {
+        $photosSize = $this->photos()->sum('file_size');
+        $filesSize = $this->files()->sum('file_size');
+        $foldersSize = $this->folders()->sum('file_size');
+
+        // Include gallery cover images and thumbnails
+        $galleryCoverSize = $this->galleries()->sum('cover_image_size');
+        $thumbnailSize = $this->photos()->sum('thumbnail_size');
+
+        $totalSizeBytes = $photosSize + $filesSize + $foldersSize + $galleryCoverSize + $thumbnailSize;
+
+        return round($totalSizeBytes / (1024 * 1024 * 1024), 2); // Convert to GB
+    }
 }

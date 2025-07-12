@@ -1,7 +1,7 @@
 <!-- Photo Detail Partial -->
 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
     <div class="relative">
-        <img src="{{ asset($photo->file_path) }}" alt="{{ $photo->name }}" class="w-full object-cover">
+        <img src="{{ $photo->signed_url }}" alt="{{ $photo->name }}" class="w-full object-cover">
 
         <!-- Navigation Arrows -->
         <div class="absolute inset-0 flex items-center justify-between p-4">

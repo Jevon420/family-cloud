@@ -26,7 +26,7 @@
             <div class="flex items-center space-x-4">
                 @php $darkMode = true; @endphp
                 @include('family.partials.share-button', ['media' => $photo, 'mediaType' => 'photo'])
-                <a href="{{ $photo->url }}" download class="text-gray-300 hover:text-white p-2">
+                <a href="{{ route('family.photos.download', $photo->id) }}" download class="text-gray-300 hover:text-white p-2">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
@@ -39,8 +39,8 @@
             <!-- Main Photo -->
             <div class="flex-1">
                 <div class="relative">
-                    <img class="w-full h-auto max-h-[80vh] object-contain rounded-lg"
-                         src="{{ $photo->url }}"
+                    <img class="w-full h-auto max-h-[80vh] object-contain rounded-lg wasabi-monitored"
+                         src="{{ $photo->signed_url }}"
                          alt="{{ $photo->title ?? 'Photo' }}">
                 </div>
             </div>

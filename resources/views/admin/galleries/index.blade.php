@@ -61,9 +61,13 @@
                     </div>
                     <div class="text-sm text-gray-500 mt-1">{{ Str::limit($gallery->description, 60) }}</div>
                     <div class="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
-                        <span>By {{ $gallery->user->name }}</span>
-                        <span class="hidden sm:inline">|</span>
-                        <span>{{ $gallery->user->email }}</span>
+                        @if($gallery->user)
+                            <span>By {{ $gallery->user->name }}</span>
+                            <span class="hidden sm:inline">|</span>
+                            <span>{{ $gallery->user->email }}</span>
+                        @else
+                            <span>By Unknown User</span>
+                        @endif
                         <span class="hidden sm:inline">|</span>
                         <span>{{ $gallery->created_at->format('M d, Y') }}</span>
                         <span class="hidden sm:inline">|</span>

@@ -12,9 +12,85 @@ use Illuminate\Support\Str;
 
 class GalleryController extends Controller
 {
+
+
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    /**
+     * Show the form for editing the specified gallery.
+     *
+     * @param  string  $slug
+     * @return \Illuminate\View\View
+     */
+    public function edit($slug)
+    {
+        $gallery = Gallery::where('slug', $slug)->firstOrFail();
+        $this->authorize('update', $gallery);
+
+        // User settings for view preferences
+        $theme = $this->getUserSetting('theme', 'light');
+        $darkMode = $this->getUserSetting('dark_mode', 'false') === 'true';
+
+        return view('family.galleries.edit', compact('gallery', 'theme', 'darkMode'));
+    }
+
+    /**
+     * Update the specified gallery in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $slug
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, $slug)
+    {
+        $gallery = Gallery::where('slug', $slug)->firstOrFail();
+        $this->authorize('update', $gallery);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'cover_image' => 'nullable|image|max:10240', // 10MB
+        ]);
+
+        $gallery->name = $validated['title'];
+        $gallery->slug = Str::slug($validated['title']) . '-' . Str::random(5);
+        $gallery->description = $validated['description'] ?? null;
+        $gallery->updated_by = Auth::id();
+
+        if ($request->hasFile('cover_image')) {
+            // Delete old image if exists
+            if ($gallery->cover_image) {
+                Storage::disk('wasabi')->delete($gallery->cover_image);
+            }
+            $gallerySlug = $gallery->slug;
+            $coverFile = $request->file('cover_image');
+            $baseFilename = pathinfo($coverFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/{$baseFilename}.webp";
+            try {
+                $img = \Intervention\Image\Facades\Image::make($coverFile);
+                $img->encode('webp', 90);
+                Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                $gallery->cover_image = $coverImagePath;
+            } catch (\Exception $e) {
+                try {
+                    $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/{$baseFilename}.png";
+                    $img = \Intervention\Image\Facades\Image::make($coverFile);
+                    $img->encode('png', 90);
+                    Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                    $gallery->cover_image = $coverImagePath;
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['cover_image' => 'Unable to convert cover image to webp or png.']);
+                }
+            }
+        }
+
+        $gallery->save();
+
+        return redirect()->route('family.galleries.show', $gallery->slug)
+            ->with('success', 'Gallery updated successfully.');
     }
 
     /**
@@ -68,7 +144,7 @@ class GalleryController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|max:2048',
+            'cover_image' => 'nullable|mimes:jpeg,png,jpg,gif,webp,bmp,svg,heic|max:10240', // 10MB max, allow .heic
         ]);
 
         $gallery = new Gallery();
@@ -79,9 +155,25 @@ class GalleryController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $gallerySlug = $gallery->slug;
-            $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/" . $request->file('cover_image')->getClientOriginalName();
-            $request->file('cover_image')->storeAs('', $coverImagePath, 'wasabi');
-            $gallery->cover_image = $coverImagePath;
+            $coverFile = $request->file('cover_image');
+            $baseFilename = pathinfo($coverFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/{$baseFilename}.webp";
+            try {
+                $img = \Intervention\Image\Facades\Image::make($coverFile);
+                $img->encode('webp', 90);
+                Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                $gallery->cover_image = $coverImagePath;
+            } catch (\Exception $e) {
+                try {
+                    $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/{$baseFilename}.png";
+                    $img = \Intervention\Image\Facades\Image::make($coverFile);
+                    $img->encode('png', 90);
+                    Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                    $gallery->cover_image = $coverImagePath;
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['cover_image' => 'Unable to convert cover image to webp or png.']);
+                }
+            }
         }
 
         $gallery->created_by = Auth::id();
@@ -184,46 +276,73 @@ class GalleryController extends Controller
 
         $request->validate([
             'photos' => 'required|array',
-            'photos.*' => 'required|image|max:5120', // 5MB per photo
+            'photos.*' => 'required|mimes:jpeg,png,jpg,gif,webp,bmp,svg,heic|max:10240', // 10MB max, allow .heic
         ]);
 
         foreach ($request->file('photos') as $photoFile) {
-            $filename = $photoFile->getClientOriginalName();
-            $photoPath = "familycloud/family/galleries/{$gallery->slug}/photos/{$filename}";
-            $thumbnailPath = "familycloud/family/galleries/{$gallery->slug}/photos/thumbnails/{$filename}";
-
-            // Store original photo in Wasabi
-            $photoFile->storeAs('', $photoPath, 'wasabi');
+            $baseFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $filename = Str::slug($baseFilename) . '-' . time();
+            $photoPath = "familycloud/family/galleries/{$gallery->slug}/photos/{$filename}.webp";
+            $mimeType = 'image/webp';
+            $fileSize = 0;
+            // Try to convert to webp, fallback to png, else error
+            try {
+                $img = \Intervention\Image\Facades\Image::make($photoFile);
+                $img->encode('webp', 90);
+                Storage::disk('wasabi')->put($photoPath, $img->__toString());
+                $mimeType = 'image/webp';
+                $fileSize = strlen($img->__toString());
+            } catch (\Exception $e) {
+                try {
+                    $photoPath = "familycloud/family/galleries/{$gallery->slug}/photos/{$filename}.png";
+                    $img = \Intervention\Image\Facades\Image::make($photoFile);
+                    $img->encode('png', 90);
+                    Storage::disk('wasabi')->put($photoPath, $img->__toString());
+                    $mimeType = 'image/png';
+                    $fileSize = strlen($img->__toString());
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['photos' => 'Unable to convert one or more files to webp or png.']);
+                }
+            }
 
             // Create and store thumbnail in Wasabi
+            $thumbnailPath = "familycloud/family/galleries/{$gallery->slug}/photos/thumbnails/{$filename}.webp";
             try {
                 $thumbnail = \Intervention\Image\Facades\Image::make($photoFile)
                     ->fit(400, 400, function ($constraint) {
                         $constraint->upsize();
                     })
-                    ->encode();
-
+                    ->encode('webp', 90);
                 Storage::disk('wasabi')->put($thumbnailPath, $thumbnail->__toString());
             } catch (\Exception $e) {
-                // If thumbnail creation fails, use original as thumbnail
-                $thumbnailPath = $photoPath;
+                try {
+                    $thumbnailPath = "familycloud/family/galleries/{$gallery->slug}/photos/thumbnails/{$filename}.png";
+                    $thumbnail = \Intervention\Image\Facades\Image::make($photoFile)
+                        ->fit(400, 400, function ($constraint) {
+                            $constraint->upsize();
+                        })
+                        ->encode('png', 90);
+                    Storage::disk('wasabi')->put($thumbnailPath, $thumbnail->__toString());
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['photos' => 'Unable to convert one or more thumbnails to webp or png.']);
+                }
             }
 
             $photo = new Photo();
             $photo->user_id = Auth::id();
             $photo->gallery_id = $gallery->id;
-            $photo->slug = Str::slug(pathinfo($filename, PATHINFO_FILENAME), '-') . '-' . Str::random(5);
-            $photo->name = pathinfo($filename, PATHINFO_FILENAME);
+            $photo->slug = Str::slug($baseFilename ?? pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME), '-') . '-' . Str::random(5);
+            $photo->name = $baseFilename ?? pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
             $photo->file_path = $photoPath;
             $photo->thumbnail_path = $thumbnailPath;
-            $photo->mime_type = $photoFile->getClientMimeType();
-            $photo->file_size = $photoFile->getSize();
+            $photo->mime_type = $mimeType;
+            $photo->file_size = $fileSize;
             $photo->created_by = Auth::id();
             $photo->updated_by = Auth::id();
             $photo->save();
 
             // Create a visibility record for the photo (inherit from gallery or default to private)
-            $galleryVisibility = $gallery->visibility ? $gallery->visibility->visibility : 'private';
+            $galleryVisibility = optional($gallery->visibility)->visibility ?? 'private';
             $photo->visibility()->create([
                 'visibility' => $galleryVisibility,
                 'created_by' => Auth::id(),

@@ -177,7 +177,7 @@ class SettingsService
 
     public function getAllowedFileTypes()
     {
-        $types = $this->getSiteSetting('allowed_file_types', 'jpg,jpeg,png,gif,pdf,doc,docx,txt');
+        $types = $this->getSiteSetting('allowed_file_types', 'jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,heic');
         return explode(',', $types);
     }
 

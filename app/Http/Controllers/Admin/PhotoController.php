@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Imagick;
 
 class PhotoController extends Controller
 {
@@ -73,7 +74,7 @@ class PhotoController extends Controller
             'user_id' => 'required|exists:users,id',
             'gallery_id' => 'required|exists:galleries,id',
             'visibility' => 'required|in:public,private,shared',
-            'photo' => 'required|image|max:10240', // 10MB max
+            'photo' => 'required|mimes:jpeg,png,jpg,gif,webp,bmp,svg,heic|max:10240', // 10MB max, allow .heic
             'tags' => 'nullable|array',
         ]);
 
@@ -85,12 +86,49 @@ class PhotoController extends Controller
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
             $gallerySlug = Gallery::find($request->gallery_id)->slug;
-            $filename = time() . '_' . $image->getClientOriginalName();
+            $baseFilename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+            $filename = time() . '_' . Str::slug($baseFilename);
+            $extension = strtolower($image->getClientOriginalExtension() ?? '');
+            $photoPath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}.webp";
 
-            // Store original image in Wasabi
-            $photoPath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}";
-            $image->storeAs('', $photoPath, 'wasabi');
-            $data['file_path'] = $photoPath;
+            // Try to convert to webp, fallback to png, else error
+            try {
+                // Special handling for heic: check if supported
+                if ($extension === 'heic') {
+                    $supported = false;
+                    if (extension_loaded('imagick')) {
+                        $imagick = new Imagick();
+                        $formats = array_map('strtolower', $imagick->queryFormats());
+                        $supported = in_array('heic', $formats);
+                    }
+                    if (!$supported) {
+                        throw new \Exception('HEIC images are not supported by your server. Please install Imagick with HEIC support (libheif).');
+                    }
+                }
+                $img = Image::make($image);
+                $img->encode('webp', 90);
+                Storage::disk('wasabi')->put($photoPath, $img->__toString());
+                $data['file_path'] = $photoPath;
+                $data['mime_type'] = 'image/webp';
+                $data['file_size'] = strlen($img->__toString());
+            } catch (\Exception $e) {
+                try {
+                    $photoPath = "familycloud/family/galleries/{$gallerySlug}/photos/{$filename}.png";
+                    $img = Image::make($image);
+                    $img->encode('png', 90);
+                    Storage::disk('wasabi')->put($photoPath, $img->__toString());
+                    $data['file_path'] = $photoPath;
+                    $data['mime_type'] = 'image/png';
+                    $data['file_size'] = strlen($img->__toString());
+                } catch (\Exception $e2) {
+                    $errorMsg = 'Unable to convert file to webp or png.';
+                    if ($extension === 'heic') {
+                        $errorMsg .= ' Your server may not support HEIC images. Please install Imagick with HEIC/libheif support.';
+                    }
+                    $errorMsg .= ' [Error: ' . $e->getMessage() . ']';
+                    return back()->withErrors(['photo' => $errorMsg]);
+                }
+            }
 
             // Create and store thumbnail in Wasabi
             try {
@@ -98,21 +136,26 @@ class PhotoController extends Controller
                     ->fit(300, 300, function ($constraint) {
                         $constraint->upsize();
                     })
-                    ->encode();
-
-                $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}";
+                    ->encode('webp', 90);
+                $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}.webp";
                 Storage::disk('wasabi')->put($thumbnailPath, $thumbnail->__toString());
+                Storage::disk('public')->put($thumbnailPath, $thumbnail);
                 $data['thumbnail_path'] = $thumbnailPath;
             } catch (\Exception $e) {
-                // If thumbnail creation fails, use original as thumbnail
-                $data['thumbnail_path'] = $photoPath;
+                try {
+                    $thumbnail = Image::make($image)
+                        ->fit(300, 300, function ($constraint) {
+                            $constraint->upsize();
+                        })
+                        ->encode('png', 90);
+                    $thumbnailPath = "familycloud/family/galleries/{$gallerySlug}/photos/thumbnails/{$filename}.png";
+                    Storage::disk('wasabi')->put($thumbnailPath, $thumbnail->__toString());
+                    Storage::disk('public')->put($thumbnailPath, $thumbnail);
+                    $data['thumbnail_path'] = $thumbnailPath;
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['photo' => 'Unable to convert thumbnail to webp or png.']);
+                }
             }
-            Storage::disk('public')->put($thumbnailPath, $thumbnail);
-            $data['thumbnail_path'] = $thumbnailPath;
-
-            // Set mime type and file size
-            $data['mime_type'] = $image->getMimeType();
-            $data['file_size'] = $image->getSize();
         }
 
         $photo = Photo::create($data);
@@ -175,7 +218,7 @@ class PhotoController extends Controller
             'user_id' => 'required|exists:users,id',
             'gallery_id' => 'required|exists:galleries,id',
             'visibility' => 'required|in:public,private,shared',
-            'photo' => 'nullable|image|max:10240', // 10MB max
+            'photo' => 'nullable|mimes:jpeg,png,jpg,gif,webp,bmp,svg,heic|max:10240', // 10MB max, allow .heic
             'tags' => 'nullable|array',
         ]);
 

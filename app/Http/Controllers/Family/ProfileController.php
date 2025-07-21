@@ -55,7 +55,7 @@ class ProfileController extends Controller
             'bio' => 'nullable|string|max:1000',
             'location' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,heic|max:10240',
         ]);
 
         // Update user information

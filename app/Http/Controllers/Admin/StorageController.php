@@ -84,7 +84,7 @@ class StorageController extends Controller
                 $filename = basename($path);
 
                 // Check if we can find a photo with this filename or path
-                $photo = \App\Models\Photo::where(function($query) use ($filename, $path) {
+                $photo = Photo::where(function($query) use ($filename, $path) {
                     $query->where('file_path', 'like', "%{$filename}")
                           ->orWhere('file_path', $path)
                           ->orWhere('thumbnail_path', $path);
@@ -111,7 +111,7 @@ class StorageController extends Controller
                 $filename = basename($path);
 
                 // Try to find the gallery this cover belongs to
-                $gallery = \App\Models\Gallery::where('cover_image', 'like', "%{$filename}")->first();
+                $gallery = Gallery::where('cover_image', 'like', "%{$filename}")->first();
 
                 if ($gallery) {
                     $newPath = "familycloud/family/galleries/{$gallery->slug}/cover-image/{$filename}";
@@ -292,7 +292,7 @@ class StorageController extends Controller
      */
     public function fixAllPhotosPaths()
     {
-        $photos = \App\Models\Photo::with('gallery')->get();
+        $photos = Photo::with('gallery')->get();
         $fixed = 0;
 
         foreach ($photos as $photo) {
@@ -337,7 +337,7 @@ class StorageController extends Controller
         }
 
         // Fix galleries cover images
-        $galleries = \App\Models\Gallery::all();
+        $galleries = Gallery::all();
         $fixedGalleries = 0;
 
         foreach ($galleries as $gallery) {

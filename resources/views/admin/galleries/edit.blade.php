@@ -5,7 +5,7 @@
 @section('content')
     <div class="container mx-auto px-4 py-6">
         <div class="flex flex-wrap justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900">Edit Gallery: {{ $gallery->name }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-900">Edit {{ $gallery->name }} Gallery</h1>
             <div class="flex flex-wrap">
                 <a href="{{ route('admin.galleries.show', $gallery) }}"
                     class="px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-2">

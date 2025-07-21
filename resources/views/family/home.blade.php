@@ -141,7 +141,7 @@
             <div class="relative group">
                 <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg shadow-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
                     @if($gallery->cover_image)
-                        <img src="{{ asset('storage/' . $gallery->cover_image) }}" alt="{{ $gallery->name }}" class="object-cover">
+                        <img src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}" class="object-cover">
                     @else
                         <img src="https://placehold.co/600x400?text=No+Cover" alt="Gallery placeholder" class="object-cover">
                     @endif

@@ -181,4 +181,14 @@ class User extends Authenticatable
 
         return round($totalSizeBytes / (1024 * 1024 * 1024), 2); // Convert to GB
     }
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email;
+    }
+
+    public function routeNotificationForBroadcast($notification)
+    {
+        return $this->id;
+    }
 }

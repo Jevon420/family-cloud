@@ -83,13 +83,13 @@
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 @foreach($galleries as $gallery)
                 <div class="group relative">
-                    <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }}">
+                    <div class="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg {{ $darkMode ? 'bg-gray-700' : 'bg-gray-100' }} relative">
                         @if($gallery->cover_image)
-                            <img src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}" class="object-cover">
+                            <img src="{{ route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']) }}" alt="{{ $gallery->name }}" class="object-cover w-full h-full" style="width:100%;height:220px;object-fit:cover;">
                         @else
-                            <img src="https://placehold.co/600x400?text=No+Cover" alt="Gallery placeholder" class="object-cover">
+                            <img src="https://placehold.co/600x400?text=No+Cover" alt="Gallery placeholder" class="object-cover w-full h-full" style="width:100%;height:220px;object-fit:cover;">
                         @endif
-                        <div class="flex items-end p-4 opacity-0 group-hover:opacity-100" aria-hidden="true">
+                        <div class="absolute inset-0 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" aria-hidden="true">
                             <div class="w-full rounded-md {{ $darkMode ? 'bg-gray-800 bg-opacity-75 text-white' : 'bg-white bg-opacity-75 text-gray-900' }} py-2 px-4 text-center text-sm font-medium backdrop-blur backdrop-filter">View Gallery</div>
                         </div>
                     </div>
@@ -103,6 +103,15 @@
                         <p class="text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">{{ $gallery->photos_count }} photos</p>
                     </div>
                     <p class="mt-1 text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">Added {{ $gallery->created_at->format('F j, Y') }}</p>
+                    <div class="mt-2 flex space-x-2">
+                        <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700">View</a>
+                        <a href="{{ route('family.galleries.edit', $gallery->slug) }}" class="px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600">Edit</a>
+                        <form action="{{ route('family.galleries.update', $gallery->slug) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this gallery?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Delete</button>
+                        </form>
+                    </div>
                 </div>
                 @endforeach
             </div>
@@ -126,6 +135,15 @@
                                 <p class="text-sm {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">{{ $gallery->photos_count }} photos</p>
                                 <p class="text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">{{ $gallery->created_at->format('F j, Y') }}</p>
                             </div>
+                            <div class="mt-2 flex space-x-2">
+                                <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700">View</a>
+                                <a href="{{ route('family.galleries.edit', $gallery->slug) }}" class="px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600">Edit</a>
+                                <form action="{{ route('family.galleries.update', $gallery->slug) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this gallery?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Delete</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -136,29 +154,24 @@
                 <ul role="list" class="{{ $darkMode ? 'divide-y divide-gray-700' : 'divide-y divide-gray-200' }}">
                     @foreach($galleries as $gallery)
                     <li>
-                        <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="block hover:{{ $darkMode ? 'bg-gray-700' : 'bg-gray-50' }}">
-                            <div class="px-4 py-4 sm:px-6">
-                                <div class="flex items-center justify-between">
-                                    <p class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $gallery->name }}</p>
-                                    <div class="ml-2 flex-shrink-0 flex">
-                                        <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $darkMode ? 'bg-indigo-900 text-indigo-100' : 'bg-indigo-100 text-indigo-800' }}">{{ $gallery->photos_count }} photos</p>
-                                    </div>
-                                </div>
-                                <div class="mt-2 sm:flex sm:justify-between">
-                                    <div class="sm:flex">
-                                        @if($gallery->description)
-                                        <p class="flex items-center text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-500' }}">{{ Str::limit($gallery->description, 100) }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="mt-2 flex items-center text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-500' }} sm:mt-0">
-                                        <svg class="flex-shrink-0 mr-1.5 h-5 w-5 {{ $darkMode ? 'text-gray-400' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                        </svg>
-                                        <p>{{ $gallery->created_at->format('F j, Y') }}</p>
-                                    </div>
-                                </div>
+                        <div class="flex items-center justify-between px-4 py-4 sm:px-6">
+                            <div>
+                                <p class="text-sm font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }} truncate">{{ $gallery->name }}</p>
+                                @if($gallery->description)
+                                    <p class="flex items-center text-sm {{ $darkMode ? 'text-gray-300' : 'text-gray-500' }}">{{ Str::limit($gallery->description, 100) }}</p>
+                                @endif
+                                <p class="mt-1 text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">Added {{ $gallery->created_at->format('F j, Y') }}</p>
                             </div>
-                        </a>
+                            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                <a href="{{ route('family.galleries.show', $gallery->slug) }}" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700">View</a>
+                                <a href="{{ route('family.galleries.edit', $gallery->slug) }}" class="px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600">Edit</a>
+                                <form action="{{ route('family.galleries.update', $gallery->slug) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this gallery?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Delete</button>
+                                </form>
+                            </div>
+                        </div>
                     </li>
                     @endforeach
                 </ul>

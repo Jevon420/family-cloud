@@ -27,10 +27,10 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Announcement::class => \App\Policies\AnnouncementPolicy::class,
         \App\Models\ContactMessage::class => \App\Policies\ContactMessagePolicy::class,
         \App\Models\MediaVisibility::class => \App\Policies\MediaVisibilityPolicy::class,
-        \App\Models\DownloadLog::class => \App\Policies\DownloadLogPolicy::class,
+        //\App\Models\DownloadLog::class => \App\Policies\DownloadLogPolicy::class,
         \App\Models\LoginActivity::class => \App\Policies\LoginActivityPolicy::class,
         \App\Models\Tag::class => \App\Policies\TagPolicy::class,
-        \App\Models\Taggable::class => \App\Policies\TaggablePolicy::class,
+        //\App\Models\Taggable::class => \App\Policies\TaggablePolicy::class,
 
         \App\Models\User::class => \App\Policies\UserPolicy::class,
 

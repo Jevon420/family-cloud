@@ -71,7 +71,7 @@ class GalleryController extends Controller
             'description' => 'nullable|string',
             'user_id' => 'required|exists:users,id',
             'visibility' => 'required|in:public,private,shared',
-            'cover_image' => 'nullable|image|max:2048',
+            'cover_image' => 'nullable|mimes:jpeg,png,jpg,gif,webp,bmp,svg,heic|max:10240', // 10MB max, allow .heic
             'tags' => 'nullable|array',
         ]);
 
@@ -82,8 +82,25 @@ class GalleryController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $gallerySlug = $data['slug'];
-            $path = $request->file('cover_image')->storeAs("familycloud/family/galleries/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'wasabi');
-            $data['cover_image'] = $path;
+            $coverFile = $request->file('cover_image');
+            $baseFilename = pathinfo($coverFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/{$baseFilename}.webp";
+            try {
+                $img = \Intervention\Image\Facades\Image::make($coverFile);
+                $img->encode('webp', 90);
+                Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                $data['cover_image'] = $coverImagePath;
+            } catch (\Exception $e) {
+                try {
+                    $coverImagePath = "familycloud/family/galleries/{$gallerySlug}/cover-image/{$baseFilename}.png";
+                    $img = \Intervention\Image\Facades\Image::make($coverFile);
+                    $img->encode('png', 90);
+                    Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                    $data['cover_image'] = $coverImagePath;
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['cover_image' => 'Unable to convert cover image to webp or png.']);
+                }
+            }
         }
 
         $gallery = Gallery::create($data);
@@ -144,7 +161,7 @@ class GalleryController extends Controller
             'description' => 'nullable|string',
             'user_id' => 'required|exists:users,id',
             'visibility' => 'required|in:public,private,shared',
-            'cover_image' => 'nullable|image|max:2048',
+            'cover_image' => 'nullable|image|max:10240',
             'tags' => 'nullable|array',
         ]);
 
@@ -157,11 +174,26 @@ class GalleryController extends Controller
             if ($gallery->cover_image) {
                 Storage::disk('public')->delete($gallery->cover_image);
             }
-
             $gallerySlug = $data['slug'];
-            //$path = $request->file('cover_image')->storeAs("gallery_covers/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'public');
-            $path = $request->file('cover_image')->storeAs("galleries/{$gallerySlug}/cover-image", $request->file('cover_image')->getClientOriginalName(), 'wasabi');
-            $data['cover_image'] = $path;
+            $coverFile = $request->file('cover_image');
+            $baseFilename = pathinfo($coverFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $coverImagePath = "galleries/{$gallerySlug}/cover-image/{$baseFilename}.webp";
+            try {
+                $img = \Intervention\Image\Facades\Image::make($coverFile);
+                $img->encode('webp', 90);
+                Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                $data['cover_image'] = $coverImagePath;
+            } catch (\Exception $e) {
+                try {
+                    $coverImagePath = "galleries/{$gallerySlug}/cover-image/{$baseFilename}.png";
+                    $img = \Intervention\Image\Facades\Image::make($coverFile);
+                    $img->encode('png', 90);
+                    Storage::disk('wasabi')->put($coverImagePath, $img->__toString());
+                    $data['cover_image'] = $coverImagePath;
+                } catch (\Exception $e2) {
+                    return back()->withErrors(['cover_image' => 'Unable to convert cover image to webp or png.']);
+                }
+            }
         }
 
         $gallery->update($data);

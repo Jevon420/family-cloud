@@ -109,7 +109,7 @@
                     @foreach($photos as $photo)
                         <li class="flex flex-wrap items-center py-4 px-4 sm:px-6 hover:bg-gray-50 {{ $darkMode ? 'hover:bg-gray-700' : '' }}">
                             <div class="flex-shrink-0 h-16 w-16 mr-4">
-                                <img src="{{ asset('storage/' . $photo->file_path) }}" alt="{{ $photo->name }}"
+                                <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'short']) }}" alt="{{ $photo->name }}"
                                     class="h-full w-full object-cover rounded">
                             </div>
                             <div class="min-w-0 flex-1">

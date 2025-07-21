@@ -16,6 +16,7 @@ use App\Notifications\RegistrationRequestNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Mail;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -138,7 +139,7 @@ Route::middleware(['auth', 'password.change.required'])->prefix('admin')->name('
 
             // Temporary test route for timezone debugging
             Route::get('/test-timezone', function () {
-                $timezone = \Illuminate\Support\Facades\DB::table('site_settings')->where('key', 'timezone')->value('value');
+                $timezone = DB::table('site_settings')->where('key', 'timezone')->value('value');
                 $siteSettings = \App\Models\SiteSetting::all();
                 $timezoneSetting = \App\Models\SiteSetting::where('key', 'timezone')->first();
 
@@ -301,6 +302,8 @@ Route::middleware(['auth', 'password.change.required'])->prefix('family')->name(
             Route::get('/create', [\App\Http\Controllers\Family\GalleryController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Family\GalleryController::class, 'store'])->name('store');
             Route::get('/{slug}', [\App\Http\Controllers\Family\GalleryController::class, 'show'])->name('show');
+            Route::get('/{slug}/edit', [\App\Http\Controllers\Family\GalleryController::class, 'edit'])->name('edit');
+            Route::put('/{slug}', [\App\Http\Controllers\Family\GalleryController::class, 'update'])->name('update');
             Route::post('/{slug}/photos', [\App\Http\Controllers\Family\GalleryController::class, 'uploadPhotos'])->name('photos.upload')->middleware('check.storage');
         });
 

@@ -10,6 +10,7 @@ use App\Traits\HasMediaVisibility;
 use App\Models\User;
 
 class File extends Model
+   
 {
     use HasFactory, SoftDeletes, TracksAudit, HasMediaVisibility;
 
@@ -35,6 +36,30 @@ class File extends Model
         'file_size' => 'integer',
         'restored_at' => 'datetime',
     ];
+
+    /**
+     * Get the file size in a human-readable format (e.g., 1.2 MB).
+     *
+     * @return string
+     */
+    public function formatSize()
+    {
+        $bytes = $this->file_size;
+        if ($bytes >= 1073741824) {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            $bytes = number_format($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes > 1) {
+            $bytes = $bytes . ' bytes';
+        } elseif ($bytes == 1) {
+            $bytes = $bytes . ' byte';
+        } else {
+            $bytes = '0 bytes';
+        }
+        return $bytes;
+    }
 
     // Relationships
     public function user()

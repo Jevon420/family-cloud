@@ -73,6 +73,12 @@ Route::middleware(['auth', 'password.change.required'])->group(function () {
         Route::get('/', [FrontendFolderController::class, 'index'])->name('index');
         Route::get('/{id}', [FrontendFolderController::class, 'show'])->name('show');
     });
+
+    // Camera Upload API Routes
+    Route::prefix('camera-upload')->name('camera-upload.')->group(function () {
+        Route::get('/galleries', [\App\Http\Controllers\CameraUploadController::class, 'getGalleries'])->name('galleries');
+        Route::post('/upload', [\App\Http\Controllers\CameraUploadController::class, 'upload'])->name('upload');
+    });
 });
 
 // Shared Routes (Authenticated Users)

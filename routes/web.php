@@ -50,9 +50,14 @@ Route::get('/shared/{token}', [\App\Http\Controllers\Family\SharingController::c
 // Shared media route (for user-to-user shares)
 Route::get('/shared/media/{token}', [\App\Http\Controllers\Family\SharingController::class, 'showSharedMedia'])->name('shared.media');
 
+// Public Wasabi signed URL route (with basic security)
+Route::get('/storage/signed-url', [\App\Http\Controllers\Frontend\PublicStorageController::class, 'generateSignedUrl'])
+    ->name('public.storage.signed-url')
+    ->middleware(['throttle:60,1']); // Rate limit to 60 requests per minute
+
 // Auth Required Routes
 Route::middleware(['auth', 'password.change.required'])->group(function () {
-    // Public Galleries, Photos, Files, and Folders (Auth Required)
+    // Galleries, Photos, Files, and Folders (Auth Required)
     Route::prefix('galleries')->name('galleries.')->group(function () {
         Route::get('/', [FrontendGalleryController::class, 'index'])->name('index');
         Route::get('/{slug}', [FrontendGalleryController::class, 'show'])->name('show');

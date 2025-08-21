@@ -199,9 +199,16 @@ class StorageController extends Controller
 
     public function generateSignedUrl($path, $type = 'short')
     {
+        $settingsService = app(\App\Services\SettingsService::class);
+        $longExpiration = $settingsService->getSiteSetting('signed_url_long_expiration', 525600);
+        $shortExpiration = $settingsService->getSiteSetting('signed_url_short_expiration', 15);
+
+        // AWS/Wasabi maximum allowed expiration is 7 days (10080 minutes)
+        $maxAllowedExpiration = 10080; // 7 days in minutes
+
         $expirationMinutes = $type === 'short'
-            ? config('settings.signed_url_short_expiration', 5)
-            : config('settings.signed_url_long_expiration', 525600);
+            ? min($shortExpiration, $maxAllowedExpiration)
+            : min($longExpiration, $maxAllowedExpiration);
 
         return Storage::disk(env('WASABI_DISK'))->temporaryUrl($path, now()->addMinutes($expirationMinutes));
     }

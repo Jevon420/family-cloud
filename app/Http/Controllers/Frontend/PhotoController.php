@@ -35,8 +35,8 @@ class PhotoController extends Controller
 
             // Add signed URLs for each shared photo
             $sharedPhotos->getCollection()->transform(function ($photo) {
-                $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
-                $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
+                $photo->signed_url = route('public.storage.signed-url', ['path' => $photo->file_path, 'type' => 'long']);
+                $photo->signed_thumbnail_url = route('public.storage.signed-url', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
                 return $photo;
             });
         }
@@ -86,17 +86,17 @@ class PhotoController extends Controller
             ->first();
 
         // Add signed URLs for Wasabi storage
-        $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
-        $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
+        $photo->signed_url = route('public.storage.signed-url', ['path' => $photo->file_path, 'type' => 'long']);
+        $photo->signed_thumbnail_url = route('public.storage.signed-url', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
 
         if ($nextPhoto) {
-            $nextPhoto->signed_url = route('admin.storage.signedUrl', ['path' => $nextPhoto->file_path, 'type' => 'long']);
-            $nextPhoto->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $nextPhoto->thumbnail_path ?? $nextPhoto->file_path, 'type' => 'long']);
+            $nextPhoto->signed_url = route('public.storage.signed-url', ['path' => $nextPhoto->file_path, 'type' => 'long']);
+            $nextPhoto->signed_thumbnail_url = route('public.storage.signed-url', ['path' => $nextPhoto->thumbnail_path ?? $nextPhoto->file_path, 'type' => 'long']);
         }
 
         if ($prevPhoto) {
-            $prevPhoto->signed_url = route('admin.storage.signedUrl', ['path' => $prevPhoto->file_path, 'type' => 'long']);
-            $prevPhoto->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $prevPhoto->thumbnail_path ?? $prevPhoto->file_path, 'type' => 'long']);
+            $prevPhoto->signed_url = route('public.storage.signed-url', ['path' => $prevPhoto->file_path, 'type' => 'long']);
+            $prevPhoto->signed_thumbnail_url = route('public.storage.signed-url', ['path' => $prevPhoto->thumbnail_path ?? $prevPhoto->file_path, 'type' => 'long']);
         }
 
         if ($request->ajax()) {

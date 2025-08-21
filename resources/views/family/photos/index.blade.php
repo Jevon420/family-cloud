@@ -78,7 +78,7 @@
                 @foreach($photos as $photo)
                     <div class="bg-white rounded-lg overflow-hidden shadow-md {{ $darkMode ? 'bg-gray-800' : '' }}">
                         <a href="{{ route('family.photos.show', $photo->id) }}" class="block relative pb-[75%]">
-                            <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'short']) }}" alt="{{ $photo->name }}"
+                            <img src="{{ route('public.storage.signed-url', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'short']) }}" alt="{{ $photo->name }}"
                                 class="absolute inset-0 w-full h-full object-cover">
                         </a>
                         <div class="p-4">
@@ -109,7 +109,7 @@
                     @foreach($photos as $photo)
                         <li class="flex flex-wrap items-center py-4 px-4 sm:px-6 hover:bg-gray-50 {{ $darkMode ? 'hover:bg-gray-700' : '' }}">
                             <div class="flex-shrink-0 h-16 w-16 mr-4">
-                                <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'short']) }}" alt="{{ $photo->name }}"
+                                <img src="{{ route('public.storage.signed-url', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'short']) }}" alt="{{ $photo->name }}"
                                     class="h-full w-full object-cover rounded">
                             </div>
                             <div class="min-w-0 flex-1">

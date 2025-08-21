@@ -38,7 +38,7 @@ class GalleryController extends Controller
             // Add signed URLs for each shared gallery cover image
             $sharedGalleries->getCollection()->transform(function ($gallery) {
                 if ($gallery->cover_image) {
-                    $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+                    $gallery->signed_cover_url = route('public.storage.signed-url', ['path' => $gallery->cover_image, 'type' => 'long']);
                 }
                 return $gallery;
             });
@@ -91,8 +91,8 @@ class GalleryController extends Controller
 
         // Add signed URLs for photos
         $photos->getCollection()->transform(function ($photo) {
-            $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
-            $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
+            $photo->signed_url = route('public.storage.signed-url', ['path' => $photo->file_path, 'type' => 'long']);
+            $photo->signed_thumbnail_url = route('public.storage.signed-url', ['path' => $photo->thumbnail_path ?? $photo->file_path, 'type' => 'long']);
             return $photo;
         });
 

@@ -2,62 +2,236 @@
 
 @section('title', 'Create New Gallery')
 
+@push('styles')
+<style>
+    .form-container {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dark .form-container {
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .upload-area {
+        transition: all 0.3s ease;
+        border: 2px dashed #d1d5db;
+    }
+
+    .upload-area:hover {
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-area.dragover {
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.1);
+        transform: scale(1.02);
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="max-w-3xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold {{ $darkMode ? 'text-white' : 'text-gray-900' }}">Create New Gallery</h1>
-        <a href="{{ route('family.galleries.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium {{ $darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}">
-            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-            </svg>
+<div class="space-y-8 animate-fade-in">
+    <!-- Modern Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gradient mb-2">
+                <i class="fas fa-plus-circle mr-3"></i>Create New Gallery
+            </h1>
+            <p class="{{ $darkMode ? 'text-slate-400' : 'text-gray-600' }}">
+                Start organizing your memories into a beautiful gallery
+            </p>
+        </div>
+        <a href="{{ route('family.galleries.index') }}" class="btn-secondary group">
+            <i class="fas fa-arrow-left mr-2 transition-transform group-hover:-translate-x-1"></i>
             Back to Galleries
         </a>
     </div>
 
-    <div class="{{ $darkMode ? 'bg-gray-800' : 'bg-white' }} shadow overflow-hidden sm:rounded-lg">
-        <form action="{{ route('family.galleries.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
-            @csrf
+    <!-- Modern Form Container -->
+    <div class="max-w-2xl mx-auto">
+        <div class="card-modern p-8">
+            <form action="{{ route('family.galleries.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                @csrf
 
-            <div class="mb-6">
-                <label for="title" class="block text-sm font-medium {{ $darkMode ? 'text-gray-300' : 'text-gray-700' }}">Title</label>
-                <div class="mt-1">
-                    <input type="text" id="title" name="title" value="{{ old('title') }}" required class="{{ $darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300' }} block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <!-- Gallery Title -->
+                <div>
+                    <label for="title" class="block text-sm font-semibold {{ $darkMode ? 'text-slate-300' : 'text-gray-700' }} mb-2">
+                        <i class="fas fa-heading mr-2"></i>Gallery Title
+                    </label>
+                    <input type="text"
+                           id="title"
+                           name="title"
+                           value="{{ old('title') }}"
+                           required
+                           class="input-modern"
+                           placeholder="Enter a memorable title for your gallery">
+                    @error('title')
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                        </p>
+                    @enderror
                 </div>
-                @error('title')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
 
-            <div class="mb-6">
-                <label for="description" class="block text-sm font-medium {{ $darkMode ? 'text-gray-300' : 'text-gray-700' }}">Description (optional)</label>
-                <div class="mt-1">
-                    <textarea id="description" name="description" rows="3" class="{{ $darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300' }} block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ old('description') }}</textarea>
+                <!-- Gallery Description -->
+                <div>
+                    <label for="description" class="block text-sm font-semibold {{ $darkMode ? 'text-slate-300' : 'text-gray-700' }} mb-2">
+                        <i class="fas fa-align-left mr-2"></i>Description (Optional)
+                    </label>
+                    <textarea id="description"
+                              name="description"
+                              rows="4"
+                              class="input-modern resize-none"
+                              placeholder="Describe what this gallery contains...">{{ old('description') }}</textarea>
+                    @error('description')
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                        </p>
+                    @enderror
                 </div>
-                @error('description')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
 
-            <div class="mb-6">
-                <label for="cover_image" class="block text-sm font-medium {{ $darkMode ? 'text-gray-300' : 'text-gray-700' }}">Cover Image (optional)</label>
-                <div class="mt-1">
-                    <input type="file" id="cover_image" name="cover_image" accept="image/*" class="{{ $darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900' }} relative block w-full px-3 py-2 border {{ $darkMode ? 'border-gray-600' : 'border-gray-300' }} placeholder-gray-500 text-sm rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10">
+                <!-- Cover Image Upload -->
+                <div>
+                    <label for="cover_image" class="block text-sm font-semibold {{ $darkMode ? 'text-slate-300' : 'text-gray-700' }} mb-2">
+                        <i class="fas fa-image mr-2"></i>Cover Image (Optional)
+                    </label>
+
+                    <!-- Modern Upload Area -->
+                    <div class="upload-area rounded-xl p-8 text-center {{ $darkMode ? 'border-slate-600' : 'border-gray-300' }}"
+                         id="uploadArea">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-lg font-medium {{ $darkMode ? 'text-white' : 'text-gray-900' }} mb-2">
+                            Upload Cover Image
+                        </h3>
+                        <p class="text-sm {{ $darkMode ? 'text-slate-400' : 'text-gray-600' }} mb-4">
+                            Drag and drop an image here, or click to browse
+                        </p>
+                        <input type="file"
+                               id="cover_image"
+                               name="cover_image"
+                               accept="image/*"
+                               class="hidden"
+                               onchange="handleFileSelect(this)">
+                        <button type="button"
+                                onclick="document.getElementById('cover_image').click()"
+                                class="btn-secondary">
+                            <i class="fas fa-folder-open mr-2"></i>
+                            Choose File
+                        </button>
+                        <p class="text-xs {{ $darkMode ? 'text-slate-500' : 'text-gray-500' }} mt-2">
+                            Supported formats: JPG, PNG, GIF. Max size: 2MB
+                        </p>
+                    </div>
+
+                    <!-- Preview Area -->
+                    <div id="imagePreview" class="hidden mt-4">
+                        <div class="relative inline-block">
+                            <img id="previewImg" class="w-32 h-32 object-cover rounded-lg shadow-md" src="" alt="Preview">
+                            <button type="button"
+                                    onclick="removePreview()"
+                                    class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    @error('cover_image')
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                        </p>
+                    @enderror
                 </div>
-                <p class="mt-1 text-xs {{ $darkMode ? 'text-gray-400' : 'text-gray-500' }}">Upload a representative image for this gallery. Max 2MB.</p>
-                @error('cover_image')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
 
-            <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                    </svg>
-                    Create Gallery
-                </button>
-            </div>
-        </form>
+                <!-- Submit Button -->
+                <div class="flex justify-end pt-6">
+                    <button type="submit" class="btn-primary group" id="submitBtn">
+                        <i class="fas fa-plus mr-2 transition-transform group-hover:rotate-90"></i>
+                        Create Gallery
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+// File upload handling
+function handleFileSelect(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            previewImg.src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removePreview() {
+    document.getElementById('cover_image').value = '';
+    document.getElementById('imagePreview').classList.add('hidden');
+}
+
+// Drag and drop functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('cover_image');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+        uploadArea.classList.add('dragover');
+    }
+
+    function unhighlight() {
+        uploadArea.classList.remove('dragover');
+    }
+
+    uploadArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(fileInput);
+        }
+    }
+
+    // Form submission with loading state
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Gallery...';
+    });
+});
+</script>
+@endpush
 @endsection

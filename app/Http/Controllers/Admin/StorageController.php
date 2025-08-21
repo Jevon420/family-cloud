@@ -71,8 +71,17 @@ class StorageController extends Controller
         $path = $request->input('path');
         $type = $request->input('type', 'short');
 
-        // Set expiration time based on type
-        $expiration = $type === 'long' ? 24 * 60 : 15;
+        // Set expiration time based on type using site settings
+        $settingsService = app(\App\Services\SettingsService::class);
+        $longExpiration = $settingsService->getSiteSetting('signed_url_long_expiration', 525600);
+        $shortExpiration = $settingsService->getSiteSetting('signed_url_short_expiration', 15);
+
+        // AWS/Wasabi maximum allowed expiration is 7 days (10080 minutes)
+        $maxAllowedExpiration = 10080; // 7 days in minutes
+
+        $expiration = $type === 'long'
+            ? min($longExpiration, $maxAllowedExpiration)
+            : min($shortExpiration, $maxAllowedExpiration);
 
         // Check if file exists in Wasabi
         $wasabiDisk = Storage::disk('wasabi');

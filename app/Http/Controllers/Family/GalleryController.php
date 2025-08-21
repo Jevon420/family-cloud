@@ -106,7 +106,7 @@ class GalleryController extends Controller
         // Add signed URLs for gallery cover images
         $galleries->getCollection()->transform(function ($gallery) {
             if ($gallery->cover_image) {
-                $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+                $gallery->signed_cover_url = route('public.storage.signed-url', ['path' => $gallery->cover_image, 'type' => 'long']);
             }
             return $gallery;
         });
@@ -205,7 +205,7 @@ class GalleryController extends Controller
 
         // Add signed URL for gallery cover image
         if ($gallery->cover_image) {
-            $gallery->signed_cover_url = route('admin.storage.signedUrl', ['path' => $gallery->cover_image, 'type' => 'long']);
+            $gallery->signed_cover_url = route('public.storage.signed-url', ['path' => $gallery->cover_image, 'type' => 'long']);
         }
 
         // Handle search and filter
@@ -241,8 +241,8 @@ class GalleryController extends Controller
                 $photo->save();
             }
 
-            $photo->signed_url = route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']);
-            $photo->signed_thumbnail_url = route('admin.storage.signedUrl', ['path' => $photo->thumbnail_path, 'type' => 'long']);
+            $photo->signed_url = route('public.storage.signed-url', ['path' => $photo->file_path, 'type' => 'long']);
+            $photo->signed_thumbnail_url = route('public.storage.signed-url', ['path' => $photo->thumbnail_path, 'type' => 'long']);
             return $photo;
         });
 

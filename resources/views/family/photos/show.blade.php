@@ -85,12 +85,9 @@
             </div>
 
             <div class="my-4 bg-gray-100 p-1 rounded-lg {{ $darkMode ? 'bg-gray-700' : '' }}">
-                <img src="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']) }}" alt="{{ $photo->title }}"
-                     class="w-full h-auto max-h-[80vh] object-contain mx-auto cursor-pointer photo-trigger"
-                     data-photo-id="{{ $photo->id }}"
-                     data-photo-url="{{ route('admin.storage.signedUrl', ['path' => $photo->file_path, 'type' => 'long']) }}"
-                     data-photo-title="{{ $photo->title }}"
-                     data-photo-date="{{ $photo->created_at->format('F j, Y') }}">
+                                <img src="{{ route('public.storage.signed-url', ['path' => $photo->file_path, 'type' => 'long']) }}" alt="{{ $photo->title }}"
+                     class="w-full h-auto rounded-lg shadow-lg"
+                     data-photo-url="{{ route('public.storage.signed-url', ['path' => $photo->file_path, 'type' => 'long']) }}"
             </div>
 
             @if($photo->description)
@@ -152,7 +149,7 @@
         const photoData = <?php echo json_encode($photo->gallery->photos->map(function($galleryPhoto) {
             return [
                 'id' => $galleryPhoto->id,
-                'url' => route('admin.storage.signedUrl', ['path' => $galleryPhoto->file_path, 'type' => 'long']),
+                'url' => route('public.storage.signed-url', ['path' => $galleryPhoto->file_path, 'type' => 'long']),
                 'title' => $galleryPhoto->name,
                 'date' => $galleryPhoto->created_at->format('F j, Y')
             ];

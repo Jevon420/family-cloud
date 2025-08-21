@@ -87,22 +87,37 @@ function refreshWasabiImage(imgElement) {
 
     if (!path) return;
 
-    // Make AJAX request to get new signed URL
-    fetch(`/admin/storage/signed-url?path=${encodeURIComponent(path)}&type=${type}`, {
+    // Make AJAX request to get new signed URL using the public endpoint
+    fetch(`/storage/signed-url?path=${encodeURIComponent(path)}&type=${type}`, {
         headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.url) {
             // Update image with new URL
             imgElement.src = data.url;
             imgElement.setAttribute('data-wasabi-last-refresh', Date.now().toString());
+        } else if (data.error) {
+            console.warn('Failed to refresh Wasabi image URL:', data.error);
         }
     })
-    .catch(error => console.error('Error refreshing Wasabi image URL:', error));
+    .catch(error => {
+        console.error('Error refreshing Wasabi image URL:', error);
+
+        // If this is a 401/403 error, it might be an authentication issue
+        // In this case, we can try to reload the page or redirect to login
+        if (error.message.includes('401') || error.message.includes('403')) {
+            console.warn('Authentication issue detected, page may need refresh');
+        }
+    });
 }
 
 /**

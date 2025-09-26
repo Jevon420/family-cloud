@@ -9,10 +9,8 @@
               {{ $darkMode ? 'bg-slate-900/95' : 'bg-white/95' }}
               backdrop-blur-sm border-r {{ $darkMode ? 'border-slate-700' : 'border-gray-200' }}
               transform transition-transform duration-300 ease-in-out lg:transform-none"
-    :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }" x-data="{
-           activeRoute: '{{ request()->route()->getName() }}',
-           collapsedSections: {}
-       }">
+    :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
+    x-cloak>
 
     <!-- Sidebar Header -->
     <div
@@ -153,7 +151,7 @@
                 <!-- Help & Support -->
                 <a href="{{ route('family.help.index') }}"
                     class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
-                          {{ request()->routeIs('family.help*')? ($darkMode ? 'bg-emerald-600 text-white shadow-lg' : 'bg-emerald-50 text-emerald-700 border border-emerald-200') : ($darkMode ? 'text-slate-300 hover:text-white hover:bg-slate-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100') }}">
+                          {{ request()->routeIs('family.help*') ? ($darkMode ? 'bg-emerald-600 text-white shadow-lg' : 'bg-emerald-50 text-emerald-700 border border-emerald-200') : ($darkMode ? 'text-slate-300 hover:text-white hover:bg-slate-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100') }}">
                     <div class="flex items-center justify-center w-5 h-5 mr-3">
                         <i class="fas fa-question-circle {{ request()->routeIs('family.help*') ? 'text-current' : 'text-emerald-500' }} group-hover:scale-110 transition-transform"></i>
                     </div>
@@ -161,16 +159,6 @@
                     @if(request()->routeIs('family.help*'))
                         <div class="ml-auto w-2 h-2 bg-current rounded-full"></div>
                     @endif
-
-                <!-- Help -->
-                <a href="{{ route('family.help.index') }}"
-                    class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
-                          {{ request()->routeIs('family.help.*') ? ($darkMode ? 'bg-yellow-600 text-white shadow-lg' : 'bg-yellow-50 text-yellow-700 border border-yellow-200') : ($darkMode ? 'text-slate-300 hover:text-white hover:bg-slate-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100') }}">
-                    <div class="flex items-center justify-center w-5 h-5 mr-3">
-                        <i class="fas fa-question-circle {{ request()->routeIs('family.help.*') ? 'text-current' : 'text-yellow-500' }} group-hover:scale-110 transition-transform"></i>
-                    </div>
-                    <span>Help & Support</span>
-                    {{ request()->routeIs('family.help.*') ? '<div class="ml-auto w-2 h-2 bg-current rounded-full"></div>' : '' }}
                 </a>
             </div>
         </div>
